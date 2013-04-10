@@ -1,7 +1,5 @@
 package nz.net.initial3d.renderer;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import sun.misc.Unsafe;
@@ -32,12 +30,12 @@ public class Buffer {
 		int s = sizeindex(bytes);
 		Buffer buf = buf_queues[s].poll();
 		if (buf == null) {
-			System.out.println("Buffer malloc");
+			// System.out.println("Buffer malloc");
 			long p = unsafe.allocateMemory(bytes);
 			if (p == 0) {
 				// malloc failed
 				// possibly free all buffers currently in the queues?
-				throw new OutOfMemoryError();
+				throw new OutOfMemoryError("Malloc failed for " + bytes + " bytes.");
 			}
 			buf = new Buffer(s, p);
 		}

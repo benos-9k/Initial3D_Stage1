@@ -2,10 +2,6 @@ package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class Test2 {
 
 	public static void main(String[] args) {
@@ -75,7 +71,7 @@ public class Test2 {
 
 				if (count == 10000000) {
 					long nanos = timenanos() - nano_start;
-					System.out.println("poll() nanos: " + (nanos / 10000000));
+					System.out.println("poll-and-release (ns): " + (nanos / 10000000));
 					count = 0;
 					nano_start = timenanos();
 				}

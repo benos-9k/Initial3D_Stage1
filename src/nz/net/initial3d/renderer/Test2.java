@@ -2,68 +2,86 @@ package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Test2 {
 
 	public static void main(String[] args) {
 
-		long nano_start = timenanos();
-		Buffer buf = Buffer.alloc(1024);
-		long nanos = timenanos() - nano_start;
+		Foo f = new Foo();
+		f.start();
 
-		System.out.println(buf);
-		System.out.println("Alloc'd in " + nanos + "ns.");
+		f.waitToBegin();
 
-		buf.release();
+		System.out.println("begin");
 
-		nano_start = timenanos();
-		buf = Buffer.alloc(1024);
-		nanos = timenanos() - nano_start;
+		for (int i = 0; ; i++) {
+			Buffer b = Buffer.alloc(1024);
+			while (!f.feed(b));
+		}
 
-		System.out.println(buf);
-		
-		System.out.println("Re-alloc'd in " + nanos + "ns.");
-
-		buf.putInt(0, 9001);
-
-		buf.acquire();
-		new Foo(buf).start();
-
-		buf.acquire();
-		new Foo(buf).start();
-
-		buf.acquire();
-		new Foo(buf).start();
-
-		buf.acquire();
-		new Foo(buf).start();
-
-		buf.release();
-
-		System.out.println("Main thread exiting.");
 	}
 
 	private static class Foo extends Thread {
 
-		private Buffer b;
+		private Object waiter = new Object();
 
-		public Foo(Buffer b_) {
-			b = b_;
+		private Queue<Buffer> q = new Queue<Buffer>(16);
+
+		public Foo() {
+
+		}
+
+		public void waitToBegin() {
+			synchronized (waiter) {
+				try {
+					waiter.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		public boolean feed(Buffer b) {
+			return q.offer(b);
 		}
 
 		@Override
 		public void run() {
 
-			try {
-				Thread.sleep((long) (Math.random() * 5000));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			synchronized (waiter) {
+				waiter.notify();
 			}
 
-			System.out.println(b.getInt(0));
+			int count = 0;
 
-			b.release();
+			long nano_start = timenanos();
 
-			System.out.println("Thread " + Thread.currentThread().getId() + " exiting.");
+			while (true) {
+
+				try {
+					Buffer b = null;
+					while (b == null) b = q.poll();
+
+					count++;
+
+					b.release();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				if (count == 10000000) {
+					long nanos = timenanos() - nano_start;
+					System.out.println("poll() nanos: " + (nanos / 10000000));
+					count = 0;
+					nano_start = timenanos();
+				}
+
+			}
+
 		}
 
 	}

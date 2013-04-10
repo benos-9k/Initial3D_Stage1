@@ -11,11 +11,12 @@ public class Buffer {
 	private static final Unsafe unsafe = Util.getUnsafe();
 
 	@SuppressWarnings("unchecked")
-	private static final BlockingQueue<Buffer>[] buf_queues = new BlockingQueue[32];
+	private static final Queue<Buffer>[] buf_queues = new Queue[31];
 
 	static {
 		for (int i = 0; i < buf_queues.length; i++) {
-			buf_queues[i] = new LinkedBlockingQueue<Buffer>();
+			buf_queues[i] = new Queue<Buffer>(2048 >> (i / 3));
+			// System.out.println(i + " : " + buf_queues[i].capacity());
 		}
 	}
 
@@ -31,6 +32,7 @@ public class Buffer {
 		int s = sizeindex(bytes);
 		Buffer buf = buf_queues[s].poll();
 		if (buf == null) {
+			System.out.println("Buffer malloc");
 			long p = unsafe.allocateMemory(bytes);
 			if (p == 0) {
 				// malloc failed
@@ -68,8 +70,11 @@ public class Buffer {
 	public void release() {
 		if (refcount.decrementAndGet() == 0) {
 			// return to pool
-			buf_queues[sidx].add(this);
-			System.out.println("Returning " + this + " to pool.");
+			if (!buf_queues[sidx].offer(this)) {
+				// no space in pool queue
+				unsafe.freeMemory(pBuffer);
+			}
+			// System.out.println("Returning " + this + " to pool.");
 		}
 	}
 

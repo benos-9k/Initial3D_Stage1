@@ -15,6 +15,7 @@ public class Test2 {
 
 		for (int i = 0; ; i++) {
 			Buffer b = Buffer.alloc(1024);
+			b.putInt(0, i);
 			while (!f.feed(b));
 		}
 

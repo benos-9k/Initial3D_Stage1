@@ -80,8 +80,32 @@ public class Buffer {
 		return unsafe.getInt(pBuffer + q);
 	}
 
+	public long getLong(long q) {
+		return unsafe.getLong(pBuffer + q);
+	}
+
+	public float getFloat(long q) {
+		return unsafe.getFloat(pBuffer + q);
+	}
+
+	public double getDouble(long q) {
+		return unsafe.getDouble(pBuffer + q);
+	}
+
 	public void putInt(long q, int val) {
 		unsafe.putInt(pBuffer + q, val);
+	}
+
+	public void putLong(long q, long val) {
+		unsafe.putLong(pBuffer + q, val);
+	}
+
+	public void putFloat(long q, float val) {
+		unsafe.putFloat(pBuffer + q, val);
+	}
+
+	public void putDouble(long q, double val) {
+		unsafe.putDouble(pBuffer + q, val);
 	}
 
 	@Override

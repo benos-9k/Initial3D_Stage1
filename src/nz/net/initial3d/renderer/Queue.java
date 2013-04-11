@@ -15,9 +15,8 @@ public class Queue<T> {
 		if (cap_ < 1) throw new IllegalArgumentException();
 		cap = cap_;
 		int s = 1;
-		int m = 0xFFFFFFFF;
-		for (cap_--; cap_ != 0; cap_ >>= 1, s <<= 1, m <<= 1);
-		mask = ~m;
+		for (cap_--; cap_ != 0; cap_ >>= 1, s <<= 1);
+		mask = s - 1;
 		data = new Object[s];
 	}
 

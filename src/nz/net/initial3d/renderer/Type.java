@@ -7,9 +7,17 @@ package nz.net.initial3d.renderer;
  * @author Ben Allen
  * 
  */
-class Type {
+final class Type {
 
-	static class light_t {
+	private Type() {
+		throw new AssertionError();
+	}
+	
+	static final class light_t {
+		
+		private light_t() {
+			throw new AssertionError();
+		}
 
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
@@ -155,8 +163,12 @@ class Type {
 
 	}
 
-	static class material_t {
+	static final class material_t {
 
+		private material_t() {
+			throw new AssertionError();
+		}
+		
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 256;
@@ -257,11 +269,15 @@ class Type {
 
 	}
 
-	static class tri_t {
+	static final class tri_t {
 
+		private tri_t() {
+			throw new AssertionError();
+		}
+		
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
-			return 128;
+			return 172;
 		}
 
 		/** Field type: int; 0x1 => deleted, 0x2 => frontface, 0x4 => backface */
@@ -285,129 +301,163 @@ class Type {
 		}
 
 		/** Field type: float */
-		static int v0_cd_a() {
+		static int v0_c0_a() {
 			return 28;
 		}
 
 		/** Field type: float */
-		static int v0_cd_r() {
+		static int v0_c0_r() {
 			return 32;
 		}
 
 		/** Field type: float */
-		static int v0_cd_g() {
+		static int v0_c0_g() {
 			return 36;
 		}
 
 		/** Field type: float */
-		static int v0_cd_b() {
+		static int v0_c0_b() {
 			return 40;
 		}
 
 		/** Field type: float */
-		static int v0_cs_a() {
+		static int v0_c1_a() {
 			return 44;
 		}
 
 		/** Field type: float */
-		static int v0_cs_r() {
+		static int v0_c1_r() {
 			return 48;
 		}
 
 		/** Field type: float */
-		static int v0_cs_g() {
+		static int v0_c1_g() {
 			return 52;
 		}
 
 		/** Field type: float */
-		static int v0_cs_b() {
+		static int v0_c1_b() {
 			return 56;
 		}
 
-		/** Field type: float */
-		static int v1_cd_a() {
+		/** Field type: pointer */
+		static int pv1() {
 			return 60;
 		}
-
-		/** Field type: float */
-		static int v1_cd_r() {
-			return 64;
-		}
-
-		/** Field type: float */
-		static int v1_cd_g() {
+		
+		/** Field type: pointer */
+		static int pvt1() {
 			return 68;
 		}
-
-		/** Field type: float */
-		static int v1_cd_b() {
-			return 72;
-		}
-
-		/** Field type: float */
-		static int v1_cs_a() {
+		
+		/** Field type: pointer */
+		static int pvn1() {
 			return 76;
 		}
-
+		
 		/** Field type: float */
-		static int v1_cs_r() {
-			return 80;
-		}
-
-		/** Field type: float */
-		static int v1_cs_g() {
+		static int v1_c0_a() {
 			return 84;
 		}
 
 		/** Field type: float */
-		static int v1_cs_b() {
+		static int v1_c0_r() {
 			return 88;
 		}
 
 		/** Field type: float */
-		static int v2_cd_a() {
+		static int v1_c0_g() {
 			return 92;
 		}
 
 		/** Field type: float */
-		static int v2_cd_r() {
+		static int v1_c0_b() {
 			return 96;
 		}
 
 		/** Field type: float */
-		static int v2_cd_g() {
+		static int v1_c1_a() {
 			return 100;
 		}
 
 		/** Field type: float */
-		static int v2_cd_b() {
+		static int v1_c1_r() {
 			return 104;
 		}
 
 		/** Field type: float */
-		static int v2_cs_a() {
+		static int v1_c1_g() {
 			return 108;
 		}
 
 		/** Field type: float */
-		static int v2_cs_r() {
+		static int v1_c1_b() {
 			return 112;
 		}
-
-		/** Field type: float */
-		static int v2_cs_g() {
+		
+		/** Field type: pointer */
+		static int pv2() {
 			return 116;
+		}
+		
+		/** Field type: pointer */
+		static int pvt2() {
+			return 124;
+		}
+		
+		/** Field type: pointer */
+		static int pvn2() {
+			return 132;
 		}
 
 		/** Field type: float */
-		static int v2_cs_b() {
-			return 120;
+		static int v2_c0_a() {
+			return 140;
+		}
+
+		/** Field type: float */
+		static int v2_c0_r() {
+			return 144;
+		}
+
+		/** Field type: float */
+		static int v2_c0_g() {
+			return 148;
+		}
+
+		/** Field type: float */
+		static int v2_c0_b() {
+			return 152;
+		}
+
+		/** Field type: float */
+		static int v2_c1_a() {
+			return 156;
+		}
+
+		/** Field type: float */
+		static int v2_c1_r() {
+			return 160;
+		}
+
+		/** Field type: float */
+		static int v2_c1_g() {
+			return 164;
+		}
+
+		/** Field type: float */
+		static int v2_c1_b() {
+			return 168;
 		}
 
 	}
 
-	static class polyvert_t {
+	static final class polyvert_t {
 
+		private polyvert_t() {
+			throw new AssertionError();
+		}
+		
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 64;
@@ -415,8 +465,12 @@ class Type {
 
 	}
 
-	static class clipfunc_t {
+	static final class clipfunc_t {
 
+		private clipfunc_t() {
+			throw new AssertionError();
+		}
+		
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 32;
@@ -424,8 +478,12 @@ class Type {
 
 	}
 
-	static class texture_t {
+	static final class texture_t {
 
+		private texture_t() {
+			throw new AssertionError();
+		}
+		
 	}
 
 }

@@ -2,12 +2,12 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- * 
+ *
  * Yes, much of this does mimic OpenGL 1 / 2.
- * 
- * 
+ *
+ *
  * @author Ben Allen
- * 
+ *
  */
 public abstract class Initial3D {
 
@@ -30,7 +30,7 @@ public abstract class Initial3D {
 	public static final int TWO_SIDED_LIGHTING = 10;
 	public static final int TEXTURE_2D = 11;
 	public static final int MIPMAPS = 12;
-	public static final int AUTO_ZFLIP = 13;
+	public static final int AUTO_FLIP_ZSIGN = 13;
 	public static final int WRITE_COLOR0 = 14;
 	public static final int WRITE_COLOR1 = 15;
 	public static final int WRITE_COLOR2 = 16;
@@ -39,97 +39,89 @@ public abstract class Initial3D {
 	public static final int WRITE_STENCIL = 19;
 	public static final int WRITE_ID = 20;
 	public static final int ALPHAREF_RANDOM = 21;
-	public static final int LIGHT0 = 22;
-	public static final int LIGHT1 = 23;
-	public static final int LIGHT2 = 24;
-	public static final int LIGHT3 = 25;
-	public static final int LIGHT4 = 26;
-	public static final int LIGHT5 = 27;
-	public static final int LIGHT6 = 28;
-	public static final int LIGHT7 = 29;
-	public static final int LIGHT_MAX = 1045;
-	
-	// or...
-	public static enum Capability {
-		SCISSOR_TEST, ALPHA_TEST, DEPTH_TEST, STENCIL_TEST;
-	}
-	
+	public static final int LIGHT0 = 1000;
+	public static final int LIGHT1 = 1001;
+	public static final int LIGHT2 = 1002;
+	public static final int LIGHT3 = 1003;
+	public static final int LIGHT4 = 1004;
+	public static final int LIGHT5 = 1005;
+	public static final int LIGHT6 = 1006;
+	public static final int LIGHT7 = 1007;
+	public static final int LIGHT_MAX = 1999;
+	public static final int CLIP_PLANE0 = 2000;
+	public static final int CLIP_PLANE1 = 2001;
+	public static final int CLIP_PLANE2 = 2002;
+	public static final int CLIP_PLANE3 = 2003;
+	public static final int CLIP_PLANE_MAX = 2999;
+
 	// buffers
-	public static final int BUFFER_COLOR0 = 1046;
-	public static final int BUFFER_COLOR1 = 1047;
-	public static final int BUFFER_COLOR2 = 1048;
-	public static final int BUFFER_COLOR3 = 1049;
-	public static final int BUFFER_Z = 1050;
-	public static final int BUFFER_STENCIL = 1051;
-	public static final int BUFFER_ID = 1052;
-	
-	public static enum Buffer {
-		COLOR0, COLOR1, COLOR2, COLOR3, Z, STENCIL, ID;
-	}
+	public static final int BUFFER_COLOR0 = 10000;
+	public static final int BUFFER_COLOR1 = 10001;
+	public static final int BUFFER_COLOR2 = 10002;
+	public static final int BUFFER_COLOR3 = 10003;
+	public static final int BUFFER_Z = 10004;
+	public static final int BUFFER_STENCIL = 10005;
+	public static final int BUFFER_ID = 10006;
 
 	// shademodels
-	public static final int SHADEMODEL_FLAT = 1053;
-	public static final int SHADEMODEL_SMOOTH = 1054;
-	public static final int SHADEMODEL_PHONG = 1055;
-	
-	public static enum ShadeModel {
-		FLAT, SMOOTH, PHONG;
-	}
+	public static final int SHADEMODEL_FLAT = 10100;
+	public static final int SHADEMODEL_SMOOTH = 10101;
+	public static final int SHADEMODEL_PHONG = 10102;
 
 	// blend func parameters
 	// share ZERO, ONE
-	public static final int SRC_COLOR = 1056;
-	public static final int ONE_MINUS_SRC_COLOR = 1057;
-	public static final int DST_COLOR = 1058;
-	public static final int ONE_MINUS_DST_COLOR = 1059;
-	public static final int SRC_ALPHA = 1060;
-	public static final int ONE_MINUS_SRC_ALPHA = 1061;
-	public static final int DST_ALPHA = 1062;
-	public static final int ONE_MINUS_DST_ALPHA = 1063;
+	public static final int SRC_COLOR = 10200;
+	public static final int ONE_MINUS_SRC_COLOR = 10201;
+	public static final int DST_COLOR = 10202;
+	public static final int ONE_MINUS_DST_COLOR = 10203;
+	public static final int SRC_ALPHA = 10204;
+	public static final int ONE_MINUS_SRC_ALPHA = 10205;
+	public static final int DST_ALPHA = 10206;
+	public static final int ONE_MINUS_DST_ALPHA = 10207;
 
 	// comparison functions
-	public static final int NEVER = 1064;
-	public static final int LESS = 1065;
-	public static final int LEQUAL = 1066;
-	public static final int GREATER = 1067;
-	public static final int GEQUAL = 1068;
-	public static final int EQUAL = 1069;
-	public static final int NOTEQUAL = 1070;
-	public static final int ALWAYS = 1071;
+	public static final int NEVER = 10300;
+	public static final int LESS = 10301;
+	public static final int LEQUAL = 10302;
+	public static final int GREATER = 10303;
+	public static final int GEQUAL = 10304;
+	public static final int EQUAL = 10305;
+	public static final int NOTEQUAL = 10306;
+	public static final int ALWAYS = 10307;
 
 	// stencil ops
 	// stencil buffer as unsigned bytes
 	// share ZERO
-	public static final int KEEP = 1072;
-	public static final int REPLACE = 1073;
-	public static final int INCR = 1074; // clamp to 255
-	public static final int INCR_WRAP = 1075; // wrap to 0
-	public static final int DECR = 1076; // clamp to 0
-	public static final int DECR_WRAP = 1077; // wrap to 255
-	public static final int INVERT = 1078; // bitwise invert
+	public static final int KEEP = 10400;
+	public static final int REPLACE = 10401;
+	public static final int INCR = 10402; // clamp to 255
+	public static final int INCR_WRAP = 10403; // wrap to 0
+	public static final int DECR = 10404; // clamp to 0
+	public static final int DECR_WRAP = 10405; // wrap to 255
+	public static final int INVERT = 10406; // bitwise invert
 
 	// faces
-	public static final int FRONT = 1079;
-	public static final int BACK = 1080;
-	public static final int FRONT_AND_BACK = 1081;
+	public static final int FRONT = 10500;
+	public static final int BACK = 10501;
+	public static final int FRONT_AND_BACK = 10502;
 
 	// light and material
-	public static final int AMBIENT = 1082;
-	public static final int DIFFUSE = 1083;
-	public static final int SPECULAR = 1084;
-	public static final int EMISSION = 1085;
+	public static final int AMBIENT = 10600;
+	public static final int DIFFUSE = 10601;
+	public static final int SPECULAR = 10602;
+	public static final int EMISSION = 10603;
 	// opacity in diffuse alpha, shininess in specular alpha
 	// but you can set them seperately of the color
-	public static final int SHININESS = 1086;
-	public static final int OPACITY = 1087;
-	public static final int POSITION = 1088;
-	public static final int SPOT_DIRECTION = 1089;
-	public static final int CONSTANT_ATTENUATION = 1090;
-	public static final int LINEAR_ATTENUATION = 1091;
-	public static final int QUADRATIC_ATTENUATION = 1092;
-	public static final int SPOT_CUTOFF = 1093;
-	public static final int SPOT_EXPONENT = 1094;
-	public static final int EFFECT_RADIUS = 1095;
+	public static final int SHININESS = 10604;
+	public static final int OPACITY = 10605;
+	public static final int POSITION = 10606;
+	public static final int SPOT_DIRECTION = 10607;
+	public static final int CONSTANT_ATTENUATION = 10608;
+	public static final int LINEAR_ATTENUATION = 10609;
+	public static final int QUADRATIC_ATTENUATION = 10610;
+	public static final int SPOT_CUTOFF = 10611;
+	public static final int SPOT_EXPONENT = 10612;
+	public static final int EFFECT_RADIUS = 10613;
 
 	public abstract void enable(int cap);
 

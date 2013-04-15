@@ -33,6 +33,8 @@ public abstract class Initial3D {
 	public static final int AUTO_FLIP_ZSIGN = 13;
 	public static final int WRITE_COLOR0 = 14;
 	public static final int WRITE_COLOR1 = 15;
+	// 16
+	// 17
 	public static final int WRITE_Z = 18;
 	public static final int WRITE_STENCIL = 19;
 	public static final int WRITE_ID = 20;
@@ -122,9 +124,14 @@ public abstract class Initial3D {
 	public static final int SPOT_EXPONENT = 10612;
 	public static final int EFFECT_RADIUS = 10613;
 
+	// texture targets
+	public static final int TEXTURE_2D_KD = 10700;
+	public static final int TEXTURE_2D_KS = 10701;
+	public static final int TEXTURE_2D_KE = 10702;
+
 	public abstract FrameBuffer createFrameBuffer();
 
-	public abstract Texture createTexture();
+	public abstract Texture2D createTexture2D(int size);
 
 	public abstract void enable(int cap);
 
@@ -157,6 +164,16 @@ public abstract class Initial3D {
 	}
 
 	public abstract void color(double r, double g, double b, double a);
+
+	public void secondaryColor(Color c) {
+		color(c.r, c.g, c.b, c.a);
+	}
+
+	public void secondaryColor(double r, double g, double b) {
+		color(r, g, b, 1);
+	}
+
+	public abstract void secondaryColor(double r, double g, double b, double a);
 
 	public abstract void texCoord(double u, double v);
 

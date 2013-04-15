@@ -33,12 +33,12 @@ public abstract class Initial3D {
 	public static final int AUTO_FLIP_ZSIGN = 13;
 	public static final int WRITE_COLOR0 = 14;
 	public static final int WRITE_COLOR1 = 15;
-	public static final int WRITE_COLOR2 = 16;
-	public static final int WRITE_COLOR3 = 17;
 	public static final int WRITE_Z = 18;
 	public static final int WRITE_STENCIL = 19;
 	public static final int WRITE_ID = 20;
 	public static final int ALPHAREF_RANDOM = 21;
+	public static final int COLOR_SUM = 22;
+	public static final int SEPARATE_SPECULAR = 23;
 	public static final int LIGHT0 = 1000;
 	public static final int LIGHT1 = 1001;
 	public static final int LIGHT2 = 1002;
@@ -57,11 +57,9 @@ public abstract class Initial3D {
 	// buffers
 	public static final int BUFFER_COLOR0 = 10000;
 	public static final int BUFFER_COLOR1 = 10001;
-	public static final int BUFFER_COLOR2 = 10002;
-	public static final int BUFFER_COLOR3 = 10003;
-	public static final int BUFFER_Z = 10004;
-	public static final int BUFFER_STENCIL = 10005;
-	public static final int BUFFER_ID = 10006;
+	public static final int BUFFER_Z = 10002;
+	public static final int BUFFER_STENCIL = 10003;
+	public static final int BUFFER_ID = 10004;
 
 	// shademodels
 	public static final int SHADEMODEL_FLAT = 10100;
@@ -70,6 +68,7 @@ public abstract class Initial3D {
 
 	// blend func parameters
 	// share ZERO, ONE
+	// idea: if COLOR_SUM is enabled, do 2 blends with both color buffers then add the result
 	public static final int SRC_COLOR = 10200;
 	public static final int ONE_MINUS_SRC_COLOR = 10201;
 	public static final int DST_COLOR = 10202;
@@ -122,6 +121,10 @@ public abstract class Initial3D {
 	public static final int SPOT_CUTOFF = 10611;
 	public static final int SPOT_EXPONENT = 10612;
 	public static final int EFFECT_RADIUS = 10613;
+
+	public abstract FrameBuffer createFrameBuffer();
+
+	public abstract Texture createTexture();
 
 	public abstract void enable(int cap);
 

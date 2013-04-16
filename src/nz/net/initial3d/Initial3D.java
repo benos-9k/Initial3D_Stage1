@@ -2,12 +2,12 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- *
+ * 
  * Yes, much of this does mimic OpenGL 1 / 2.
- *
- *
+ * 
+ * 
  * @author Ben Allen
- *
+ * 
  */
 public abstract class Initial3D {
 
@@ -31,16 +31,9 @@ public abstract class Initial3D {
 	public static final int TEXTURE_2D = 11;
 	public static final int MIPMAPS = 12;
 	public static final int AUTO_FLIP_ZSIGN = 13;
-	public static final int WRITE_COLOR0 = 14;
-	public static final int WRITE_COLOR1 = 15;
-	// 16
-	// 17
-	public static final int WRITE_Z = 18;
-	public static final int WRITE_STENCIL = 19;
-	public static final int WRITE_ID = 20;
-	public static final int ALPHAREF_RANDOM = 21;
-	public static final int COLOR_SUM = 22;
-	public static final int SEPARATE_SPECULAR = 23;
+	public static final int ALPHAREF_RANDOM = 14;
+	public static final int COLOR_SUM = 14;
+	public static final int SEPARATE_SPECULAR = 16;
 	public static final int LIGHT0 = 1000;
 	public static final int LIGHT1 = 1001;
 	public static final int LIGHT2 = 1002;
@@ -56,7 +49,7 @@ public abstract class Initial3D {
 	public static final int CLIP_PLANE3 = 2003;
 	public static final int CLIP_PLANE_MAX = 2999;
 
-	// buffers
+	// buffers, also represents write caps for each buffer
 	public static final int BUFFER_COLOR0 = 10000;
 	public static final int BUFFER_COLOR1 = 10001;
 	public static final int BUFFER_Z = 10002;
@@ -139,7 +132,7 @@ public abstract class Initial3D {
 	public abstract Texture2D createTexture2D(int size_u, int size_v);
 
 	// if null, revert to default
-	public abstract void bindTexture2D(int target, Texture2D tex);
+	public abstract void bindTexture(int target, Texture2D tex);
 
 	public abstract void enable(int cap);
 
@@ -151,39 +144,15 @@ public abstract class Initial3D {
 
 	public abstract void begin(int mode);
 
-	public void vertex(Vec3 v) {
-		vertex(v.x, v.y, v.z);
-	}
+	public abstract void vertex(Vec3 v);
 
-	public abstract void vertex(double vx, double vy, double vz);
+	public abstract void normal(Vec3 vn);
 
-	public void normal(Vec3 n) {
-		normal(n.x, n.y, n.z);
-	}
+	public abstract void color(Color vc);
 
-	public abstract void normal(double nx, double ny, double nz);
+	public abstract void secondaryColor(Color vc);
 
-	public void color(Color c) {
-		color(c.r, c.g, c.b, c.a);
-	}
-
-	public void color(double r, double g, double b) {
-		color(r, g, b, 1);
-	}
-
-	public abstract void color(double r, double g, double b, double a);
-
-	public void secondaryColor(Color c) {
-		color(c.r, c.g, c.b, c.a);
-	}
-
-	public void secondaryColor(double r, double g, double b) {
-		color(r, g, b, 1);
-	}
-
-	public abstract void secondaryColor(double r, double g, double b, double a);
-
-	public abstract void texCoord(double u, double v);
+	public abstract void texCoord(Vec3 vt);
 
 	public abstract void end();
 
@@ -197,9 +166,17 @@ public abstract class Initial3D {
 
 	public abstract void depthFunc(int func);
 
-	public abstract void stencilFunc(int func, int ref, int mask);
+	public void stencilFunc(int func, int ref, int mask) {
+		stencilFuncSeparate(FRONT_AND_BACK, func, ref, mask);
+	}
 
-	public abstract void stencilOp(int sfail, int dfail, int dpass);
+	public abstract void stencilFuncSeparate(int face, int func, int ref, int mask);
+
+	public void stencilOp(int sfail, int dfail, int dpass) {
+		stencilOpSeparate(FRONT_AND_BACK, sfail, dfail, dpass);
+	}
+	
+	public abstract void stencilOpSeparate(int face, int sfail, int dfail, int dpass);
 
 	public abstract void light(int light, int param, float v);
 
@@ -215,7 +192,7 @@ public abstract class Initial3D {
 
 	// matrices
 
-	public abstract void matrixMode(long mode);
+	public abstract void matrixMode(int mode);
 
 	public abstract Vec4 transformOne(Vec3 v);
 

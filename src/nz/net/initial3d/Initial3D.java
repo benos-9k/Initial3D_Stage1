@@ -131,11 +131,15 @@ public abstract class Initial3D {
 
 	public abstract FrameBuffer createFrameBuffer();
 
+	// if null, revert to default
 	public abstract void bindFrameBuffer(FrameBuffer fb);
-	
+
 	public abstract FrameBuffer getFrameBuffer();
-	
-	public abstract Texture2D createTexture2D(int size);
+
+	public abstract Texture2D createTexture2D(int size_u, int size_v);
+
+	// if null, revert to default
+	public abstract void bindTexture2D(int target, Texture2D tex);
 
 	public abstract void enable(int cap);
 

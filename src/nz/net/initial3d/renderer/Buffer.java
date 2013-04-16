@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sun.misc.Unsafe;
 
-public class Buffer {
+final class Buffer {
 
 	private static final Unsafe unsafe = Util.getUnsafe();
 
@@ -25,20 +25,16 @@ public class Buffer {
 		return s;
 	}
 
-	public static Buffer alloc(int bytes) {
+	public static Buffer alloc(int bytes, int tag) {
 		if (bytes < 1) throw new IllegalArgumentException();
 		int s = sizeindex(bytes);
 		Buffer buf = buf_queues[s].poll();
 		if (buf == null) {
 			// System.out.println("Buffer malloc");
 			long p = unsafe.allocateMemory(bytes);
-			if (p == 0) {
-				// malloc failed
-				// possibly free all buffers currently in the queues?
-				throw new OutOfMemoryError("Malloc failed for " + bytes + " bytes.");
-			}
 			buf = new Buffer(s, p);
 		}
+		buf.tag = tag;
 		buf.acquire();
 		return buf;
 	}
@@ -47,10 +43,16 @@ public class Buffer {
 	private AtomicInteger refcount;
 	private long pBuffer;
 
+	private int tag;
+
 	private Buffer(int sidx_, long pBuffer_) {
 		sidx = sidx_;
 		pBuffer = pBuffer_;
 		refcount = new AtomicInteger(0);
+	}
+
+	public int getTag() {
+		return tag;
 	}
 
 	public int getSize() {
@@ -68,6 +70,7 @@ public class Buffer {
 	public void release() {
 		if (refcount.decrementAndGet() == 0) {
 			// return to pool
+			tag = 0;
 			if (!buf_queues[sidx].offer(this)) {
 				// no space in pool queue
 				unsafe.freeMemory(pBuffer);

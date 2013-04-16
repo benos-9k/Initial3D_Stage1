@@ -2,7 +2,7 @@ package nz.net.initial3d.renderer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Queue<T> {
+class Queue<T> {
 
 	private final Object[] data;
 	private final int cap, mask;

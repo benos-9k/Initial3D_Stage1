@@ -2,6 +2,9 @@ package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
 public class Test2 {
 
 	public static void main(String[] args) {
@@ -13,11 +16,12 @@ public class Test2 {
 
 		System.out.println("begin");
 
-		for (int i = 0; ; i++) {
-			Buffer b = Buffer.alloc(1024);
+		for (int i = 0;; i++) {
+			Buffer b = Buffer.alloc(1024, 0xF008A4);
 			b.putInt(0, i);
 			while (!f.feed(b));
 		}
+
 
 	}
 
@@ -60,9 +64,14 @@ public class Test2 {
 
 				try {
 					Buffer b = null;
-					while (b == null) b = q.poll();
+					while (b == null)
+						b = q.poll();
 
-					count++;
+					if (b.getTag() == 0xF008A4) {
+
+						count++;
+
+					}
 
 					b.release();
 

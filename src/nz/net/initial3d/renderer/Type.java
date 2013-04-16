@@ -1,20 +1,20 @@
 package nz.net.initial3d.renderer;
 
 /**
- * 
+ *
  * Unsafe struct type field offsets and constants.
- * 
+ *
  * @author Ben Allen
- * 
+ *
  */
 final class Type {
 
 	private Type() {
 		throw new AssertionError();
 	}
-	
+
 	static final class light_t {
-		
+
 		private light_t() {
 			throw new AssertionError();
 		}
@@ -168,7 +168,7 @@ final class Type {
 		private material_t() {
 			throw new AssertionError();
 		}
-		
+
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 256;
@@ -274,7 +274,7 @@ final class Type {
 		private tri_t() {
 			throw new AssertionError();
 		}
-		
+
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 172;
@@ -344,17 +344,17 @@ final class Type {
 		static int pv1() {
 			return 60;
 		}
-		
+
 		/** Field type: pointer */
 		static int pvt1() {
 			return 68;
 		}
-		
+
 		/** Field type: pointer */
 		static int pvn1() {
 			return 76;
 		}
-		
+
 		/** Field type: float */
 		static int v1_c0_a() {
 			return 84;
@@ -394,17 +394,17 @@ final class Type {
 		static int v1_c1_b() {
 			return 112;
 		}
-		
+
 		/** Field type: pointer */
 		static int pv2() {
 			return 116;
 		}
-		
+
 		/** Field type: pointer */
 		static int pvt2() {
 			return 124;
 		}
-		
+
 		/** Field type: pointer */
 		static int pvn2() {
 			return 132;
@@ -457,7 +457,7 @@ final class Type {
 		private polyvert_t() {
 			throw new AssertionError();
 		}
-		
+
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 64;
@@ -470,7 +470,7 @@ final class Type {
 		private clipfunc_t() {
 			throw new AssertionError();
 		}
-		
+
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 32;
@@ -483,7 +483,7 @@ final class Type {
 		private texture_t() {
 			throw new AssertionError();
 		}
-		
+
 	}
 
 }

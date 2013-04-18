@@ -2,6 +2,12 @@ package nz.net.initial3d.renderer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A (fast) synchronized queue with only basic ops (that's why it's fast).
+ *
+ * @author Ben Allen
+ *
+ */
 class Queue<T> {
 
 	private final Object[] data;

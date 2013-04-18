@@ -26,7 +26,9 @@ final class RasterPipe {
 	}
 
 	void setScanlines(int lines) {
+		// scanline division cannot change while rasterisation in progress
 		finish();
+		// divide by blocks of 8 (for rasteriser compatibility)
 		int[] worker_blocks = new int[workers.length];
 		for (int blocks = lines / 8, w = 0; blocks > 0; blocks--, w = (w + 1) % workers.length) {
 			worker_blocks[w]++;

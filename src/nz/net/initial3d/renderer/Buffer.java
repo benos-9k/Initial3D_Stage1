@@ -4,6 +4,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sun.misc.Unsafe;
 
+/**
+ * Provides a means of recycling memory obtained with malloc, because malloc is
+ * slow.
+ *
+ * @author Ben Allen
+ *
+ */
 final class Buffer {
 
 	private static final Unsafe unsafe = Util.getUnsafe();
@@ -21,7 +28,8 @@ final class Buffer {
 	private static int sizeindex(int b) {
 		if (b < 1) return 0;
 		int s = 0;
-		for (b--; b != 0; b >>= 1, s++);
+		for (b--; b != 0; b >>= 1, s++)
+			;
 		return s;
 	}
 

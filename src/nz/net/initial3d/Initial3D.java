@@ -2,12 +2,12 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- * 
+ *
  * Yes, much of this does mimic OpenGL 1 / 2.
- * 
- * 
+ *
+ *
  * @author Ben Allen
- * 
+ *
  */
 public abstract class Initial3D {
 
@@ -144,25 +144,61 @@ public abstract class Initial3D {
 
 	public abstract void begin(int mode);
 
-	public abstract void vertex(Vec3 v);
+	public abstract void vertex(double x, double y, double z);
 
-	public abstract void normal(Vec3 vn);
+	public void vertex(Vec3 v) {
+		vertex(v.x, v.y, v.z);
+	}
 
-	public abstract void color(Color vc);
+	public abstract void normal(double x, double y, double z);
 
-	public abstract void secondaryColor(Color vc);
+	public void normal(Vec3 v) {
+		normal(v.x, v.y, v.z);
+	}
 
-	public abstract void texCoord(Vec3 vt);
+	public abstract void color(double r, double g, double b, double a);
+
+	public void color(double r, double g, double b) {
+		color(r, g, b, 1);
+	}
+
+	public void color(Color c) {
+		color(c.r, c.g, c.b, c.a);
+	}
+
+	public abstract void secondaryColor(double r, double g, double b, double a);
+
+	public void secondaryColor(double r, double g, double b) {
+		color(r, g, b, 1);
+	}
+
+	public void secondaryColor(Color c) {
+		color(c.r, c.g, c.b, c.a);
+	}
+
+	public abstract void texCoord(double u, double v);
+
+	public void texCoord(Vec3 v) {
+		texCoord(v.x, v.y);
+	}
 
 	public abstract void end();
 
-	public abstract void material(int face, int param, float f);
+	public abstract void material(int face, int param, double f);
 
-	public abstract void material(int face, int param, Color c);
+	public abstract void material(int face, int param, double r, double g, double b, double a);
+
+	public void material(int face, int param, double r, double g, double b) {
+		material(face, param, r, g, b, 1);
+	}
+
+	public void material(int face, int param, Color c) {
+		material(face, param, c.r, c.g, c.b, c.a);
+	}
 
 	public abstract void blendFunc(int sfactor, int dfactor);
 
-	public abstract void alphaFunc(int func, float ref);
+	public abstract void alphaFunc(int func, double ref);
 
 	public abstract void depthFunc(int func);
 
@@ -175,18 +211,38 @@ public abstract class Initial3D {
 	public void stencilOp(int sfail, int dfail, int dpass) {
 		stencilOpSeparate(FRONT_AND_BACK, sfail, dfail, dpass);
 	}
-	
+
 	public abstract void stencilOpSeparate(int face, int sfail, int dfail, int dpass);
 
-	public abstract void light(int light, int param, float v);
+	public abstract void light(int light, int param, double v);
 
-	public abstract void light(int light, int param, Color c);
+	public abstract void light(int light, int param, double f0, double f1, double f2, double f3);
 
-	public abstract void light(int light, int param, Vec4 v);
+	public void light(int light, int param, double f0, double f1, double f2) {
+		light(light, param, f0, f1, f2, 1);
+	}
 
-	public abstract void light(int light, int param, Vec3 v);
+	public void light(int light, int param, Color c) {
+		light(light, param, c.r, c.g, c.b, c.a);
+	}
 
-	public abstract void sceneAmbient(Color c);
+	public void light(int light, int param, Vec4 v) {
+		light(light, param, v.x, v.y, v.z, v.w);
+	}
+
+	public void light(int light, int param, Vec3 v) {
+		light(light, param, v.x, v.y, v.z);
+	}
+
+	public abstract void sceneAmbient(double r, double g, double b, double a);
+
+	public void sceneAmbient(double r, double g, double b) {
+		sceneAmbient(r, g, b, 1);
+	}
+
+	public void sceneAmbient(Color c) {
+		sceneAmbient(c.r, c.g, c.b, c.a);
+	}
 
 	public abstract void cullFace(int face);
 

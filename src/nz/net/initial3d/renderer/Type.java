@@ -13,6 +13,19 @@ final class Type {
 		throw new AssertionError();
 	}
 
+	static final class i3d_t {
+
+		private i3d_t() {
+			throw new AssertionError();
+		}
+
+		/** Constant: size in bytes of an instance of this type */
+		static int SIZEOF() {
+			return 9001;
+		}
+
+	}
+
 	static final class light_t {
 
 		private light_t() {
@@ -277,10 +290,10 @@ final class Type {
 
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
-			return 172;
+			return 196;
 		}
 
-		/** Field type: int; 0x1 => deleted, 0x2 => frontface, 0x4 => backface */
+		/** Field type: int; 0x1 => deleted, 0x2 => cw, else ccw */
 		static int flags() {
 			return 0;
 		}
@@ -300,154 +313,169 @@ final class Type {
 			return 20;
 		}
 
-		/** Field type: float */
-		static int v0_c0_a() {
+		/** Field type: pointer */
+		static int pvv0() {
 			return 28;
 		}
 
 		/** Field type: float */
-		static int v0_c0_r() {
-			return 32;
-		}
-
-		/** Field type: float */
-		static int v0_c0_g() {
+		static int v0_c0_a() {
 			return 36;
 		}
 
 		/** Field type: float */
-		static int v0_c0_b() {
+		static int v0_c0_r() {
 			return 40;
 		}
 
 		/** Field type: float */
-		static int v0_c1_a() {
+		static int v0_c0_g() {
 			return 44;
 		}
 
 		/** Field type: float */
-		static int v0_c1_r() {
+		static int v0_c0_b() {
 			return 48;
 		}
 
 		/** Field type: float */
-		static int v0_c1_g() {
+		static int v0_c1_a() {
 			return 52;
 		}
 
 		/** Field type: float */
-		static int v0_c1_b() {
+		static int v0_c1_r() {
 			return 56;
+		}
+
+		/** Field type: float */
+		static int v0_c1_g() {
+			return 60;
+		}
+
+		/** Field type: float */
+		static int v0_c1_b() {
+			return 64;
 		}
 
 		/** Field type: pointer */
 		static int pv1() {
-			return 60;
-		}
-
-		/** Field type: pointer */
-		static int pvt1() {
 			return 68;
 		}
 
 		/** Field type: pointer */
-		static int pvn1() {
+		static int pvt1() {
 			return 76;
 		}
 
-		/** Field type: float */
-		static int v1_c0_a() {
+		/** Field type: pointer */
+		static int pvn1() {
 			return 84;
 		}
 
-		/** Field type: float */
-		static int v1_c0_r() {
-			return 88;
-		}
-
-		/** Field type: float */
-		static int v1_c0_g() {
+		/** Field type: pointer */
+		static int pvv1() {
 			return 92;
 		}
 
 		/** Field type: float */
-		static int v1_c0_b() {
-			return 96;
-		}
-
-		/** Field type: float */
-		static int v1_c1_a() {
+		static int v1_c0_a() {
 			return 100;
 		}
 
 		/** Field type: float */
-		static int v1_c1_r() {
+		static int v1_c0_r() {
 			return 104;
 		}
 
 		/** Field type: float */
-		static int v1_c1_g() {
+		static int v1_c0_g() {
 			return 108;
 		}
 
 		/** Field type: float */
-		static int v1_c1_b() {
+		static int v1_c0_b() {
 			return 112;
+		}
+
+		/** Field type: float */
+		static int v1_c1_a() {
+			return 116;
+		}
+
+		/** Field type: float */
+		static int v1_c1_r() {
+			return 120;
+		}
+
+		/** Field type: float */
+		static int v1_c1_g() {
+			return 124;
+		}
+
+		/** Field type: float */
+		static int v1_c1_b() {
+			return 128;
 		}
 
 		/** Field type: pointer */
 		static int pv2() {
-			return 116;
+			return 132;
 		}
 
 		/** Field type: pointer */
 		static int pvt2() {
-			return 124;
+			return 140;
 		}
 
 		/** Field type: pointer */
 		static int pvn2() {
-			return 132;
-		}
-
-		/** Field type: float */
-		static int v2_c0_a() {
-			return 140;
-		}
-
-		/** Field type: float */
-		static int v2_c0_r() {
-			return 144;
-		}
-
-		/** Field type: float */
-		static int v2_c0_g() {
 			return 148;
 		}
 
-		/** Field type: float */
-		static int v2_c0_b() {
-			return 152;
-		}
-
-		/** Field type: float */
-		static int v2_c1_a() {
+		/** Field type: pointer */
+		static int pvv2() {
 			return 156;
 		}
 
 		/** Field type: float */
-		static int v2_c1_r() {
-			return 160;
-		}
-
-		/** Field type: float */
-		static int v2_c1_g() {
+		static int v2_c0_a() {
 			return 164;
 		}
 
 		/** Field type: float */
-		static int v2_c1_b() {
+		static int v2_c0_r() {
 			return 168;
+		}
+
+		/** Field type: float */
+		static int v2_c0_g() {
+			return 172;
+		}
+
+		/** Field type: float */
+		static int v2_c0_b() {
+			return 176;
+		}
+
+		/** Field type: float */
+		static int v2_c1_a() {
+			return 180;
+		}
+
+		/** Field type: float */
+		static int v2_c1_r() {
+			return 184;
+		}
+
+		/** Field type: float */
+		static int v2_c1_g() {
+			return 188;
+		}
+
+		/** Field type: float */
+		static int v2_c1_b() {
+			return 192;
 		}
 
 	}

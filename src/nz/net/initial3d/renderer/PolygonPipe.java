@@ -29,9 +29,15 @@ final class PolygonPipe {
 
 	/**
 	 * This pipe is synchronous so can use client-side state.
+	 *
+	 * @param stride
+	 *            units are array indices
 	 */
-	void feed() {
-		// allocate memory to hold all transformed data generated raster primitives
+	void feed(int[] data, int offset, int stride, int count) {
+		final Unsafe unsafe = PolygonPipe.unsafe;
+		final long pBase = this.pBase;
+		// allocate memory to hold all transformed vertex data, any vertex data
+		// generated in-pipe and generated raster primitives
 
 		// transform data
 

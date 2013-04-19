@@ -34,6 +34,7 @@ public abstract class Initial3D {
 	public static final int ALPHAREF_RANDOM = 14;
 	public static final int COLOR_SUM = 14;
 	public static final int SEPARATE_SPECULAR = 16;
+
 	public static final int LIGHT0 = 1000;
 	public static final int LIGHT1 = 1001;
 	public static final int LIGHT2 = 1002;
@@ -57,9 +58,9 @@ public abstract class Initial3D {
 	public static final int BUFFER_ID = 10004;
 
 	// shademodels
-	public static final int SHADEMODEL_FLAT = 10100;
-	public static final int SHADEMODEL_SMOOTH = 10101;
-	public static final int SHADEMODEL_PHONG = 10102;
+	public static final int FLAT = 10100;
+	public static final int SMOOTH = 10101;
+	public static final int PHONG = 10102;
 
 	// blend func parameters
 	// share ZERO, ONE
@@ -122,6 +123,22 @@ public abstract class Initial3D {
 	public static final int TEXTURE_2D_KS = 10701;
 	public static final int TEXTURE_2D_KE = 10702;
 
+	// drawing modes
+	public static final int POINT = 10800;
+	public static final int LINE = 10801;
+	public static final int FILL = 10802;
+
+	// projection mode (OpenGL does this implicitly)
+	public static final int ORTHOGRAPHIC = 10900;
+	public static final int PERSPECTIVE = 10901;
+
+	// vertex attributes
+	public static final int VERTEX_POSITION = 11000;
+	public static final int VERTEX_NORMAL = 11001;
+	public static final int VERTEX_COLOR0 = 11002;
+	public static final int VERTEX_COLOR1 = 11003;
+	public static final int VERTEX_TEXCOORD = 11004;
+
 	public abstract FrameBuffer createFrameBuffer();
 
 	// if null, revert to default
@@ -140,7 +157,20 @@ public abstract class Initial3D {
 
 	public abstract boolean isEnabled(int cap);
 
+	public abstract void projectionMode(int mode);
+
+	public abstract void polygonMode(int face, int mode);
+
+	public abstract void shadeModel(int model);
+
 	public abstract void viewport(int w, int h);
+
+	public abstract void clear(int... buffers);
+
+	// if null, revert to default (a fixed buffer with one zero vector)
+	public abstract void bindVertexBuffer(int att, VectorBuffer vbuf);
+
+	public abstract void drawPolygons(PolygonBuffer pbuf, int offset, int count);
 
 	public abstract void begin(int mode);
 

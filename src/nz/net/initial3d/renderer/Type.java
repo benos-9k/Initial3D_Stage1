@@ -491,6 +491,8 @@ final class Type {
 			return 64;
 		}
 
+		// need flags word, vertex count if first vertex in poly, 2 colors per vertex
+
 	}
 
 	static final class clipfunc_t {

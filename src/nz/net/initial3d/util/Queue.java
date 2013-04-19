@@ -1,5 +1,6 @@
-package nz.net.initial3d.renderer;
+package nz.net.initial3d.util;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -8,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Ben Allen
  *
  */
-class Queue<T> {
+public class Queue<T> {
 
 	private final Object[] data;
 	private final int cap, mask;
@@ -30,12 +31,27 @@ class Queue<T> {
 		return cap;
 	}
 
+	public void add(T t) {
+		if (t == null) throw new NullPointerException();
+		if (count.get() >= cap) throw new IllegalStateException();
+		data[i_write.getAndIncrement() & mask] = t;
+		count.incrementAndGet();
+	}
+
 	public boolean offer(T t) {
 		if (t == null) throw new NullPointerException();
 		if (count.get() >= cap) return false;
 		data[i_write.getAndIncrement() & mask] = t;
 		count.incrementAndGet();
 		return true;
+	}
+
+	public T remove() {
+		if (count.get() == 0) throw new NoSuchElementException();
+		@SuppressWarnings("unchecked")
+		T t = (T) data[i_read.getAndIncrement() & mask];
+		count.decrementAndGet();
+		return t;
 	}
 
 	public T poll() {

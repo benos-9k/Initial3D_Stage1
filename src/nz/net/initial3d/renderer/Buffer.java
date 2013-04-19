@@ -2,6 +2,9 @@ package nz.net.initial3d.renderer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import nz.net.initial3d.util.Queue;
+
+
 import sun.misc.Unsafe;
 
 /**

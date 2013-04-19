@@ -5,6 +5,9 @@ import static nz.net.initial3d.renderer.Util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import nz.net.initial3d.util.Queue;
+
+
 public class Test2 {
 
 	public static void main(String[] args) {

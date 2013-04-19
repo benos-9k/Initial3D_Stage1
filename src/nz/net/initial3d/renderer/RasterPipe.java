@@ -1,6 +1,7 @@
 package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
+import nz.net.initial3d.util.Queue;
 
 final class RasterPipe {
 

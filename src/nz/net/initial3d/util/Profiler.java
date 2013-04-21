@@ -1,13 +1,12 @@
-package nz.net.initial3d;
+package nz.net.initial3d.util;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import nz.net.initial3d.util.Queue;
-
 /**
- * Profiling helper. Supports multi-threaded use and recursive section entry.
+ * Profiling helper. Supports multi-threaded use and recursive section entry. Auto-reset operations are performed from a
+ * background thread.
  * 
  * @author Ben Allen
  * 
@@ -20,16 +19,16 @@ public final class Profiler {
 	private static final int MAX_THREADS = 1024;
 
 	// if profiler should auto reset
-	private static boolean do_autoreset = true;
+	private static volatile boolean do_autoreset = true;
 
 	// time between auto-resets, in nanoseconds
 	private static volatile long reset_interval = 10 * 1000 * 1000 * 1000;
 
 	// time of last reset
-	private static long reset_last = System.nanoTime();
+	private static volatile long reset_last = System.nanoTime();
 
 	// if reset should not print profile info
-	private static boolean reset_mute = false;
+	private static volatile boolean reset_mute = false;
 
 	// start time
 	private static final long time_init = System.nanoTime();
@@ -49,23 +48,36 @@ public final class Profiler {
 
 	private static final long[][] reset_sec_time = new long[MAX_THREADS][MAX_SECTIONS];
 	private static final String[] reset_tname = new String[MAX_THREADS];
+	
+	private static final int SEC_RESET = Profiler.createSection("Profiler-reset");
 
 	static {
-		Thread reset_thread = new Thread() {
+		Thread t = new Thread() {
 			@Override
 			public void run() {
+				try {
+					Thread.sleep(reset_interval / 1000000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				long nano_start = System.nanoTime();
 				while (true) {
 					try {
-						Thread.sleep(reset_interval / 1000000);
-						if (do_autoreset) Profiler.reset();
+						if (do_autoreset) {
+							Profiler.reset();
+						}
+						long nano_sleep = reset_interval - (System.nanoTime() - nano_start);
+						Thread.sleep(nano_sleep / 1000000);
+						nano_start += reset_interval;
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			}
 		};
-		reset_thread.setDaemon(true);
-		reset_thread.start();
+		t.setDaemon(true);
+		t.setName("Profiler-autoreset");
+		t.start();
 	}
 
 	private static class ThreadData {
@@ -134,7 +146,7 @@ public final class Profiler {
 	 *            Section ID.
 	 * @return The name.
 	 */
-	public static String getSectionName(int secid) {
+	public static synchronized String getSectionName(int secid) {
 		return sec_name[secid];
 	}
 
@@ -207,6 +219,7 @@ public final class Profiler {
 	}
 
 	public static synchronized void reset() {
+		Profiler.enter(SEC_RESET);
 		long reset_time = System.nanoTime();
 		// safe to use these because reset is synchronised
 		long[][] sec_time = reset_sec_time;
@@ -223,6 +236,7 @@ public final class Profiler {
 				td.lock();
 				try {
 					tname[ti] = td.thread.getName();
+					long ttotal = 0;
 					for (int j = 0; j < MAX_SECTIONS; j++) {
 						long st = td.sec_time[j];
 						td.sec_time[j] = 0;
@@ -233,12 +247,14 @@ public final class Profiler {
 						}
 						sec_time[0][j] += st;
 						sec_time[ti][j] = st;
+						ttotal += st;
 					}
 					if (!td.thread.isAlive()) {
 						// thread is dead, remove its data
 						thread_data[i] = null;
 					}
-					ti++;
+					// only count this thread if some time was spent in it
+					if (ttotal > 0) ti++;
 				} finally {
 					td.unlock();
 				}
@@ -251,13 +267,17 @@ public final class Profiler {
 			td.lock();
 			try {
 				tname[ti] = td.thread.getName();
+				long ttotal = 0;
 				for (int j = 0; j < MAX_SECTIONS; j++) {
 					long st = td.sec_time[j];
+					// don't need to clean up because td is about to be disposed of
 					// can't possibly have a section in progress
 					sec_time[0][j] += st;
 					sec_time[ti][j] = st;
+					ttotal += st;
 				}
-				ti++;
+				// only count this thread if some time was spent in it
+				if (ttotal > 0) ti++;
 			} finally {
 				td.unlock();
 			}
@@ -266,7 +286,7 @@ public final class Profiler {
 		if (!reset_mute) {
 			// prepare to print profile
 			// find width of section name column
-			int secname_width = 7;
+			int secname_width = 12;
 			for (int i = 0; i < secid_count; i++) {
 				if (sec_name[i].length() > secname_width) {
 					secname_width = sec_name[i].length();
@@ -274,10 +294,10 @@ public final class Profiler {
 			}
 
 			// print
-			final int thread_minwidth = 4;
-			System.out.printf("\n ========== Profile @ %.2fs (%.2fs) ==========\n",
+			final int thread_minwidth = 6;
+			System.out.printf("\n ========== Profile @ %.4fs (%.4fs) ==========\n",
 					(reset_time - time_init) / 1000000000d, (reset_time - reset_last) / 1000000000d);
-			System.out.printf(" %" + secname_width + "s", "Section");
+			System.out.printf(" %" + secname_width + "s", "sec \\ thread");
 			for (int i = 0; i < ti; i++) {
 				System.out.printf(" | %" + Math.max(tname[i].length(), thread_minwidth) + "s", tname[i]);
 			}
@@ -295,13 +315,14 @@ public final class Profiler {
 			for (int i = 0; i < secid_count; i++) {
 				System.out.printf(" %" + secname_width + "s", sec_name[i]);
 				for (int j = 0; j < ti; j++) {
-					System.out.printf(" | %" + Math.max(tname[j].length(), thread_minwidth) + ".2f", sec_time[j][i]
+					System.out.printf(" | %" + Math.max(tname[j].length(), thread_minwidth) + ".4f", sec_time[j][i]
 							/ (double) (reset_time - reset_last));
 				}
 				System.out.printf("\n");
 			}
 		}
 		reset_last = reset_time;
+		Profiler.exit(SEC_RESET);
 	}
 
 }

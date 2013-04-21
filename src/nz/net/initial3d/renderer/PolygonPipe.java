@@ -38,7 +38,7 @@ final class PolygonPipe {
 		final long pBase = this.pBase;
 		// allocate memory to hold all transformed vertex data, any vertex data
 		// generated in-pipe and generated raster primitives
-		// FIXME
+		// FIXME polypipe
 		Buffer buf = Buffer.alloc(9001, RasterPipe.TRIANGLES);
 
 		// transform data

@@ -11,6 +11,16 @@ public class Color {
 	public static final Color CYAN = new Color(0, 1, 1);
 	public static final Color MAGENTA = new Color(1, 0, 1);
 	public static final Color ORANGE = new Color(1, 0.5, 0);
+	
+	public static Color fromHSB(double h, double s, double b) {
+		// FIXME Color.fromHSB()
+		return null;
+	}
+	
+	public static Color fromHSL(double h, double s, double l) {
+		// FIXME Color.fromHSL()
+		return null;
+	}
 
 	/** Alpha component (0 == transparent, 1 == opaque). */
 	public final float a;

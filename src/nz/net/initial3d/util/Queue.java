@@ -4,7 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A (fast) synchronized queue with only basic ops (that's why it's fast).
+ * A (fast) synchronized queue with only non-blocking ops (that's why it's fast).
  *
  * @author Ben Allen
  *

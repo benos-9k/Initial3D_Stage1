@@ -27,6 +27,11 @@ final class RasterPipe {
 	}
 
 	void setScanlines(int lines) {
+		// IDEA: interleaved division for better load distribution
+		// block-0 : thread-0
+		// block-1 : thread-1
+		// block-2 : thread-2
+		// block-3 : thread-0 ...and so on
 		// scanline division cannot change while rasterisation in progress
 		finish();
 		// divide by blocks of 8 (for rasteriser compatibility)
@@ -41,7 +46,7 @@ final class RasterPipe {
 
 	/**
 	 * This pipe runs asynchronously, so must not access client-side state.
-	 *
+	 * 
 	 * @param wb
 	 */
 	void feed(Buffer wb) {
@@ -71,6 +76,7 @@ final class RasterPipe {
 
 		public WorkerThread() {
 			setDaemon(true);
+			setName("I3D-raster-" + getId());
 		}
 
 		public void setScanlines(int yi_, int yf_) {
@@ -80,12 +86,8 @@ final class RasterPipe {
 
 		public void feed(Buffer wb) {
 			while (!work.offer(wb)) {
-				try {
-					// this hopefully shouldn't happen
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					//
-				}
+				// this hopefully shouldn't happen
+				Thread.yield();
 			}
 			if (waiting) {
 				synchronized (waiter_begin) {
@@ -132,10 +134,10 @@ final class RasterPipe {
 					try {
 						switch (wb.getTag()) {
 						case TRIANGLES:
-							rasterTriangles(wb);
+							rasteriseTriangles(wb);
 							break;
 						case LINES:
-							rasterLines(wb);
+							rasteriseLines(wb);
 							break;
 						default:
 							// whelp.
@@ -154,11 +156,11 @@ final class RasterPipe {
 
 	}
 
-	private static void rasterTriangles(Buffer wb) {
+	private static void rasteriseTriangles(Buffer wb) {
 
 	}
 
-	private static void rasterLines(Buffer wb) {
+	private static void rasteriseLines(Buffer wb) {
 
 	}
 

@@ -34,7 +34,7 @@ public final class Profiler {
 	private static final long time_init = System.nanoTime();
 
 	// how many sections have been allocated
-	private static int secid_count = 0;
+	private static volatile int secid_count = 0;
 
 	// section names
 	private static final String[] sec_name = new String[MAX_SECTIONS];
@@ -48,7 +48,7 @@ public final class Profiler {
 
 	private static final long[][] reset_sec_time = new long[MAX_THREADS][MAX_SECTIONS];
 	private static final String[] reset_tname = new String[MAX_THREADS];
-	
+
 	private static final int SEC_RESET = Profiler.createSection("Profiler-reset");
 
 	static {
@@ -116,12 +116,13 @@ public final class Profiler {
 	 */
 	private static int checkThreadInit() {
 		int threadid = (int) Thread.currentThread().getId();
-		if (thread_data[threadid] == null) {
+		ThreadData td = thread_data[threadid]; 
+		if (td == null) {
 			// no thread data
 			thread_data[threadid] = new ThreadData();
-		} else if (thread_data[threadid].thread != Thread.currentThread()) {
+		} else if (td.thread != Thread.currentThread()) {
 			// thread data not for this thread
-			thread_dead.add(thread_data[threadid]);
+			thread_dead.add(td);
 			thread_data[threadid] = new ThreadData();
 		}
 		return threadid;
@@ -146,7 +147,7 @@ public final class Profiler {
 	 *            Section ID.
 	 * @return The name.
 	 */
-	public static synchronized String getSectionName(int secid) {
+	public static String getSectionName(int secid) {
 		return sec_name[secid];
 	}
 
@@ -159,8 +160,12 @@ public final class Profiler {
 	public static void enter(int secid) {
 		int threadid = checkThreadInit();
 		ThreadData td = thread_data[threadid];
+		// null check in case of hard reset
+		if (td == null) return;
 		td.lock();
 		try {
+			// prevent sillyness
+			if (td.sec_entry[secid] < 0) td.sec_entry[secid] = 0;
 			// increment entry count
 			if (td.sec_entry[secid]++ == 0) {
 				// initial entry from this thread
@@ -178,11 +183,15 @@ public final class Profiler {
 	 *            Section ID, as returned by <code>Profiler.createSection()</code>.
 	 */
 	public static void exit(int secid) {
-		// shouldn't need to use checkThreadInit here
-		int threadid = (int) Thread.currentThread().getId();
+		// don't really need checkThreadInit()
+		int threadid = checkThreadInit();
 		ThreadData td = thread_data[threadid];
+		// null check in case of hard reset
+		if (td == null) return;
 		td.lock();
 		try {
+			// if section hasn't been entered, just return
+			if (td.sec_entry[secid] <= 0) return;
 			// decrement entry count
 			if (--td.sec_entry[secid] == 0) {
 				// exiting initial entry from this thread
@@ -194,30 +203,37 @@ public final class Profiler {
 		}
 	}
 
-	public static synchronized void setAutoResetEnabled(boolean enabled) {
+	public static void setAutoResetEnabled(boolean enabled) {
 		do_autoreset = enabled;
 	}
 
-	public static synchronized boolean getAutoResetEnabled() {
+	public static boolean getAutoResetEnabled() {
 		return do_autoreset;
 	}
 
-	public static synchronized void setResetInterval(long nanos) {
+	public static void setResetInterval(long nanos) {
 		reset_interval = nanos;
 	}
 
-	public static synchronized long getResetInterval() {
+	public static long getResetInterval() {
 		return reset_interval;
 	}
 
-	public static synchronized void setResetMute(boolean mute) {
+	public static void setResetMute(boolean mute) {
 		reset_mute = mute;
 	}
 
-	public static synchronized boolean getResetMute() {
+	public static boolean getResetMute() {
 		return reset_mute;
 	}
 
+	public static synchronized void hardReset() {
+		for (int i = 0; i < MAX_THREADS; i++) {
+			thread_data[i] = null;
+		}
+		reset_last = System.nanoTime();
+	}
+	
 	public static synchronized void reset() {
 		Profiler.enter(SEC_RESET);
 		long reset_time = System.nanoTime();
@@ -237,7 +253,7 @@ public final class Profiler {
 				try {
 					tname[ti] = td.thread.getName();
 					long ttotal = 0;
-					for (int j = 0; j < MAX_SECTIONS; j++) {
+					for (int j = 0; j < secid_count; j++) {
 						long st = td.sec_time[j];
 						td.sec_time[j] = 0;
 						if (td.sec_entry[j] > 0) {
@@ -268,7 +284,7 @@ public final class Profiler {
 			try {
 				tname[ti] = td.thread.getName();
 				long ttotal = 0;
-				for (int j = 0; j < MAX_SECTIONS; j++) {
+				for (int j = 0; j < secid_count; j++) {
 					long st = td.sec_time[j];
 					// don't need to clean up because td is about to be disposed of
 					// can't possibly have a section in progress

@@ -49,7 +49,7 @@ public final class Profiler {
 	private static final long[][] reset_sec_time = new long[MAX_THREADS][MAX_SECTIONS];
 	private static final String[] reset_tname = new String[MAX_THREADS];
 
-	private static final int SEC_RESET = Profiler.createSection("Profiler-reset");
+	// private static final int SEC_RESET = Profiler.createSection("Profiler-reset");
 
 	static {
 		Thread t = new Thread() {
@@ -116,7 +116,7 @@ public final class Profiler {
 	 */
 	private static int checkThreadInit() {
 		int threadid = (int) Thread.currentThread().getId();
-		ThreadData td = thread_data[threadid]; 
+		ThreadData td = thread_data[threadid];
 		if (td == null) {
 			// no thread data
 			thread_data[threadid] = new ThreadData();
@@ -233,9 +233,9 @@ public final class Profiler {
 		}
 		reset_last = System.nanoTime();
 	}
-	
+
 	public static synchronized void reset() {
-		Profiler.enter(SEC_RESET);
+		// Profiler.enter(SEC_RESET);
 		long reset_time = System.nanoTime();
 		// safe to use these because reset is synchronised
 		long[][] sec_time = reset_sec_time;
@@ -338,7 +338,7 @@ public final class Profiler {
 			}
 		}
 		reset_last = reset_time;
-		Profiler.exit(SEC_RESET);
+		// Profiler.exit(SEC_RESET);
 	}
 
 }

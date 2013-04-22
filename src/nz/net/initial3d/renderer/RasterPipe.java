@@ -121,7 +121,9 @@ final class RasterPipe {
 					Buffer wb = work.poll();
 					if (wb == null) {
 						waiting = true;
-						waiter_finish.notify();
+						synchronized (waiter_finish) {
+							waiter_finish.notify();
+						}
 						while (wb == null) {
 							synchronized (waiter_begin) {
 								waiter_begin.wait();

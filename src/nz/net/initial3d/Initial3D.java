@@ -2,14 +2,25 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- *
+ * 
  * Yes, much of this does mimic OpenGL 1 / 2.
- *
- *
+ * 
+ * All methods will throw <code>I3DException</code> if they want to, and may throw <code>NullPointerException</code> if
+ * any parameter is null, unless explicity stated otherwise.
+ * 
  * @author Ben Allen
- *
+ * 
  */
 public abstract class Initial3D {
+
+	/**
+	 * Interface to support querying for functions at runtime.
+	 */
+	public static interface Method {
+
+		public Object call(Object... args);
+
+	}
 
 	/*
 	 * Enum Constants
@@ -138,6 +149,60 @@ public abstract class Initial3D {
 	public static final int VERTEX_COLOR0 = 11002;
 	public static final int VERTEX_COLOR1 = 11003;
 	public static final int VERTEX_TEXCOORD = 11004;
+
+	// fog parameters
+	public static final int FOG_COLOR = 11100;
+
+	// use queryEnum() for the other params. yes, even my own fog implementation is non-standard!
+
+	/**
+	 * Query the value of a named enum constant, including non-standard ones like 'I3DX_FOG_A'.
+	 * 
+	 * @param name
+	 *            Name of the constant. Case sensitive.
+	 * @return The value of the constant.
+	 */
+	public abstract int queryEnum(String name);
+
+	protected int queryEnumAPI(String name) {
+		try {
+			java.lang.reflect.Field f = Initial3D.class.getField(name);
+			return (Integer) f.get(null);
+		} catch (Throwable t) {
+			throw new I3DException("Unable to get API enum constant " + name, t);
+		}
+	}
+
+	/**
+	 * Query for a named Initial3D method, including non-standard ones like 'flipZSign'.
+	 * 
+	 * @param name
+	 *            Name of method. Case sensitive.
+	 * @param paramtypes
+	 *            Class objects representing the argument types of the method.
+	 * @return The <code>Method</code> object representing that method.
+	 */
+	public abstract Method queryMethod(String name, Class<?>... paramtypes);
+
+	protected Method queryMethodAPI(String name, Class<?>... paramtypes) {
+		try {
+			final java.lang.reflect.Method m = Initial3D.class.getMethod(name, paramtypes);
+			return new Method() {
+
+				@Override
+				public Object call(Object... args) {
+					try {
+						return m.invoke(Initial3D.this, args);
+					} catch (Throwable t) {
+						throw new I3DException("Unable to call Initial3D API method " + m.getName(), t);
+					}
+				}
+
+			};
+		} catch (Throwable t) {
+			throw new I3DException("Unable to get API method " + name, t);
+		}
+	}
 
 	public abstract FrameBuffer createFrameBuffer();
 
@@ -272,6 +337,18 @@ public abstract class Initial3D {
 
 	public void sceneAmbient(Color c) {
 		sceneAmbient(c.r, c.g, c.b, c.a);
+	}
+
+	public abstract void fog(int param, double val);
+
+	public abstract void fog(int param, double r, double g, double b, double a);
+
+	public void fog(int param, double r, double g, double b) {
+		fog(param, r, g, b, 1);
+	}
+
+	public void fog(int param, Color c) {
+		fog(param, c.r, c.g, c.b, c.a);
 	}
 
 	public abstract void cullFace(int face);

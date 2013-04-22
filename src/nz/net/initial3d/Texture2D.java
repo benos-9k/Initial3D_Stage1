@@ -23,9 +23,13 @@ public abstract class Texture2D {
 
 	public abstract int sizeV();
 
-	public abstract void useMipMaps(boolean b);
+	public abstract void setMipMapsEnabled(boolean b);
+	
+	public abstract boolean getMipMapsEnabled();
 
 	public abstract void setMipMapFloor(int i);
+	
+	public abstract int getMipMapFloor();
 
 	public abstract void createMipMaps();
 

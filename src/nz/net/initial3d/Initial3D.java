@@ -96,7 +96,7 @@ public abstract class Initial3D {
 	public static final int ALWAYS = 10307;
 
 	// stencil ops
-	// stencil buffer as unsigned bytes
+	// stencil buffer as unsigned bytes (?)
 	// share ZERO
 	public static final int KEEP = 10400;
 	public static final int REPLACE = 10401;
@@ -162,9 +162,7 @@ public abstract class Initial3D {
 	 *            Name of the constant. Case sensitive.
 	 * @return The value of the constant.
 	 */
-	public abstract int queryEnum(String name);
-
-	protected int queryEnumAPI(String name) {
+	public int queryEnum(String name) {
 		try {
 			java.lang.reflect.Field f = Initial3D.class.getField(name);
 			return (Integer) f.get(null);
@@ -182,9 +180,7 @@ public abstract class Initial3D {
 	 *            Class objects representing the argument types of the method.
 	 * @return The <code>Method</code> object representing that method.
 	 */
-	public abstract Method queryMethod(String name, Class<?>... paramtypes);
-
-	protected Method queryMethodAPI(String name, Class<?>... paramtypes) {
+	public Method queryMethod(String name, Class<?>... paramtypes) {
 		try {
 			final java.lang.reflect.Method m = Initial3D.class.getMethod(name, paramtypes);
 			return new Method() {

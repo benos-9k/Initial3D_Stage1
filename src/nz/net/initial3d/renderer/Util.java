@@ -42,8 +42,8 @@ final class Util {
 	}
 
 	/**
-	 * Fast approximation for inverse of a positive float. Identical to
-	 * <code>fastInverseSqrt()</code>, except the operand is squared.
+	 * Fast approximation for inverse of a positive float. Identical to <code>fastInverseSqrt()</code>, except the
+	 * operand is squared.
 	 */
 	static float fastInverse(float x) {
 		x *= x;
@@ -97,8 +97,7 @@ final class Util {
 	}
 
 	/**
-	 * Wrapper for <code>Thread.sleep()</code> that suppresses
-	 * InterruptedException.
+	 * Wrapper for <code>Thread.sleep()</code> that suppresses InterruptedException.
 	 */
 	static void pause(long ms) {
 		try {
@@ -109,19 +108,54 @@ final class Util {
 	}
 
 	/**
-	 * Throw a new I3DException with the specified message. Is declared to
-	 * return I3DException for convenience only.
+	 * Throw a new I3DException with the specified message. Is declared to return I3DException for convenience only.
 	 */
 	static I3DException nope(String msg) {
 		throw new I3DException(msg);
 	}
 
 	/**
-	 * Throw a new I3DException with the specified message and cause. Is
-	 * declared to return I3DException for convenience only.
+	 * Throw a new I3DException with the specified message and cause. Is declared to return I3DException for convenience
+	 * only.
 	 */
 	static I3DException nope(String msg, Throwable cause) {
 		throw new I3DException(msg, cause);
+	}
+
+	static int colorMul(int rgb, float k) {
+		k = k < 0f ? 0f : k;
+		int a = (int) ((rgb >>> 24) * k);
+		a = a < 255 ? a : 255;
+		int r = (int) (((rgb >>> 16) & 0xFF) * k);
+		r = r < 255 ? r : 255;
+		int g = (int) (((rgb >>> 8) & 0xFF) * k);
+		g = g < 255 ? g : 255;
+		int b = (int) ((rgb & 0xFF) * k);
+		b = b < 255 ? b : 255;
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	static int colorAdd(int rgb0, int rgb1) {
+		int a = (rgb0 >>> 24) + (rgb1 >>> 24);
+		a = a < 255 ? a : 255;
+		int r = ((rgb0 >>> 16) & 0xFF) + ((rgb1 >>> 16) & 0xFF);
+		r = r < 255 ? r : 255;
+		int g = ((rgb0 >>> 8) & 0xFF) + ((rgb1 >>> 8) & 0xFF);
+		g = g < 255 ? g : 255;
+		int b = (rgb0 & 0xFF) + (rgb1 & 0xFF);
+		b = b < 255 ? b : 255;
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	static int alphaBlend(int base, int top) {
+		float alpha_base = (base >>> 24) / 255f;
+		float alpha_top = (top >>> 24) / 255f;
+		float alpha = 1f - (1f - alpha_top) * (1f - alpha_base);
+		float iAlpha = 1f / alpha;
+		// color = alpha_top * color_top + (1 - alpha_top) * alpha_base * color_base
+		return (((int) (alpha * 255f)) << 24)
+				| colorAdd(colorMul(0x00FFFFFF & top, alpha_top * iAlpha),
+						colorMul(0x00FFFFFF & base, (1f - alpha_top) * alpha_base * iAlpha));
 	}
 
 	static void writeMat(Unsafe unsafe, long pTarget, Mat4 m) {
@@ -193,14 +227,13 @@ final class Util {
 	}
 
 	/**
-	 * Left-multiply a block of position vectors (assumed homogenised) by a
-	 * transformation matrix and homogenise them, setting the w component to the
-	 * inverse of its non-homogenised value.
-	 *
+	 * Left-multiply a block of position vectors (assumed homogenised) by a transformation matrix and homogenise them,
+	 * setting the w component to the inverse of its non-homogenised value.
+	 * 
 	 * @param size
 	 *            number of vectors in block
 	 */
-	public static final void multiply4VectorBlock_pos(Unsafe unsafe, long pTarget, long pMat, long pVec0, long size) {
+	static final void multiply4VectorBlock_pos(Unsafe unsafe, long pTarget, long pMat, long pVec0, long size) {
 		// read in xform
 		final double x00 = unsafe.getDouble(pMat);
 		final double x01 = unsafe.getDouble(pMat += 8);
@@ -246,13 +279,12 @@ final class Util {
 	}
 
 	/**
-	 * Left-multiply a block of normal vectors by a transformation matrix and
-	 * normalise them.
-	 *
+	 * Left-multiply a block of normal vectors by a transformation matrix and normalise them.
+	 * 
 	 * @param size
 	 *            number of vectors in block
 	 */
-	public static final void multiply4VectorBlock_norm(Unsafe unsafe, long pTarget, long pMat, long pVec0, long size) {
+	static final void multiply4VectorBlock_norm(Unsafe unsafe, long pTarget, long pMat, long pVec0, long size) {
 		// read in xform (don't actually need all of it)
 		final double x00 = unsafe.getDouble(pMat);
 		final double x01 = unsafe.getDouble(pMat += 8);

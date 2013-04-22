@@ -9,6 +9,9 @@ final class RasterPipe {
 	static final int LINES = 2;
 
 	private final long pBase;
+	// object for buffer_color0
+	private volatile Object obj_color0;
+	
 	private final WorkerThread[] workers;
 
 	RasterPipe(long pBase_, int threadcount_) {
@@ -24,6 +27,10 @@ final class RasterPipe {
 	@Override
 	protected void finalize() {
 
+	}
+	
+	void setBufferColor0Object(Object o) {
+		obj_color0 = o;
 	}
 
 	void setScanlines(int lines) {

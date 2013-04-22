@@ -12,8 +12,15 @@ public final class Initial3DImpl extends Initial3D {
 	// this pointer is the key to EVERYTHING
 	private final long pBase;
 
+	// pipes
 	private final PolygonPipe polypipe;
 	private final RasterPipe rasterpipe;
+	
+	// defaults
+	private final FrameBufferImpl default_framebuffer;
+	
+	// state
+	private FrameBufferImpl bound_framebuffer;
 
 	public Initial3DImpl() {
 		this(Runtime.getRuntime().availableProcessors());
@@ -25,6 +32,7 @@ public final class Initial3DImpl extends Initial3D {
 		polypipe = new PolygonPipe(pBase);
 		polypipe.connectRasterPipe(rasterpipe);
 
+		default_framebuffer = new FrameBufferImpl();
 	}
 
 	@Override
@@ -39,7 +47,7 @@ public final class Initial3DImpl extends Initial3D {
 		} else if ("I3DX_FOG_B".equals(name)) {
 			return 11198;
 		} else {
-			return queryEnumAPI(name);
+			return super.queryEnum(name);
 		}
 	}
 
@@ -60,7 +68,7 @@ public final class Initial3DImpl extends Initial3D {
 				throw nope("Method flipZSign takes 0 parameters.");
 			}
 		} else {
-			return queryMethodAPI(name, paramtypes);
+			return super.queryMethod(name, paramtypes);
 		}
 	}
 

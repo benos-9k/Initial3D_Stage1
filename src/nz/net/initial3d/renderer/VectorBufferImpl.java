@@ -9,29 +9,30 @@ final class VectorBufferImpl extends VectorBuffer {
 
 	private static final Unsafe unsafe = getUnsafe();
 	
+	final Buffer buf;
 	final long pBuf;
 	final int capacity;
 	int count;
 	
-	// TODO use Buffer.alloc() here
-	
 	VectorBufferImpl(int capacity_) {
 		if (capacity_ < 1) throw new IllegalArgumentException("Capacity must be at least 1.");
 		capacity = capacity_;
-		pBuf = unsafe.allocateMemory(capacity * 32);
+		buf = Buffer.alloc(capacity * 32, -1);
+		pBuf = buf.getPointer();
 		count = 0;
 	}
 	
 	VectorBufferImpl(VectorBufferImpl other_) {
 		capacity = other_.capacity;
 		count = other_.count;
-		pBuf = unsafe.allocateMemory(capacity * 32);
+		buf = Buffer.alloc(capacity * 32, -1);
+		pBuf = buf.getPointer();
 		unsafe.copyMemory(other_.pBuf, pBuf, count * 32);
 	}
 	
 	@Override
 	protected void finalize() {
-		unsafe.freeMemory(pBuf);
+		buf.release();
 	}
 	
 	@Override

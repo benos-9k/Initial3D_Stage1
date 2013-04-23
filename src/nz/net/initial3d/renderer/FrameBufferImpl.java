@@ -8,22 +8,48 @@ final class FrameBufferImpl extends FrameBuffer {
 
 	private static final Unsafe unsafe = getUnsafe();
 
+	// buffer color0
 	Object obj_color0;
 	long pColor0;
 	int stride_color0;
+
+	// buffer color1
 	long pColor1;
 	int stride_color1;
+
+	// buffer z
 	long pZ;
 	int stride_z;
 	long pSZ;
 	int stride_sz;
+	long pZSign;
+
+	// buffer stencil
 	long pStencil;
 	int stride_stencil;
+
+	// buffer id
 	long pID;
 	int stride_id;
 
-	FrameBufferImpl() {
+	// the fog correction table. not attachable.
+	long pFC;
 
+	FrameBufferImpl() {
+		pFC = unsafe.allocateMemory(1024 * 1024 * 4);
+	}
+
+	@Override
+	protected void finalize() {
+		unsafe.freeMemory(pFC);
+	}
+
+	int getZSign() {
+		return unsafe.getInt(pZSign);
+	}
+
+	void setZSign(int sign) {
+		unsafe.putInt(pZSign, sign);
 	}
 
 	@Override
@@ -46,6 +72,10 @@ final class FrameBufferImpl extends FrameBuffer {
 			// and one level down as the 'small' z buffer
 			pSZ = texim.pTex + Texture2DImpl.levelOffset(texim.stride_tex, texim.levelu_top - 1, texim.levelv_top - 1);
 			stride_sz = texim.stride_tex;
+			// and level 0,0 for the z-sign
+			pZSign = texim.pTex + Texture2DImpl.levelOffset(texim.stride_tex, 0, 0);
+			// transparently init the z-sign
+			setZSign(getZSign() >= 0 ? 1 : -1);
 			break;
 		case Initial3D.BUFFER_STENCIL:
 			pStencil = texim.pTop;
@@ -62,8 +92,7 @@ final class FrameBufferImpl extends FrameBuffer {
 
 	@Override
 	public void attachBuffer(int type, int[] buf, int offset, int stride) {
-		if (type != Initial3D.BUFFER_COLOR0)
-			throw new IllegalArgumentException("Can only attach array to BUFFER_COLOR0.");
+		if (type != Initial3D.BUFFER_COLOR0) throw nope("Can only attach array to BUFFER_COLOR0.");
 		obj_color0 = buf;
 		pColor0 = unsafe.arrayBaseOffset(int[].class) + offset * 4;
 		stride_color0 = stride * 4;

@@ -30,6 +30,8 @@ final class RasterPipe {
 		// block-1 : thread-1
 		// block-2 : thread-2
 		// block-3 : thread-0 ...and so on
+		// if interleaved, can change viewport without finish!
+		
 		// scanline division cannot change while rasterisation in progress
 		finish();
 		// divide by blocks of 8 (for rasteriser compatibility)

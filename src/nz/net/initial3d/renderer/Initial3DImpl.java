@@ -202,6 +202,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		public void flipZSign() {
+			finish();
 			System.out.println("flippity");
 			// TODO flip zsign
 		}
@@ -388,6 +389,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		public void initFog() {
+			finish();
 			System.out.println("foggity");
 			// TODO init fog
 		}
@@ -471,6 +473,7 @@ public final class Initial3DImpl extends Initial3D {
 		default_framebuffer = new FrameBufferImpl();
 		default_framebuffer.attachBuffer(BUFFER_COLOR0, new Texture2DImpl(1024, 1024));
 		default_framebuffer.attachBuffer(BUFFER_Z, new Texture2DImpl(1024, 1024));
+		default_framebuffer.setZSign(1);
 
 		// create default texture (1x1 texel black)
 		default_tex = new Texture2DImpl(1, 1);

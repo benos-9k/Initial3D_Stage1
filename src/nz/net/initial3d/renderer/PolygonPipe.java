@@ -8,13 +8,11 @@ final class PolygonPipe {
 
 	private static final Unsafe unsafe = getUnsafe();
 
-	private final long pBase;
 	private final long pPolyTemp;
 
 	private RasterPipe rasterpipe;
-
-	PolygonPipe(long pBase_) {
-		pBase = pBase_;
+	
+	PolygonPipe() {
 		pPolyTemp = unsafe.allocateMemory(polyvert_t.SIZEOF() * 2048);
 	}
 
@@ -35,7 +33,7 @@ final class PolygonPipe {
 	 */
 	void feed(int[] data, int offset, int stride, int count) {
 		final Unsafe unsafe = PolygonPipe.unsafe;
-		final long pBase = this.pBase;
+		// final long pBase = this.pBase;
 		// allocate memory to hold all transformed vertex data, any vertex data
 		// generated in-pipe and generated raster primitives
 		// FIXME polypipe
@@ -50,6 +48,9 @@ final class PolygonPipe {
 		// -- clip
 		// -- triangulate
 
+		// copy enablers etc into buffer
+		// basically copy pBase into start of buffer
+		
 		// feed buffer to raster pipe
 		rasterpipe.feed(buf);
 	}

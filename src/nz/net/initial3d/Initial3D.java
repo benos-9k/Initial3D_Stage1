@@ -153,8 +153,21 @@ public abstract class Initial3D {
 	// fog parameters
 	public static final int FOG_COLOR = 11100;
 
-	// use queryEnum() for the other params. yes, even my own fog implementation is non-standard!
+	// use queryEnum() for the other fog params and functions. yes, even my own fog implementation is non-standard!
 
+	// matrices
+	public static final int MODELVIEW = 11200;
+	public static final int PROJECTION = 11201;
+	
+	// begin modes
+	public static final int POLYGON = 11300;
+	public static final int LINE_STRIP = 11301;
+	public static final int LINE_LOOP = 11302;
+
+	public abstract void pushState();
+	
+	public abstract void popState();
+	
 	/**
 	 * Query the value of a named enum constant, including non-standard ones like 'I3DX_FOG_A'.
 	 * 
@@ -190,7 +203,7 @@ public abstract class Initial3D {
 					try {
 						return m.invoke(Initial3D.this, args);
 					} catch (Throwable t) {
-						throw new I3DException("Unable to call Initial3D API method " + m.getName(), t);
+						throw new I3DException("Unable to call API method " + m.getName(), t);
 					}
 				}
 
@@ -212,9 +225,9 @@ public abstract class Initial3D {
 	// if null, revert to default
 	public abstract void bindTexture(int target, Texture2D tex);
 
-	public abstract void enable(int cap);
+	public abstract void enable(int... caps);
 
-	public abstract void disable(int cap);
+	public abstract void disable(int... caps);
 
 	public abstract boolean isEnabled(int cap);
 
@@ -348,12 +361,14 @@ public abstract class Initial3D {
 	}
 
 	public abstract void cullFace(int face);
+	
+	public abstract void finish();
 
 	// matrices
 
 	public abstract void matrixMode(int mode);
 
-	public abstract Vec4 transformOne(Vec3 v);
+	public abstract Vec3 transformOne(Vec3 v);
 
 	public abstract Vec4 transformOne(Vec4 v);
 

@@ -1,18 +1,18 @@
 package nz.net.initial3d.renderer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import nz.net.initial3d.util.Queue;
 
-
 import sun.misc.Unsafe;
 
 /**
- * Provides a means of recycling memory obtained with malloc, because malloc is
- * slow.
- *
+ * Provides a means of recycling memory obtained with malloc, because malloc is slow.
+ * 
  * @author Ben Allen
- *
+ * 
  */
 final class Buffer {
 
@@ -41,11 +41,12 @@ final class Buffer {
 		int s = sizeindex(bytes);
 		Buffer buf = buf_queues[s].poll();
 		if (buf == null) {
-			// System.out.println("Buffer malloc");
-			long p = unsafe.allocateMemory(bytes);
+			System.out.println("Buffer malloc(): " + (1 << s) + " bytes");
+			long p = unsafe.allocateMemory(1 << s);
 			buf = new Buffer(s, p);
 		}
 		buf.tag = tag;
+		buf.extra = null;
 		buf.acquire();
 		return buf;
 	}
@@ -54,6 +55,7 @@ final class Buffer {
 	private AtomicInteger refcount;
 	private long pBuffer;
 
+	private Map<String, Object> extra;
 	private int tag;
 
 	private Buffer(int sidx_, long pBuffer_) {
@@ -82,12 +84,23 @@ final class Buffer {
 		if (refcount.decrementAndGet() == 0) {
 			// return to pool
 			tag = 0;
+			extra = null;
 			if (!buf_queues[sidx].offer(this)) {
-				// no space in pool queue
+				System.out.println("Buffer free().");
 				unsafe.freeMemory(pBuffer);
 			}
 			// System.out.println("Returning " + this + " to pool.");
 		}
+	}
+
+	public <T> void putExtra(String key, T value) {
+		if (extra == null) extra = new HashMap<String, Object>();
+		extra.put(key, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getExtra(String key) {
+		return (T) extra.get(key);
 	}
 
 	public int getInt(long q) {

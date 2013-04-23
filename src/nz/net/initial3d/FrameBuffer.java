@@ -15,4 +15,9 @@ public abstract class FrameBuffer {
 		int stride = ((SinglePixelPackedSampleModel) img.getRaster().getSampleModel()).getScanlineStride();
 		attachBuffer(type, db.getData(), db.getOffset(), stride);
 	}
+
+	public abstract void detachBuffer(int type);
+
+	public abstract boolean hasBuffer(int type);
+
 }

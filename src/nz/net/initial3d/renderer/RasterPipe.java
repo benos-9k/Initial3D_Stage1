@@ -8,14 +8,9 @@ final class RasterPipe {
 	static final int TRIANGLES = 1;
 	static final int LINES = 2;
 
-	private final long pBase;
-	// object for buffer_color0
-	private volatile Object obj_color0;
-	
 	private final WorkerThread[] workers;
 
-	RasterPipe(long pBase_, int threadcount_) {
-		pBase = pBase_;
+	RasterPipe(int threadcount_) {
 		workers = new WorkerThread[threadcount_];
 		for (int i = 0; i < threadcount_; i++) {
 			workers[i] = new WorkerThread();
@@ -29,10 +24,6 @@ final class RasterPipe {
 
 	}
 	
-	void setBufferColor0Object(Object o) {
-		obj_color0 = o;
-	}
-
 	void setScanlines(int lines) {
 		// IDEA: interleaved division for better load distribution
 		// block-0 : thread-0
@@ -53,6 +44,8 @@ final class RasterPipe {
 
 	/**
 	 * This pipe runs asynchronously, so must not access client-side state.
+	 * 
+	 * All enablers, bound textures etc must be specified at the start of the buffer.
 	 * 
 	 * @param wb
 	 */
@@ -165,11 +158,12 @@ final class RasterPipe {
 
 	}
 
-	private static void rasteriseTriangles(Buffer wb) {
-
+	private void rasteriseTriangles(Buffer wb) {
+		Object obj_color0 = wb.getExtra("OBJ_COLOR0");
+		
 	}
 
-	private static void rasteriseLines(Buffer wb) {
+	private void rasteriseLines(Buffer wb) {
 
 	}
 

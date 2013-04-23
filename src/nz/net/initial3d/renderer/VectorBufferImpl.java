@@ -13,11 +13,20 @@ final class VectorBufferImpl extends VectorBuffer {
 	final int capacity;
 	int count;
 	
+	// TODO use Buffer.alloc() here
+	
 	VectorBufferImpl(int capacity_) {
 		if (capacity_ < 1) throw new IllegalArgumentException("Capacity must be at least 1.");
 		capacity = capacity_;
 		pBuf = unsafe.allocateMemory(capacity * 32);
 		count = 0;
+	}
+	
+	VectorBufferImpl(VectorBufferImpl other_) {
+		capacity = other_.capacity;
+		count = other_.count;
+		pBuf = unsafe.allocateMemory(capacity * 32);
+		unsafe.copyMemory(other_.pBuf, pBuf, count * 32);
 	}
 	
 	@Override

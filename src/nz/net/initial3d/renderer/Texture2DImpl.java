@@ -9,11 +9,17 @@ final class Texture2DImpl extends Texture2D {
 
 	private static final Unsafe unsafe = getUnsafe();
 
+	// pointer to entire texture
 	final long pTex;
+	// stride (in bytes) between scanlines
 	final int stride_tex;
+	// pointer to top mip-map
 	final long pTop;
+	// size of the entire texture (in bytes)
 	final int alloc;
+	// highest u and v mip-map levels
 	final int levelu_top, levelv_top;
+	// dimensions (in texels) of top mip-map level
 	final int sizeu, sizev;
 
 	static int levelOffset(int stride, int levelu, int levelv) {
@@ -25,9 +31,10 @@ final class Texture2DImpl extends Texture2D {
 	static int texelOffset(int stride, int levelu, int levelv, int u, int v) {
 		// TODO faster texture texel offset
 		// u and v as 16.16 fixed point
-
+		u = u & 0x0000FFFF;
+		v = v & 0x0000FFFF;
 		// no it doesn't... v >>> 16 is a no-no
-		int probablyworks = ((stride + (v >>> 16)) << levelv) + ((4 + (u >>> 14)) << levelu);
+		// int probablyworks = ((stride + (v >>> 16)) << levelv) + ((4 + (u >>> 14)) << levelu);
 		return (stride << levelv) + (v >>> (16 - levelv)) + (4 << levelu) + (u >>> (14 - levelu));
 	}
 

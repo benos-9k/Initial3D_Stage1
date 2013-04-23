@@ -20,7 +20,7 @@ public class Test2 {
 		System.out.println("begin");
 
 		for (int i = 0;; i++) {
-			Buffer b = Buffer.alloc(1024, 0xF008A4);
+			Buffer b = Buffer.alloc(1037, 0xF008A4);
 			b.putInt(0, i);
 			while (!f.feed(b));
 		}

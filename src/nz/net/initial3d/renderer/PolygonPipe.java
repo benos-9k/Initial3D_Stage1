@@ -11,7 +11,7 @@ final class PolygonPipe {
 	private final long pPolyTemp;
 
 	private RasterPipe rasterpipe;
-	
+
 	PolygonPipe() {
 		pPolyTemp = unsafe.allocateMemory(polyvert_t.SIZEOF() * 2048);
 	}
@@ -26,8 +26,9 @@ final class PolygonPipe {
 	}
 
 	/**
-	 * This pipe is synchronous so can use client-side state.
-	 *
+	 * This pipe is synchronous so can use client-side state (but vector buffers and polygon buffers aren't really
+	 * client state anyway).
+	 * 
 	 * @param stride
 	 *            units are array indices
 	 */
@@ -50,7 +51,7 @@ final class PolygonPipe {
 
 		// copy enablers etc into buffer
 		// basically copy pBase into start of buffer
-		
+
 		// feed buffer to raster pipe
 		rasterpipe.feed(buf);
 	}

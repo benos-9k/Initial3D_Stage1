@@ -15,8 +15,8 @@ public final class Initial3DImpl extends Initial3D {
 	private static final Unsafe unsafe = getUnsafe();
 
 	// exposed methods and enum constants
-	List<String> exposed_methods = new ArrayList<String>();
-	List<String> exposed_enums = new ArrayList<String>();
+	private final List<String> exposed_methods = new ArrayList<String>();
+	private final List<String> exposed_enums = new ArrayList<String>();
 
 	// enum constants
 	public static final int I3DX_FOG_A = 11199;
@@ -129,7 +129,7 @@ public final class Initial3DImpl extends Initial3D {
 
 		}
 
-		public void bindFrameBuffer(FrameBuffer fb) {
+		void bindFrameBuffer(FrameBuffer fb) {
 			if (fb == null) {
 				bound_framebuffer = default_framebuffer;
 			} else {
@@ -137,38 +137,38 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		public FrameBuffer getFrameBuffer() {
+		FrameBuffer getFrameBuffer() {
 			return bound_framebuffer;
 		}
 
-		public void bindTexture(int target, Texture2D tex) {
+		void bindTexture(int target, Texture2D tex) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void enable(int... caps) {
+		void enable(int... caps) {
 			for (int cap : caps) {
 				// TODO enable
 			}
 		}
 
-		public void disable(int... caps) {
+		void disable(int... caps) {
 			for (int cap : caps) {
 				// TODO disable
 			}
 		}
 
-		public boolean isEnabled(int cap) {
+		boolean isEnabled(int cap) {
 			// TODO is enabled
 			return false;
 		}
 
-		public void projectionMode(int mode) {
+		void projectionMode(int mode) {
 			// TODO projection mode
 
 		}
 
-		public void polygonMode(int face, int mode) {
+		void polygonMode(int face, int mode) {
 			// TODO polymode
 			switch (face) {
 			case FRONT:
@@ -185,29 +185,29 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		public void shadeModel(int model) {
+		void shadeModel(int model) {
 			// TODO shade model
 
 		}
 
-		public void viewport(int w, int h) {
+		void viewport(int w, int h) {
 			// TODO viewport
 
 		}
 
-		public void clear(int... buffers) {
+		void clear(int... buffers) {
 			finish();
 			// TODO Auto-generated method stub
 
 		}
 
-		public void flipZSign() {
+		void flipZSign() {
 			finish();
 			System.out.println("flippity");
 			// TODO flip zsign
 		}
 
-		public void bindVertexBuffer(int att, VectorBuffer vbuf) {
+		void bindVertexBuffer(int att, VectorBuffer vbuf) {
 			if (vbuf == null) {
 				// revert to default
 				switch (att) {
@@ -253,12 +253,12 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		public void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
+		void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
 			// TODO draw polys
 
 		}
 
-		public void begin(int mode) {
+		void begin(int mode) {
 			// clear buffers
 			state.peek().begin_vbo_v.clear();
 			state.peek().begin_vbo_vt.clear();
@@ -290,7 +290,7 @@ public final class Initial3DImpl extends Initial3D {
 			state.peek().begin_mode = mode;
 		}
 
-		public void vertex(double x, double y, double z) {
+		void vertex(double x, double y, double z) {
 			state.peek().begin_vbo_v.add(x, y, z, 1);
 			// bind to previously set normal / texcoord
 			switch (state.peek().begin_mode) {
@@ -307,104 +307,104 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		public void normal(double x, double y, double z) {
+		void normal(double x, double y, double z) {
 			begin_vbo_vn.add(x, y, z, 0);
 		}
 
-		public void color(double r, double g, double b, double a) {
+		void color(double r, double g, double b, double a) {
 			begin_vbo_c0.add(a, r, g, b);
 		}
 
-		public void secondaryColor(double r, double g, double b, double a) {
+		void secondaryColor(double r, double g, double b, double a) {
 			begin_vbo_c1.add(a, r, g, b);
 		}
 
-		public void texCoord(double u, double v) {
+		void texCoord(double u, double v) {
 			begin_vbo_vt.add(u, v, 0, 1);
 		}
 
-		public void end() {
+		void end() {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void material(int face, int param, double f) {
+		void material(int face, int param, double f) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void material(int face, int param, double r, double g, double b, double a) {
+		void material(int face, int param, double r, double g, double b, double a) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void blendFunc(int sfactor, int dfactor) {
+		void blendFunc(int sfactor, int dfactor) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void alphaFunc(int func, double ref) {
+		void alphaFunc(int func, double ref) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void depthFunc(int func) {
+		void depthFunc(int func) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void stencilFuncSeparate(int face, int func, int ref, int mask) {
+		void stencilFuncSeparate(int face, int func, int ref, int mask) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void stencilOpSeparate(int face, int sfail, int dfail, int dpass) {
+		void stencilOpSeparate(int face, int sfail, int dfail, int dpass) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void light(int light, int param, double v) {
+		void light(int light, int param, double v) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void light(int light, int param, double f0, double f1, double f2, double f3) {
+		void light(int light, int param, double f0, double f1, double f2, double f3) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void sceneAmbient(double r, double g, double b, double a) {
+		void sceneAmbient(double r, double g, double b, double a) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void fog(int param, double val) {
+		void fog(int param, double val) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void fog(int param, double r, double g, double b, double a) {
+		void fog(int param, double r, double g, double b, double a) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void initFog() {
+		void initFog() {
 			finish();
 			System.out.println("foggity");
 			// TODO init fog
 		}
 
-		public void cullFace(int face) {
+		void cullFace(int face) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void finish() {
+		void finish() {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void matrixMode(int mode) {
+		void matrixMode(int mode) {
 			switch (mode) {
 			case MODELVIEW:
 				matrix_active = modelview;
@@ -418,19 +418,19 @@ public final class Initial3DImpl extends Initial3D {
 			matrix_mode = mode;
 		}
 
-		public Vec3 transformOne(Vec3 v) {
+		Vec3 transformOne(Vec3 v) {
 			return matrix_active.peek().mul(v);
 		}
 
-		public Vec4 transformOne(Vec4 v) {
+		Vec4 transformOne(Vec4 v) {
 			return matrix_active.peek().mul(v);
 		}
 
-		public void pushMatrix() {
+		void pushMatrix() {
 			matrix_active.push(matrix_active.peek().clone());
 		}
 
-		public void popMatrix() {
+		void popMatrix() {
 			if (matrix_active.size() > 1) {
 				matrix_active.pop();
 			} else {
@@ -438,15 +438,15 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		public void loadMatrix(Mat4 m) {
+		void loadMatrix(Mat4 m) {
 			matrix_active.peek().set(m);
 		}
 
-		public void multMatrix(Mat4 m) {
+		void multMatrix(Mat4 m) {
 			matrix_active.peek().setMul(m);
 		}
 
-		public Mat4 getMatrix() {
+		Mat4 getMatrix() {
 			return matrix_active.peek().clone();
 		}
 

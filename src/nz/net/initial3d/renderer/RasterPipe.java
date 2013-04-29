@@ -23,7 +23,7 @@ final class RasterPipe {
 	protected void finalize() {
 
 	}
-	
+
 	void setScanlines(int lines) {
 		// IDEA: interleaved division for better load distribution
 		// block-0 : thread-0
@@ -31,7 +31,7 @@ final class RasterPipe {
 		// block-2 : thread-2
 		// block-3 : thread-0 ...and so on
 		// if interleaved, can change viewport without finish!
-		
+
 		// scanline division cannot change while rasterisation in progress
 		finish();
 		// divide by blocks of 8 (for rasteriser compatibility)
@@ -46,9 +46,9 @@ final class RasterPipe {
 
 	/**
 	 * This pipe runs asynchronously, so must not access client-side state.
-	 * 
-	 * All enablers, bound textures etc must be specified at the start of the buffer.
-	 * 
+	 *
+	 * Renderer state (unsafe representation) at the start of the buffer.
+	 *
 	 * @param wb
 	 */
 	void feed(Buffer wb) {
@@ -162,7 +162,7 @@ final class RasterPipe {
 
 	private void rasteriseTriangles(Buffer wb) {
 		Object obj_color0 = wb.getExtra("OBJ_COLOR0");
-		
+
 	}
 
 	private void rasteriseLines(Buffer wb) {

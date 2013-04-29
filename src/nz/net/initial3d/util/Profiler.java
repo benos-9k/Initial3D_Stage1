@@ -7,9 +7,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Profiling helper. Supports multi-threaded use and recursive section entry. Auto-reset operations are performed from a
  * background thread.
- * 
+ *
  * @author Ben Allen
- * 
+ *
  */
 public final class Profiler {
 
@@ -22,7 +22,7 @@ public final class Profiler {
 	private static volatile boolean do_autoreset = true;
 
 	// time between auto-resets, in nanoseconds
-	private static volatile long reset_interval = 10 * 1000 * 1000 * 1000;
+	private static volatile long reset_interval = 10 * 1000 * 1000 * 1000L;
 
 	// time of last reset
 	private static volatile long reset_last = System.nanoTime();
@@ -66,9 +66,10 @@ public final class Profiler {
 						if (do_autoreset) {
 							Profiler.reset();
 						}
-						long nano_sleep = reset_interval - (System.nanoTime() - nano_start);
+						long ri = reset_interval;
+						long nano_sleep = ri - (System.nanoTime() - nano_start);
 						Thread.sleep(nano_sleep / 1000000);
-						nano_start += reset_interval;
+						nano_start += ri;
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -111,7 +112,7 @@ public final class Profiler {
 
 	/**
 	 * Check that the thread data object for the caller is initialised.
-	 * 
+	 *
 	 * @return The thread ID of the caller.
 	 */
 	private static int checkThreadInit() {
@@ -130,7 +131,7 @@ public final class Profiler {
 
 	/**
 	 * Register a new section.
-	 * 
+	 *
 	 * @return The ID of the newly-created section.
 	 */
 	public static synchronized int createSection(String name) {
@@ -142,7 +143,7 @@ public final class Profiler {
 
 	/**
 	 * Get the registered name for a section ID.
-	 * 
+	 *
 	 * @param secid
 	 *            Section ID.
 	 * @return The name.
@@ -153,7 +154,7 @@ public final class Profiler {
 
 	/**
 	 * Enter a section. Must be one of a pair with <code>Profiler.exit()</code>.
-	 * 
+	 *
 	 * @param secid
 	 *            Section ID, as returned by <code>Profiler.createSection()</code>.
 	 */
@@ -178,7 +179,7 @@ public final class Profiler {
 
 	/**
 	 * Exit a section. Must be one of a pair with <code>Profiler.enter()</code>.
-	 * 
+	 *
 	 * @param secid
 	 *            Section ID, as returned by <code>Profiler.createSection()</code>.
 	 */

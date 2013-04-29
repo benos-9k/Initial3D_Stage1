@@ -28,7 +28,7 @@ final class PolygonPipe {
 	/**
 	 * This pipe is synchronous so can use client-side state (but vector buffers and polygon buffers aren't really
 	 * client state anyway).
-	 * 
+	 *
 	 * @param stride
 	 *            units are array indices
 	 */
@@ -49,8 +49,8 @@ final class PolygonPipe {
 		// -- clip
 		// -- triangulate
 
-		// copy enablers etc into buffer
-		// basically copy pBase into start of buffer
+		// copy unsafe renderer state into buffer
+		// basically copy from pBase into start of buffer
 
 		// feed buffer to raster pipe
 		rasterpipe.feed(buf);

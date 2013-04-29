@@ -4,15 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import nz.net.initial3d.util.Profiler;
 import nz.net.initial3d.util.Queue;
 
 import sun.misc.Unsafe;
 
 /**
- * Provides a means of recycling memory obtained with malloc, because malloc is slow.
- * 
+ * Provides a means of recycling memory obtained with malloc, because malloc is
+ * slow.
+ *
  * @author Ben Allen
- * 
+ *
  */
 final class Buffer {
 
@@ -20,6 +22,8 @@ final class Buffer {
 
 	@SuppressWarnings("unchecked")
 	private static final Queue<Buffer>[] buf_queues = new Queue[31];
+
+	private static final int SEC_MALLOC = Profiler.createSection("Buffer-malloc");
 
 	static {
 		for (int i = 0; i < buf_queues.length; i++) {
@@ -41,9 +45,14 @@ final class Buffer {
 		int s = sizeindex(bytes);
 		Buffer buf = buf_queues[s].poll();
 		if (buf == null) {
-			System.out.println("Buffer malloc(): " + (1 << s) + " bytes");
-			long p = unsafe.allocateMemory(1 << s);
-			buf = new Buffer(s, p);
+			Profiler.enter(SEC_MALLOC);
+			try {
+				System.out.println("Buffer malloc(): " + (1 << s) + " bytes");
+				long p = unsafe.allocateMemory(1 << s);
+				buf = new Buffer(s, p);
+			} finally {
+				Profiler.exit(SEC_MALLOC);
+			}
 		}
 		buf.tag = tag;
 		buf.extra = null;

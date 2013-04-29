@@ -2,14 +2,14 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- * 
+ *
  * Yes, much of this does mimic OpenGL 1 / 2.
- * 
+ *
  * All methods will throw <code>I3DException</code> if they want to, and may throw <code>NullPointerException</code> if
  * any parameter is null, unless explicity stated otherwise.
- * 
+ *
  * @author Ben Allen
- * 
+ *
  */
 public abstract class Initial3D {
 
@@ -158,19 +158,19 @@ public abstract class Initial3D {
 	// matrices
 	public static final int MODELVIEW = 11200;
 	public static final int PROJECTION = 11201;
-	
+
 	// begin modes
 	public static final int POLYGON = 11300;
 	public static final int LINE_STRIP = 11301;
 	public static final int LINE_LOOP = 11302;
 
 	public abstract void pushState();
-	
+
 	public abstract void popState();
-	
+
 	/**
 	 * Query the value of a named enum constant, including non-standard ones like 'I3DX_FOG_A'.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the constant. Case sensitive.
 	 * @return The value of the constant.
@@ -186,7 +186,7 @@ public abstract class Initial3D {
 
 	/**
 	 * Query for a named Initial3D method, including non-standard ones like 'flipZSign'.
-	 * 
+	 *
 	 * @param name
 	 *            Name of method. Case sensitive.
 	 * @param paramtypes
@@ -237,7 +237,7 @@ public abstract class Initial3D {
 
 	public abstract void shadeModel(int model);
 
-	public abstract void viewport(int w, int h);
+	public abstract void viewport(int x, int y, int w, int h);
 
 	public abstract void clear(int... buffers);
 
@@ -361,7 +361,7 @@ public abstract class Initial3D {
 	}
 
 	public abstract void cullFace(int face);
-	
+
 	public abstract void finish();
 
 	// matrices

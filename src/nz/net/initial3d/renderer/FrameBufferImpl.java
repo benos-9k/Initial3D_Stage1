@@ -8,6 +8,10 @@ final class FrameBufferImpl extends FrameBuffer {
 
 	private static final Unsafe unsafe = getUnsafe();
 
+	// viewport
+	int viewport_x = 0, viewport_y = 0;
+	int viewport_w = 0, viewport_h = 0;
+
 	// buffer color0
 	Object obj_color0;
 	long pColor0;
@@ -140,4 +144,46 @@ final class FrameBufferImpl extends FrameBuffer {
 		}
 	}
 
+	void viewport(int x, int y, int w, int h) {
+		viewport_x = x;
+		viewport_y = y;
+		viewport_w = w;
+		viewport_h = h;
+	}
+
+	void clear(int type) {
+		// TODO checkthis
+		if (!hasBuffer(type)) return;
+		switch (type) {
+		case Initial3D.BUFFER_COLOR0:
+			clearlines(obj_color0, pColor0 + stride_color0 * viewport_y, viewport_h, viewport_w * 4, stride_color0);
+			break;
+		case Initial3D.BUFFER_COLOR1:
+			clearlines(null, pColor1 + stride_color1 * viewport_y, viewport_h, viewport_w * 4, stride_color1);
+			break;
+		case Initial3D.BUFFER_Z:
+			clearlines(null, pZ + stride_z * viewport_y, viewport_h, viewport_w * 4, stride_z);
+			clearlines(null, pSZ + stride_sz * (viewport_y / 8), (viewport_h / 8), (viewport_w / 2), stride_sz);
+			setZSign(1);
+			break;
+		case Initial3D.BUFFER_STENCIL:
+			// FIXME stencil element size?
+			clearlines(null, pStencil + stride_stencil * viewport_y, viewport_h, viewport_w * 4, stride_stencil);
+			break;
+		case Initial3D.BUFFER_ID:
+			clearlines(null, pID + stride_id * viewport_y, viewport_h, viewport_w * 4, stride_id);
+			break;
+		default:
+			throw nope("Invalid enum.");
+		}
+	}
+
+	void clearlines(Object o, long p, int lines, int w, int stride) {
+		// TODO checkthis
+		for (final long p_end = p + lines * stride; p < p_end; p += stride) {
+			for (final long p_end2 = p + w; p < p_end2; p += 4) {
+				unsafe.putInt(o, p, 0);
+			}
+		}
+	}
 }

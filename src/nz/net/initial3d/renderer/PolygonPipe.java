@@ -25,6 +25,11 @@ final class PolygonPipe {
 		rasterpipe = rp;
 	}
 
+	void finish() {
+		// nothing to do here, just finish the raster pipe
+		rasterpipe.finish();
+	}
+
 	/**
 	 * This pipe is synchronous so can use client-side state (but vector buffers and polygon buffers aren't really
 	 * client state anyway).

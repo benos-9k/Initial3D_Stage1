@@ -125,7 +125,9 @@ public final class Initial3DImpl extends Initial3D {
 		private void initUnsafeState() {
 			// this shouldn't require pipeline to be finished
 			// init the 'unsafe' parts of the state that depend on 'safe' parts
-			// specifically the matrices, and anything dependent on them, like the clipfuncs
+			// specifically the matrices, and anything dependent on them, like
+			// the clipfuncs
+			// also copy info from framebuffer
 
 		}
 
@@ -190,18 +192,22 @@ public final class Initial3DImpl extends Initial3D {
 
 		}
 
-		void viewport(int w, int h) {
-			// TODO viewport
-
+		void viewport(int x, int y, int w, int h) {
+			// can do this without finish()
+			bound_framebuffer.viewport(x, y, w, h);
 		}
 
 		void clear(int... buffers) {
 			finish();
-			// TODO Auto-generated method stub
-
+			for (int buffer : buffers) {
+				bound_framebuffer.clear(buffer);
+			}
 		}
 
 		void flipZSign() {
+			// it should be possible to do this without a finish(), but only if
+			// draw calls in progress at any one time span no more than one
+			// z-flip.
 			finish();
 			System.out.println("flippity");
 			// TODO flip zsign
@@ -254,28 +260,29 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
+			initUnsafeState();
 			// TODO draw polys
 
 		}
 
 		void begin(int mode) {
 			// clear buffers
-			state.peek().begin_vbo_v.clear();
-			state.peek().begin_vbo_vt.clear();
-			state.peek().begin_vbo_vn.clear();
-			state.peek().begin_vbo_c0.clear();
-			state.peek().begin_vbo_c1.clear();
+			begin_vbo_v.clear();
+			begin_vbo_vt.clear();
+			begin_vbo_vn.clear();
+			begin_vbo_c0.clear();
+			begin_vbo_c1.clear();
 			// need valid first vector
-			state.peek().begin_vbo_v.add(0, 0, 0, 0);
-			state.peek().begin_vbo_vt.add(0, 0, 0, 0);
-			state.peek().begin_vbo_vn.add(0, 0, 0, 0);
-			state.peek().begin_vbo_c0.add(1, 1, 1, 1);
-			state.peek().begin_vbo_c1.add(1, 1, 1, 1);
+			begin_vbo_v.add(0, 0, 0, 0);
+			begin_vbo_vt.add(0, 0, 0, 0);
+			begin_vbo_vn.add(0, 0, 0, 0);
+			begin_vbo_c0.add(1, 1, 1, 1);
+			begin_vbo_c1.add(1, 1, 1, 1);
 
 			switch (mode) {
 			case POLYGON:
 				// clear polygon
-				state.peek().protopoly[0] = 0;
+				protopoly[0] = 0;
 				break;
 			case LINE_STRIP:
 				nope("LINE_STRIP unimplimented.");
@@ -287,20 +294,20 @@ public final class Initial3DImpl extends Initial3D {
 				throw nope("Invalid enum.");
 			}
 
-			state.peek().begin_mode = mode;
+			begin_mode = mode;
 		}
 
 		void vertex(double x, double y, double z) {
-			state.peek().begin_vbo_v.add(x, y, z, 1);
+			begin_vbo_v.add(x, y, z, 1);
 			// bind to previously set normal / texcoord
-			switch (state.peek().begin_mode) {
+			switch (begin_mode) {
 			case POLYGON:
-				int vcount = state.peek().protopoly[0] + 1;
-				state.peek().protopoly[0] = vcount;
-				state.peek().protopoly[vcount * 4] = state.peek().begin_vbo_v.count() - 1;
-				state.peek().protopoly[vcount * 4 + 1] = state.peek().begin_vbo_vt.count() - 1;
-				state.peek().protopoly[vcount * 4 + 2] = state.peek().begin_vbo_vn.count() - 1;
-				state.peek().protopoly[vcount * 4 + 3] = state.peek().begin_vbo_c0.count() - 1;
+				int vcount = protopoly[0] + 1;
+				protopoly[0] = vcount;
+				protopoly[vcount * 4] = begin_vbo_v.count() - 1;
+				protopoly[vcount * 4 + 1] = begin_vbo_vt.count() - 1;
+				protopoly[vcount * 4 + 2] = begin_vbo_vn.count() - 1;
+				protopoly[vcount * 4 + 3] = begin_vbo_c0.count() - 1;
 				break;
 			default:
 				throw nope("WTF?!");
@@ -324,6 +331,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void end() {
+			initUnsafeState();
 			// TODO Auto-generated method stub
 
 		}
@@ -400,8 +408,9 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void finish() {
-			// TODO Auto-generated method stub
-
+			polypipe.finish();
+			// any other geometric primitive pipe finish()
+			// lines?
 		}
 
 		void matrixMode(int mode) {
@@ -616,8 +625,8 @@ public final class Initial3DImpl extends Initial3D {
 	}
 
 	@Override
-	public void viewport(int w, int h) {
-		state.peek().viewport(w, h);
+	public void viewport(int x, int y, int w, int h) {
+		state.peek().viewport(x, y, w, h);
 	}
 
 	@Override

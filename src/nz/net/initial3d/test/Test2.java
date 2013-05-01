@@ -38,6 +38,21 @@ public class Test2 {
 		long nanos1 = System.nanoTime() - nano_start1;
 		System.out.println(nanos1);
 
+		// --------
+
+		long nano_start2 = System.nanoTime();
+
+		float test2 = 0;
+		float f2 = 0;
+		for (long i = 0; i < TEST_LENGTH; i++) {
+			test2 += (f2++);
+		}
+
+		System.out.println(test2);
+
+		long nanos2 = System.nanoTime() - nano_start2;
+		System.out.println(nanos2);
+
 		System.out.println(nanos1 / (double) nanos0);
 	}
 

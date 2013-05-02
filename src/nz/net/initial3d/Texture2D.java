@@ -57,11 +57,11 @@ public abstract class Texture2D {
 
 	public abstract void setTexel(int u, int v, int argb, boolean wrap);
 
-	public void setTexelComponent(int u, int v, Channel ch, float val) {
-		setTexelComponent(u, v, ch, val, false);
+	public void setTexelComponentFloat(int u, int v, Channel ch, float val) {
+		setTexelComponentFloat(u, v, ch, val, false);
 	}
 
-	public abstract void setTexelComponent(int u, int v, Channel ch, float val, boolean wrap);
+	public abstract void setTexelComponentFloat(int u, int v, Channel ch, float val, boolean wrap);
 
 	public void setTexelComponent(int u, int v, Channel ch, int val) {
 		setTexelComponent(u, v, ch, val, false);

@@ -2,6 +2,7 @@ package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
 import nz.net.initial3d.*;
+import nz.net.initial3d.renderer.Type.tex2d_t;
 
 import sun.misc.Unsafe;
 
@@ -34,7 +35,8 @@ final class Texture2DImpl extends Texture2D {
 		u = u & 0x0000FFFF;
 		v = v & 0x0000FFFF;
 		// no it doesn't... v >>> 16 is a no-no
-		// int probablyworks = ((stride + (v >>> 16)) << levelv) + ((4 + (u >>> 14)) << levelu);
+		// int probablyworks = ((stride + (v >>> 16)) << levelv) + ((4 + (u >>>
+		// 14)) << levelu);
 		return (stride << levelv) + (v >>> (16 - levelv)) + (4 << levelu) + (u >>> (14 - levelu));
 	}
 
@@ -106,6 +108,9 @@ final class Texture2DImpl extends Texture2D {
 		alloc = sizeu * sizev * 4 * 4;
 		pTex = unsafe.allocateMemory(alloc);
 		pTop = pTex + levelOffset(stride_tex, levelu_top, levelv_top);
+		// set level ceilings
+		unsafe.putByte(pTex + tex2d_t.uceil(), (byte) levelu_top);
+		unsafe.putByte(pTex + tex2d_t.vceil(), (byte) levelv_top);
 		// init texture to black
 		clear();
 	}
@@ -127,26 +132,27 @@ final class Texture2DImpl extends Texture2D {
 
 	@Override
 	public void setMipMapsEnabled(boolean b) {
-		// TODO Auto-generated method stub
-
+		if (b) {
+			unsafe.putShort(pTex + tex2d_t.flags(), (short) (unsafe.getShort(pTex + tex2d_t.flags()) | 0x1));
+		} else {
+			unsafe.putShort(pTex + tex2d_t.flags(), (short) (unsafe.getShort(pTex + tex2d_t.flags()) & ~0x1));
+		}
 	}
 
 	@Override
 	public boolean getMipMapsEnabled() {
-		// TODO
-		return false;
+		return (unsafe.getShort(pTex + tex2d_t.flags()) & 0x1) == 0x1;
 	}
 
 	@Override
 	public void setMipMapFloor(int i) {
-		// TODO Auto-generated method stub
-
+		unsafe.putByte(pTex + tex2d_t.ufloor(), (byte) i);
+		unsafe.putByte(pTex + tex2d_t.vfloor(), (byte) i);
 	}
 
 	@Override
 	public int getMipMapFloor() {
-		// TODO
-		return 0;
+		return unsafe.getByte(pTex + tex2d_t.ufloor());
 	}
 
 	@Override
@@ -155,40 +161,69 @@ final class Texture2DImpl extends Texture2D {
 
 	}
 
+	private long texelPointer(int u, int v) {
+		// integer u, v
+		return pTex + levelOffset(stride_tex, levelu_top, levelv_top) + stride_tex * v + 4 * u;
+	}
+
 	@Override
 	public int getTexel(int u, int v, boolean wrap) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (wrap && (u < 0 || u >= sizeu || v < 0 || v >= sizev)) return 0;
+		return unsafe.getInt(texelPointer(u, v));
 	}
 
 	@Override
 	public float getTexelComponentFloat(int u, int v, Channel ch, boolean wrap) {
-		// TODO Auto-generated method stub
-		return 0;
+		return getTexelComponent(u, v, ch, wrap) / 255f;
 	}
 
 	@Override
 	public int getTexelComponent(int u, int v, Channel ch, boolean wrap) {
-		// TODO Auto-generated method stub
-		return 0;
+		int argb = getTexel(u, v, wrap);
+		switch (ch) {
+		case ALPHA:
+			return (argb >>> 24) & 0xFF;
+		case RED:
+			return (argb >>> 16) & 0xFF;
+		case GREEN:
+			return (argb >>> 8) & 0xFF;
+		case BLUE:
+			return argb & 0xFF;
+		default:
+			throw nope("Invalid texture channel.");
+		}
 	}
 
 	@Override
 	public void setTexel(int u, int v, int argb, boolean wrap) {
-		// TODO Auto-generated method stub
-
+		if (wrap && (u < 0 || u >= sizeu || v < 0 || v >= sizev)) return;
+		unsafe.putInt(texelPointer(u, v), argb);
 	}
 
 	@Override
-	public void setTexelComponent(int u, int v, Channel ch, float val, boolean wrap) {
-		// TODO Auto-generated method stub
-
+	public void setTexelComponentFloat(int u, int v, Channel ch, float val, boolean wrap) {
+		setTexelComponent(u, v, ch, (int) (clamp(val, 0f, 1f) * 255f), wrap);
 	}
 
 	@Override
 	public void setTexelComponent(int u, int v, Channel ch, int val, boolean wrap) {
-		// TODO Auto-generated method stub
-
+		int argb = getTexel(u, v, wrap);
+		switch (ch) {
+		case ALPHA:
+			argb = (argb & 0x00FFFFFF) | ((val & 0xFF) << 24);
+			break;
+		case RED:
+			argb = (argb & 0xFF00FFFF) | ((val & 0xFF) << 16);
+			break;
+		case GREEN:
+			argb = (argb & 0xFFFF00FF) | ((val & 0xFF) << 8);
+			break;
+		case BLUE:
+			argb = (argb & 0xFFFFFF00) | (val & 0xFF);
+		default:
+			throw nope("Invalid texture channel.");
+		}
+		setTexel(u, v, argb, wrap);
 	}
 
 	@Override

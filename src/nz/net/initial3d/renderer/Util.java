@@ -122,7 +122,7 @@ final class Util {
 		throw new I3DException(msg, cause);
 	}
 
-	static int colorMul(int rgb, float k) {
+	static int colorScale(int rgb, float k) {
 		k = k < 0f ? 0f : k;
 		int a = (int) ((rgb >>> 24) * k);
 		a = a < 255 ? a : 255;
@@ -135,16 +135,24 @@ final class Util {
 		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 
-	static int colorAdd(int rgb0, int rgb1) {
-		int a = (rgb0 >>> 24) + (rgb1 >>> 24);
+	static int colorAdd(int argb0, int argb1) {
+		int a = (argb0 >>> 24) + (argb1 >>> 24);
 		a = a < 255 ? a : 255;
-		int r = ((rgb0 >>> 16) & 0xFF) + ((rgb1 >>> 16) & 0xFF);
+		int r = ((argb0 >>> 16) & 0xFF) + ((argb1 >>> 16) & 0xFF);
 		r = r < 255 ? r : 255;
-		int g = ((rgb0 >>> 8) & 0xFF) + ((rgb1 >>> 8) & 0xFF);
+		int g = ((argb0 >>> 8) & 0xFF) + ((argb1 >>> 8) & 0xFF);
 		g = g < 255 ? g : 255;
-		int b = (rgb0 & 0xFF) + (rgb1 & 0xFF);
+		int b = (argb0 & 0xFF) + (argb1 & 0xFF);
 		b = b < 255 ? b : 255;
 		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	static int colorMul(int argb0, int argb1) {
+		int c = (((argb0 >>> 24) * ((argb1 >>> 24) + 1)) << 16) & 0xFF000000;
+		c |= ((((argb0 >>> 16) & 0xFF) * (((argb1 >>> 16) & 0xFF) + 1)) << 8) & 0x00FF0000;
+		c |= (((argb0 >>> 8) & 0xFF) * (((argb1 >>> 8) & 0xFF) + 1)) & 0x0000FF00;
+		c |= ((argb0 & 0xFF) * ((argb1 & 0xFF) + 1)) >>> 8;
+		return c;
 	}
 
 	static int alphaBlend(int base, int top) {
@@ -154,8 +162,8 @@ final class Util {
 		float iAlpha = 1f / alpha;
 		// color = alpha_top * color_top + (1 - alpha_top) * alpha_base * color_base
 		return (((int) (alpha * 255f)) << 24)
-				| colorAdd(colorMul(0x00FFFFFF & top, alpha_top * iAlpha),
-						colorMul(0x00FFFFFF & base, (1f - alpha_top) * alpha_base * iAlpha));
+				| colorAdd(colorScale(0x00FFFFFF & top, alpha_top * iAlpha),
+						colorScale(0x00FFFFFF & base, (1f - alpha_top) * alpha_base * iAlpha));
 	}
 
 	static void writeMat(Unsafe unsafe, long pTarget, Mat4 m) {
@@ -229,7 +237,7 @@ final class Util {
 	/**
 	 * Left-multiply a block of position vectors (assumed homogenised) by a transformation matrix and homogenise them,
 	 * setting the w component to the inverse of its non-homogenised value.
-	 * 
+	 *
 	 * @param size
 	 *            number of vectors in block
 	 */
@@ -280,7 +288,7 @@ final class Util {
 
 	/**
 	 * Left-multiply a block of normal vectors by a transformation matrix and normalise them.
-	 * 
+	 *
 	 * @param size
 	 *            number of vectors in block
 	 */

@@ -508,10 +508,35 @@ final class Type {
 
 	}
 
-	static final class texture_t {
+	static final class tex2d_t {
 
-		private texture_t() {
+		private tex2d_t() {
 			throw new AssertionError();
+		}
+
+		/** Field type: short; 0x1 => mipmaps */
+		static int flags() {
+			return 0;
+		}
+
+		/** Field type: byte */
+		static int ufloor() {
+			return 2;
+		}
+
+		/** Field type: byte */
+		static int vfloor() {
+			return 3;
+		}
+
+		/** Field type: byte */
+		static int uceil() {
+			return 4;
+		}
+
+		/** Field type: byte */
+		static int vceil() {
+			return 5;
 		}
 
 	}

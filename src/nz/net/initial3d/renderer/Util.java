@@ -42,8 +42,8 @@ final class Util {
 	}
 
 	/**
-	 * Fast approximation for inverse of a positive float. Identical to <code>fastInverseSqrt()</code>, except the
-	 * operand is squared.
+	 * Fast approximation for inverse of a positive float. Identical to
+	 * <code>fastInverseSqrt()</code>, except the operand is squared.
 	 */
 	static float fastInverse(float x) {
 		x *= x;
@@ -97,7 +97,8 @@ final class Util {
 	}
 
 	/**
-	 * Wrapper for <code>Thread.sleep()</code> that suppresses InterruptedException.
+	 * Wrapper for <code>Thread.sleep()</code> that suppresses
+	 * InterruptedException.
 	 */
 	static void pause(long ms) {
 		try {
@@ -108,18 +109,24 @@ final class Util {
 	}
 
 	/**
-	 * Throw a new I3DException with the specified message. Is declared to return I3DException for convenience only.
+	 * Throw a new I3DException with the specified message. Is declared to
+	 * return I3DException for convenience only.
 	 */
 	static I3DException nope(String msg) {
 		throw new I3DException(msg);
 	}
 
 	/**
-	 * Throw a new I3DException with the specified message and cause. Is declared to return I3DException for convenience
-	 * only.
+	 * Throw a new I3DException with the specified message and cause. Is
+	 * declared to return I3DException for convenience only.
 	 */
 	static I3DException nope(String msg, Throwable cause) {
 		throw new I3DException(msg, cause);
+	}
+
+	static int colorGrey(int g) {
+		g = clamp(g, 0, 255);
+		return (g << 24) | (g << 16) | (g << 8) | g;
 	}
 
 	static int colorScale(int rgb, float k) {
@@ -147,7 +154,18 @@ final class Util {
 		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 
+	static int fastColorAdd(int argb0, int argb1) {
+		// http://www.java-gaming.org/topics/fastest-color-addition-with-clamp-0-255-of-rgb/18379/view.html
+		// using long allows alpha component to be overflow protected
+		// set lsb to zero and add
+		long c = (argb0 & 0xFEFEFEL) + (argb1 & 0xFEFEFEL);
+		// clamp color to 0 - 255
+		c |= ((c >>> 8) & 0x010101L) * 0xFFL;
+		return (int) c;
+	}
+
 	static int colorMul(int argb0, int argb1) {
+		// welp, apparently this one is faster
 		int c = (((argb0 >>> 24) * ((argb1 >>> 24) + 1)) << 16) & 0xFF000000;
 		c |= ((((argb0 >>> 16) & 0xFF) * (((argb1 >>> 16) & 0xFF) + 1)) << 8) & 0x00FF0000;
 		c |= (((argb0 >>> 8) & 0xFF) * (((argb1 >>> 8) & 0xFF) + 1)) & 0x0000FF00;
@@ -155,15 +173,12 @@ final class Util {
 		return c;
 	}
 
-	static int alphaBlend(int base, int top) {
-		float alpha_base = (base >>> 24) / 255f;
-		float alpha_top = (top >>> 24) / 255f;
-		float alpha = 1f - (1f - alpha_top) * (1f - alpha_base);
-		float iAlpha = 1f / alpha;
-		// color = alpha_top * color_top + (1 - alpha_top) * alpha_base * color_base
-		return (((int) (alpha * 255f)) << 24)
-				| colorAdd(colorScale(0x00FFFFFF & top, alpha_top * iAlpha),
-						colorScale(0x00FFFFFF & base, (1f - alpha_top) * alpha_base * iAlpha));
+	static int colorMul2(int argb0, int argb1) {
+		long b = (((argb0 & 0x000000FFL) * (argb1 & 0x000000FFL) + 0x00000000000000FFL) & 0x000000000000FF00L) >>> 8;
+		long g = (((argb0 & 0x0000FF00L) * (argb1 & 0x0000FF00L) + 0x0000000000FFFFFFL) & 0x00000000FF000000L) >>> 16;
+		long r = (((argb0 & 0x00FF0000L) * (argb1 & 0x00FF0000L) + 0x000000FFFFFFFFFFL) & 0x0000FF0000000000L) >>> 24;
+		long a = (((argb0 & 0xFF000000L) * (argb1 & 0xFF000000L) + 0x00FFFFFFFFFFFFFFL) & 0xFF00000000000000L) >>> 32;
+		return (int) (a | r | g | b);
 	}
 
 	static void writeMat(Unsafe unsafe, long pTarget, Mat4 m) {
@@ -235,8 +250,9 @@ final class Util {
 	}
 
 	/**
-	 * Left-multiply a block of position vectors (assumed homogenised) by a transformation matrix and homogenise them,
-	 * setting the w component to the inverse of its non-homogenised value.
+	 * Left-multiply a block of position vectors (assumed homogenised) by a
+	 * transformation matrix and homogenise them, setting the w component to the
+	 * inverse of its non-homogenised value.
 	 *
 	 * @param size
 	 *            number of vectors in block
@@ -287,7 +303,8 @@ final class Util {
 	}
 
 	/**
-	 * Left-multiply a block of normal vectors by a transformation matrix and normalise them.
+	 * Left-multiply a block of normal vectors by a transformation matrix and
+	 * normalise them.
 	 *
 	 * @param size
 	 *            number of vectors in block

@@ -91,16 +91,16 @@ public class DisplayWindow extends JFrame {
 
 		BufferedImage cursorimg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		blankcursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorimg, new Point(0, 0), "blankcursor");
-		
+
 		this.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				DisplayWindow.this.setMouseCapture(DisplayWindow.this.getPrevMouseCapture());
+				DisplayWindow.this.setMouseCapture(DisplayWindow.this.prev_mousecaptured);
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				DisplayWindow.this.setPrevMouseCapture(DisplayWindow.this.isMouseCaptured());
+				DisplayWindow.this.prev_mousecaptured = DisplayWindow.this.isMouseCaptured();
 				DisplayWindow.this.setMouseCapture(false);
 			}
 		});
@@ -112,10 +112,13 @@ public class DisplayWindow extends JFrame {
 			throw new AssertionError(e);
 		}
 
-		Toolkit.getDefaultToolkit().addAWTEventListener(new MouseEventHandler(),
-				AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
-		Toolkit.getDefaultToolkit().addAWTEventListener(new MouseWheelEventHandler(), AWTEvent.MOUSE_WHEEL_EVENT_MASK);
-		Toolkit.getDefaultToolkit().addAWTEventListener(new KeyEventHandler(), AWTEvent.KEY_EVENT_MASK);
+		// Toolkit.getDefaultToolkit().addAWTEventListener(new
+		// MouseEventHandler(),
+		// AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+		// Toolkit.getDefaultToolkit().addAWTEventListener(new
+		// MouseWheelEventHandler(), AWTEvent.MOUSE_WHEEL_EVENT_MASK);
+		// Toolkit.getDefaultToolkit().addAWTEventListener(new
+		// KeyEventHandler(), AWTEvent.KEY_EVENT_MASK);
 
 	}
 
@@ -146,11 +149,11 @@ public class DisplayWindow extends JFrame {
 	public void addCanvasMouseListener(MouseListener ml) {
 		canvas.addMouseListener(ml);
 	}
-	
+
 	public void addCanvasMouseMotionListener(MouseMotionListener ml) {
 		canvas.addMouseMotionListener(ml);
 	}
-	
+
 	public int getDisplayWidth() {
 		return canvas.getWidth();
 	}
@@ -189,8 +192,10 @@ public class DisplayWindow extends JFrame {
 				ft += ct - lt;
 				ft /= fc;
 				fr = 1000d / ft;
-				g.setColor(Color.MAGENTA);
-				g.drawString(String.format("%05.1f|%03d|%05.1f|%03d|%d", fr, maxdt, ft, mindt, ct - t_lastbad), 5, 15);
+				// g.setColor(Color.MAGENTA);
+				// g.drawString(String.format("%05.1f|%03d|%05.1f|%03d|%d", fr,
+				// maxdt, ft, mindt, ct - t_lastbad), 5, 15);
+				setTitle(String.format("%.2f FPS", fr));
 				if (draw_crosshair) {
 					g.setColor(Color.WHITE);
 					int ch_x = canvas.getWidth() / 2 - 10;
@@ -220,7 +225,7 @@ public class DisplayWindow extends JFrame {
 
 	/**
 	 * Get the current state of a key.
-	 * 
+	 *
 	 * @param vk
 	 *            The virtual key code of the key to check
 	 * @return True iff the key is down
@@ -231,7 +236,7 @@ public class DisplayWindow extends JFrame {
 
 	/**
 	 * Get the current state of a key, and if it is down clear its state.
-	 * 
+	 *
 	 * @param vk
 	 *            The virtual key code of the key to check
 	 * @return True iff the key is down
@@ -242,7 +247,7 @@ public class DisplayWindow extends JFrame {
 
 	/**
 	 * Get the current state of a mouse button.
-	 * 
+	 *
 	 * @param button
 	 *            The code of the mouse button to check, per
 	 *            <code>java.awt.MouseEvent</code> (although the corresponding
@@ -256,7 +261,7 @@ public class DisplayWindow extends JFrame {
 	/**
 	 * Get the current state of a mousebutton, and if it is down clear its
 	 * state.
-	 * 
+	 *
 	 * @param button
 	 *            The code of the mouse button to check, per
 	 *            <code>java.awt.MouseEvent</code> (although the corresponding
@@ -323,26 +328,19 @@ public class DisplayWindow extends JFrame {
 			}
 		}
 	}
-	
+
 	/**
-	 * Gets the previous state of the mouse captured prior to the window losing focus
+	 * Gets the previous state of the mouse capture prior to the window losing
+	 * focus.
 	 */
-	public boolean getPrevMouseCapture()
-	{
+	public boolean getPrevMouseCapture() {
 		return this.prev_mousecaptured;
-	}
-	
-	/**
-	 * Sets the previous state of the mouse captured prior to the window losing focus
-	 */
-	public void setPrevMouseCapture(boolean b) {
-		this.prev_mousecaptured = b;
 	}
 
 	/**
 	 * Determine if the cursor has been made invisible by a call to
 	 * <code>setCursorVisible()</code>.
-	 * 
+	 *
 	 * @return false iff <code>setCursorVisible(false)</code> has been called,
 	 *         and setting a custom cursor is allowed.
 	 */
@@ -491,6 +489,62 @@ public class DisplayWindow extends JFrame {
 
 	public boolean isCrosshairVisible(boolean b) {
 		return draw_crosshair;
+	}
+
+	@Override
+	protected void processKeyEvent(KeyEvent ke) {
+		synchronized (activekeys) {
+			if (ke.getID() == KeyEvent.KEY_PRESSED) activekeys.add(ke.getKeyCode());
+			if (ke.getID() == KeyEvent.KEY_RELEASED) activekeys.remove(ke.getKeyCode());
+		}
+		super.processKeyEvent(ke);
+	}
+
+	@Override
+	protected void processMouseEvent(MouseEvent me) {
+		if (me.getButton() != MouseEvent.NOBUTTON) {
+			synchronized (activebuttons) {
+				if (me.getID() == MouseEvent.MOUSE_PRESSED) activebuttons.add(me.getButton());
+				if (me.getID() == MouseEvent.MOUSE_RELEASED) activebuttons.remove(me.getButton());
+			}
+		}
+		super.processMouseEvent(me);
+	}
+
+	@Override
+	protected void processMouseMotionEvent(MouseEvent me) {
+		synchronized (lock_mousedata) {
+			Point cloc;
+			if (isFullscreen()) {
+				// HACK for getLocationOnScreen() not giving 0,0 in
+				// fullscreen
+				cloc = point_zero;
+			} else {
+				cloc = canvas.getLocationOnScreen();
+			}
+			mousex = me.getXOnScreen() - cloc.x;
+			mousey = me.getYOnScreen() - cloc.y;
+			if (mousecaptured) {
+				int centrex = canvas.getWidth() / 2;
+				int centrey = canvas.getHeight() / 2;
+				mousetravelx += (mousex - centrex);
+				mousetravely += (mousey - centrey);
+				// put the mouse in the centre of the canvas again
+				// check if non zero travel to avoid mouse event spam
+				if (mousetravelx != 0 || mousetravely != 0) {
+					robot.mouseMove(cloc.x + centrex, cloc.y + centrey);
+				}
+			}
+		}
+		super.processMouseMotionEvent(me);
+	}
+
+	@Override
+	protected void processMouseWheelEvent(MouseWheelEvent me) {
+		synchronized (lock_mousedata) {
+			mousescrollclicks += me.getWheelRotation();
+		}
+		super.processMouseWheelEvent(me);
 	}
 
 	private class MouseEventHandler implements AWTEventListener {

@@ -13,7 +13,7 @@ public class TestTex {
 
 		Texture2DImpl tex = new Texture2DImpl(512, 512);
 
-		BufferedImage img = ImageIO.read(new File("checkerboard.jpg"));
+		BufferedImage img = ImageIO.read(new File("fractal.jpg"));
 
 		tex.drawImage(img);
 

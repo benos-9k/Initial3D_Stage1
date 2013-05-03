@@ -1,6 +1,10 @@
 package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+
 import nz.net.initial3d.*;
 import nz.net.initial3d.renderer.Type.tex2d_t;
 
@@ -157,18 +161,48 @@ final class Texture2DImpl extends Texture2D {
 
 	@Override
 	public void createMipMaps() {
-		// TODO Auto-generated method stub
+		for (int levelu = levelu_top; levelu >= 0; levelu--) {
+			if (levelu < levelu_top) {
+				// compose mipmap for top v-level
+				for (int u = 1 << levelu; u-- > 0;) {
+					for (int v = sizev; v-- > 0;) {
+						// for all pixels
+						int argb0 = unsafe.getInt(texelPointer(levelu + 1, levelv_top, u * 2, v));
+						int argb1 = unsafe.getInt(texelPointer(levelu + 1, levelv_top, u * 2 + 1, v));
+						unsafe.putInt(texelPointer(levelu, levelv_top, u, v), colorAvg(argb0, argb1));
+					}
+				}
+			}
+			for (int levelv = levelv_top; levelv-- > 0;) {
+				// for all mipmaps below top v-level
+				for (int u = 1 << levelu; u-- > 0;) {
+					for (int v = 1 << levelv; v-- > 0;) {
+						// for all pixels
+						int argb0 = unsafe.getInt(texelPointer(levelu, levelv + 1, u, v * 2));
+						int argb1 = unsafe.getInt(texelPointer(levelu, levelv + 1, u, v * 2 + 1));
+						unsafe.putInt(texelPointer(levelu, levelv, u, v), colorAvg(argb0, argb1));
+					}
+				}
+			}
+		}
+	}
 
+	private long texelPointer(int levelu, int levelv, int u, int v) {
+		// integer u, v
+		if (u < 0 || u >= sizeu || v < 0 || v >= sizev) System.out.println("wrapping! u=" + u + ", v=" + v);
+		u &= (sizeu - 1);
+		v &= (sizev - 1);
+		return pTex + levelOffset(stride_tex, levelu, levelv) + stride_tex * v + 4 * u;
 	}
 
 	private long texelPointer(int u, int v) {
 		// integer u, v
-		return pTex + levelOffset(stride_tex, levelu_top, levelv_top) + stride_tex * v + 4 * u;
+		return texelPointer(levelu_top, levelv_top, u, v);
 	}
 
 	@Override
 	public int getTexel(int u, int v, boolean wrap) {
-		if (wrap && (u < 0 || u >= sizeu || v < 0 || v >= sizev)) return 0;
+		if (!wrap && (u < 0 || u >= sizeu || v < 0 || v >= sizev)) return 0;
 		return unsafe.getInt(texelPointer(u, v));
 	}
 
@@ -196,7 +230,7 @@ final class Texture2DImpl extends Texture2D {
 
 	@Override
 	public void setTexel(int u, int v, int argb, boolean wrap) {
-		if (wrap && (u < 0 || u >= sizeu || v < 0 || v >= sizev)) return;
+		if (!wrap && (u < 0 || u >= sizeu || v < 0 || v >= sizev)) return;
 		unsafe.putInt(texelPointer(u, v), argb);
 	}
 
@@ -231,6 +265,16 @@ final class Texture2DImpl extends Texture2D {
 		// zero out the texture data
 		int offset = levelOffset(stride_tex, 0, 0);
 		unsafe.setMemory(pTex + offset, alloc - offset, (byte) 0);
+	}
+
+	public BufferedImage extractAll() {
+		// just to test if the mip-mapping works properly
+		BufferedImage img = new BufferedImage(sizeu * 2, sizev * 2, BufferedImage.TYPE_INT_ARGB);
+		int[] imgdata = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		for (long p = pTex, o = unsafe.arrayBaseOffset(int[].class); p < pTex + alloc; p += 4, o += 4) {
+			unsafe.putInt(imgdata, o, unsafe.getInt(p));
+		}
+		return img;
 	}
 
 }

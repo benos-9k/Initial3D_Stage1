@@ -129,17 +129,27 @@ final class Util {
 		return (g << 24) | (g << 16) | (g << 8) | g;
 	}
 
-	static int colorScale(int rgb, float k) {
+	static int colorScale(int argb, float k) {
 		k = k < 0f ? 0f : k;
-		int a = (int) ((rgb >>> 24) * k);
+		int a = (int) ((argb >>> 24) * k);
 		a = a < 255 ? a : 255;
-		int r = (int) (((rgb >>> 16) & 0xFF) * k);
+		int r = (int) (((argb >>> 16) & 0xFF) * k);
 		r = r < 255 ? r : 255;
-		int g = (int) (((rgb >>> 8) & 0xFF) * k);
+		int g = (int) (((argb >>> 8) & 0xFF) * k);
 		g = g < 255 ? g : 255;
-		int b = (int) ((rgb & 0xFF) * k);
+		int b = (int) ((argb & 0xFF) * k);
 		b = b < 255 ? b : 255;
 		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	static int colorScale(int argb, int k) {
+		// k only [0, 255] !!!
+		k++;
+		int c = (((argb >>> 24) * k) << 16) & 0xFF000000;
+		c |= ((((argb >>> 16) & 0xFF) * k) << 8) & 0x00FF0000;
+		c |= (((argb >>> 8) & 0xFF) * k) & 0x0000FF00;
+		c |= ((argb & 0xFF) * k) >>> 8;
+		return c;
 	}
 
 	static int colorAdd(int argb0, int argb1) {
@@ -151,6 +161,26 @@ final class Util {
 		g = g < 255 ? g : 255;
 		int b = (argb0 & 0xFF) + (argb1 & 0xFF);
 		b = b < 255 ? b : 255;
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	static int colorSub(int argb0, int argb1) {
+		int a = (argb0 >>> 24) - (argb1 >>> 24);
+		a = a < 0 ? 0 : a;
+		int r = ((argb0 >>> 16) & 0xFF) - ((argb1 >>> 16) & 0xFF);
+		r = r < 0 ? 0 : r;
+		int g = ((argb0 >>> 8) & 0xFF) - ((argb1 >>> 8) & 0xFF);
+		g = g < 0 ? 0 : g;
+		int b = (argb0 & 0xFF) - (argb1 & 0xFF);
+		b = b < 0 ? 0 : b;
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	static int colorAvg(int argb0, int argb1) {
+		int a = ((argb0 >>> 24) + (argb1 >>> 24)) >>> 1;
+		int r = (((argb0 >>> 16) & 0xFF) + ((argb1 >>> 16) & 0xFF)) >>> 1;
+		int g = (((argb0 >>> 8) & 0xFF) + ((argb1 >>> 8) & 0xFF)) >>> 1;
+		int b = ((argb0 & 0xFF) + (argb1 & 0xFF)) >>> 1;
 		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 

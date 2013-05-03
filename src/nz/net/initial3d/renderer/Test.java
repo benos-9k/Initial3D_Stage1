@@ -35,7 +35,7 @@ public class Test {
 
 		int test1 = ran.nextInt();
 		for (long i = 0; i < TEST_LENGTH; i++) {
-			test1 ^= colorMul2(test1, c);
+			test1 ^= fastColorAdd(test1, c);
 		}
 
 		System.out.println(test1);

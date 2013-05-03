@@ -78,6 +78,8 @@ public final class Initial3DImpl extends Initial3D {
 			matrix_mode = MODELVIEW;
 			modelview.push(new Mat4());
 			projection.push(new Mat4());
+			
+			projectionMode(ORTHOGRAPHIC);
 		}
 
 		State(State other_) {
@@ -346,7 +348,7 @@ public final class Initial3DImpl extends Initial3D {
 
 		}
 
-		void blendFunc(int sfactor, int dfactor) {
+		void blendFunc(int sfactor, int dfactor, int mode) {
 			// TODO Auto-generated method stub
 
 		}
@@ -405,6 +407,14 @@ public final class Initial3DImpl extends Initial3D {
 		void cullFace(int face) {
 			// TODO Auto-generated method stub
 
+		}
+		
+		void nearClip(double z) {
+			// TODO
+		}
+		
+		void farCull(double z) {
+			// TODO
 		}
 
 		void finish() {
@@ -495,8 +505,6 @@ public final class Initial3DImpl extends Initial3D {
 
 		// setup initial state
 		state.push(new State());
-
-		projectionMode(ORTHOGRAPHIC);
 	}
 
 	@Override
@@ -694,8 +702,8 @@ public final class Initial3DImpl extends Initial3D {
 	}
 
 	@Override
-	public void blendFunc(int sfactor, int dfactor) {
-		state.peek().blendFunc(sfactor, dfactor);
+	public void blendFunc(int sfactor, int dfactor, int mode) {
+		state.peek().blendFunc(sfactor, dfactor, mode);
 	}
 
 	@Override
@@ -750,6 +758,16 @@ public final class Initial3DImpl extends Initial3D {
 	@Override
 	public void cullFace(int face) {
 		state.peek().cullFace(face);
+	}
+	
+	@Override
+	public void nearClip(double z) {
+		state.peek().nearClip(z);
+	}
+	
+	@Override
+	public void farCull(double z) {
+		state.peek().farCull(z);
 	}
 
 	@Override

@@ -115,6 +115,11 @@ final class Texture2DImpl extends Texture2D {
 		// set level ceilings
 		unsafe.putByte(pTex + tex2d_t.uceil(), (byte) levelu_top);
 		unsafe.putByte(pTex + tex2d_t.vceil(), (byte) levelv_top);
+		// set level floors
+		unsafe.putByte(pTex + tex2d_t.ufloor(), (byte) 0);
+		unsafe.putByte(pTex + tex2d_t.vfloor(), (byte) 0);
+		// init flags
+		unsafe.putShort(pTex + tex2d_t.flags(), (short) 0);
 		// init texture to black
 		clear();
 	}

@@ -84,6 +84,13 @@ public abstract class Initial3D {
 	public static final int ONE_MINUS_SRC_ALPHA = 10205;
 	public static final int DST_ALPHA = 10206;
 	public static final int ONE_MINUS_DST_ALPHA = 10207;
+	
+	// blend equation parameters
+	public static final int FUNC_ADD = 10250;
+	public static final int FUNC_SUBTRACT = 10251;
+	public static final int FUNC_REVERSE_SUBTRACT = 10252;
+	public static final int FUNC_MIN = 10253;
+	public static final int FUNC_MAX = 10254;
 
 	// comparison functions
 	public static final int NEVER = 10300;
@@ -300,7 +307,7 @@ public abstract class Initial3D {
 		material(face, param, c.r, c.g, c.b, c.a);
 	}
 
-	public abstract void blendFunc(int sfactor, int dfactor);
+	public abstract void blendFunc(int sfactor, int dfactor, int mode);
 
 	public abstract void alphaFunc(int func, double ref);
 
@@ -361,6 +368,10 @@ public abstract class Initial3D {
 	}
 
 	public abstract void cullFace(int face);
+	
+	public abstract void nearClip(double z);
+	
+	public abstract void farCull(double z);
 
 	public abstract void finish();
 

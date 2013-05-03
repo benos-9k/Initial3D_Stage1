@@ -23,7 +23,54 @@ final class Type {
 		static int SIZEOF() {
 			return 9001;
 		}
-
+		
+		// in no particular order:
+		
+		// bound framebuffer -> make as type
+		// enablers
+		// projection mode
+		// polygon mode, front + back
+		// shade model
+		// material, front + back [includes tex pointers]
+		// blend func, front + back
+		// alpha func (func, ref)
+		// depth func
+		// stencil func, front + back
+		// stencil op, front + back
+		// lights * >= 8
+		// scene ambient
+		// fog params (color, fog_a, fog_b)
+		// face cull
+		// matrices
+		// clipfuncs
+		// near clip
+		// far cull
+		// ** scissor rect
+		
+		// in some order:
+		
+		// enablers
+		// projection mode
+		// shade model
+		// polygon mode, front + back
+		// <other drawing modes, lines etc?>
+		// matrices
+		// face cull
+		// near clip
+		// far cull
+		// clipfuncs
+		// materials, front + back
+		// scene ambient
+		// lights [maybe 16?]
+		// ** scissor rect
+		// depth func
+		// stencil func, front + back
+		// alpha func (func, ref)
+		// stencil op, front + back
+		// blend func, front + back
+		// fog params (color, fog_a, fog_b)
+		// bound framebuffer
+		
 	}
 
 	static final class light_t {

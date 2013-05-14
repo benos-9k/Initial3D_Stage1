@@ -23,9 +23,9 @@ final class Type {
 		static int SIZEOF() {
 			return 9001;
 		}
-		
+
 		// in no particular order:
-		
+
 		// bound framebuffer -> make as type
 		// enablers
 		// projection mode
@@ -46,10 +46,10 @@ final class Type {
 		// near clip
 		// far cull
 		// ** scissor rect
-		
+
 		// in some order:
-		
-		// enablers
+
+		// enablers (flags)
 		// projection mode
 		// shade model
 		// polygon mode, front + back
@@ -62,7 +62,7 @@ final class Type {
 		// materials, front + back
 		// scene ambient
 		// lights [maybe 16?]
-		// ** scissor rect
+		// scissor rect
 		// depth func
 		// stencil func, front + back
 		// alpha func (func, ref)
@@ -70,7 +70,235 @@ final class Type {
 		// blend func, front + back
 		// fog params (color, fog_a, fog_b)
 		// bound framebuffer
-		
+
+		/**
+		 * Field type: long
+		 * <p>
+		 * (1 << 00) 0x0000000000000001: <br>
+		 * (1 << 01) 0x0000000000000002: <br>
+		 * (1 << 02) 0x0000000000000004: <br>
+		 * (1 << 03) 0x0000000000000008: <br>
+		 * (1 << 04) 0x0000000000000010: <br>
+		 * (1 << 05) 0x0000000000000020: <br>
+		 * (1 << 06) 0x0000000000000040: <br>
+		 * (1 << 07) 0x0000000000000080: <br>
+		 * (1 << 08) 0x0000000000000100: <br>
+		 * (1 << 09) 0x0000000000000200: <br>
+		 * (1 << 10) 0x0000000000000400: <br>
+		 * (1 << 11) 0x0000000000000800: <br>
+		 * (1 << 12) 0x0000000000001000: <br>
+		 * (1 << 13) 0x0000000000002000: <br>
+		 * (1 << 14) 0x0000000000004000: <br>
+		 * (1 << 15) 0x0000000000008000: <br>
+		 * (1 << 16) 0x0000000000010000: <br>
+		 * (1 << 17) 0x0000000000020000: <br>
+		 * (1 << 18) 0x0000000000040000: <br>
+		 * (1 << 19) 0x0000000000080000: <br>
+		 * (1 << 20) 0x0000000000100000: <br>
+		 * (1 << 21) 0x0000000000200000: <br>
+		 * (1 << 22) 0x0000000000400000: <br>
+		 * (1 << 23) 0x0000000000800000: <br>
+		 * (1 << 24) 0x0000000001000000: <br>
+		 * (1 << 25) 0x0000000002000000: <br>
+		 * (1 << 26) 0x0000000004000000: <br>
+		 * (1 << 27) 0x0000000008000000: <br>
+		 * (1 << 28) 0x0000000010000000: <br>
+		 * (1 << 29) 0x0000000020000000: <br>
+		 * (1 << 30) 0x0000000040000000: <br>
+		 * (1 << 31) 0x0000000080000000: <br>
+		 * </p>
+		 */
+		static int flags0() {
+			return 0;
+		}
+
+		/**
+		 * Field type: long
+		 * <p>
+		 * Reserved for future use.
+		 * </p>
+		 */
+		static int flags1() {
+			return 8;
+		}
+
+		/** Field type: int */
+		static int projection_mode() {
+			return 16;
+		}
+
+		/** Field type: int */
+		static int shade_model() {
+			return 20;
+		}
+
+		/** Field type: int */
+		static int polymode_front() {
+			return 24;
+		}
+
+		/** Field type: int */
+		static int polymode_back() {
+			return 28;
+		}
+
+		// reserved for other modes etc -> 88
+
+		/** Field type: mat4 */
+		static int mat_mv() {
+			return 88;
+		}
+
+		/** Field type: mat4 */
+		static int mat_p() {
+			return 216;
+		}
+
+		/** Field type: mat4 */
+		static int mat_mvp() {
+			return 344;
+		}
+
+		/** Field type: mat4 */
+		static int mat_inv_mv() {
+			return 472;
+		}
+
+		/** Field type: mat4 */
+		static int mat_inv_p() {
+			return 600;
+		}
+
+		/** Field type: mat4 */
+		static int mat_inv_mvp() {
+			return 728;
+		}
+
+		/** Field type: mat4 */
+		static int mat_n() {
+			return 856;
+		}
+
+		/** Field type: mat4 */
+		static int mat_inv_n() {
+			return 984;
+		}
+
+		/** Field type: mat4 */
+		static int mat_t() {
+			return 1112;
+		}
+
+		/** Field type: mat4 */
+		static int mat_inv_t() {
+			return 1240;
+		}
+
+		// next: 1368
+
+	}
+
+	static final class framebuf_t {
+
+		private framebuf_t() {
+			throw new AssertionError();
+		}
+
+		/** Constant: size in bytes of an instance of this type */
+		static int SIZEOF() {
+			return 104;
+		}
+
+		/** Field type: int */
+		static int viewport_x() {
+			return 0;
+		}
+
+		/** Field type: int */
+		static int viewport_y() {
+			return 4;
+		}
+
+		/** Field type: int */
+		static int viewport_w() {
+			return 8;
+		}
+
+		/** Field type: int */
+		static int viewport_h() {
+			return 12;
+		}
+
+		/** Field type: pointer */
+		static int pColor0() {
+			return 16;
+		}
+
+		/** Field type: int */
+		static int stride_color0() {
+			return 24;
+		}
+
+		/** Field type: pointer */
+		static int pColor1() {
+			return 28;
+		}
+
+		/** Field type: int */
+		static int stride_color1() {
+			return 36;
+		}
+
+		/** Field type: pointer */
+		static int pZ() {
+			return 40;
+		}
+
+		/** Field type: int */
+		static int stride_z() {
+			return 48;
+		}
+
+		/** Field type: pointer */
+		static int pSZ() {
+			return 52;
+		}
+
+		/** Field type: int */
+		static int stride_sz() {
+			return 60;
+		}
+
+		/** Field type: pointer */
+		static int pZSign() {
+			return 64;
+		}
+
+		/** Field type: pointer */
+		static int pStencil() {
+			return 72;
+		}
+
+		/** Field type: int */
+		static int stride_stencil() {
+			return 80;
+		}
+
+		/** Field type: pointer */
+		static int pID() {
+			return 84;
+		}
+
+		/** Field type: int */
+		static int stride_id() {
+			return 92;
+		}
+
+		/** Field type: pointer */
+		static int pFC() {
+			return 96;
+		}
+
 	}
 
 	static final class light_t {
@@ -538,7 +766,8 @@ final class Type {
 			return 64;
 		}
 
-		// need flags word, vertex count if first vertex in poly, 2 colors per vertex
+		// need flags word, vertex count if first vertex in poly, 2 colors per
+		// vertex
 
 	}
 

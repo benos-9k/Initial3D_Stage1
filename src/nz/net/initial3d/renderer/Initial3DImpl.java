@@ -54,6 +54,8 @@ public final class Initial3DImpl extends Initial3D {
 			buf_base = Buffer.alloc(i3d_t.SIZEOF(), -1);
 			pBase = buf_base.getPointer();
 
+			// TODO init the unsafe state
+
 			// bind default framebuffer
 			bound_framebuffer = default_framebuffer;
 
@@ -78,13 +80,15 @@ public final class Initial3DImpl extends Initial3D {
 			matrix_mode = MODELVIEW;
 			modelview.push(new Mat4());
 			projection.push(new Mat4());
-			
+
 			projectionMode(ORTHOGRAPHIC);
 		}
 
 		State(State other_) {
 			buf_base = Buffer.alloc(i3d_t.SIZEOF(), -1);
 			pBase = buf_base.getPointer();
+
+			// copy unsafe state directly
 			unsafe.copyMemory(other_.pBase, pBase, i3d_t.SIZEOF());
 
 			// bind framebuffer
@@ -124,9 +128,9 @@ public final class Initial3DImpl extends Initial3D {
 			buf_base.release();
 		}
 
-		private void initUnsafeState() {
+		private void loadUnsafeState() {
 			// this shouldn't require pipeline to be finished
-			// init the 'unsafe' parts of the state that depend on 'safe' parts
+			// load the 'unsafe' parts of the state that depend on 'safe' parts
 			// specifically the matrices, and anything dependent on them, like
 			// the clipfuncs
 			// also copy info from framebuffer
@@ -262,7 +266,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
-			initUnsafeState();
+			loadUnsafeState();
 			// TODO draw polys
 
 		}
@@ -333,7 +337,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void end() {
-			initUnsafeState();
+			loadUnsafeState();
 			// TODO Auto-generated method stub
 
 		}
@@ -408,11 +412,11 @@ public final class Initial3DImpl extends Initial3D {
 			// TODO Auto-generated method stub
 
 		}
-		
+
 		void nearClip(double z) {
 			// TODO
 		}
-		
+
 		void farCull(double z) {
 			// TODO
 		}
@@ -759,12 +763,12 @@ public final class Initial3DImpl extends Initial3D {
 	public void cullFace(int face) {
 		state.peek().cullFace(face);
 	}
-	
+
 	@Override
 	public void nearClip(double z) {
 		state.peek().nearClip(z);
 	}
-	
+
 	@Override
 	public void farCull(double z) {
 		state.peek().farCull(z);

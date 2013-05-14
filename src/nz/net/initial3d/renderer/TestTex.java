@@ -11,7 +11,7 @@ public class TestTex {
 
 	public static void main(String[] args) throws Exception {
 
-		Texture2DImpl tex = new Texture2DImpl(512, 512);
+		Texture2DImpl tex = new Texture2DImpl(256, 256);
 
 		BufferedImage img = ImageIO.read(new File("fractal.jpg"));
 
@@ -21,7 +21,7 @@ public class TestTex {
 
 		BufferedImage img2 = tex.extractAll();
 
-		DisplayWindow win = DisplayWindow.create(1024, 1024);
+		DisplayWindow win = DisplayWindow.create(512, 512);
 
 		win.setVisible(true);
 

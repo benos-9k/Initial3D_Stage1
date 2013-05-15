@@ -1,5 +1,7 @@
 package nz.net.initial3d;
 
+import Vec3;
+
 /**
  * <p>
  * An immutable 3-dimensional vector.
@@ -74,6 +76,26 @@ public final class Vec3 {
 		x = x_;
 		y = y_;
 		z = z_;
+	}
+
+	/**
+	 * Randomly generate a Vec3, with each component between the respective minimum (inclusive) and maximum (exclusive)
+	 * of the input vectors. Returned values are chosen pseudorandomly with (approximately) uniform distribution from
+	 * that range.
+	 * 
+	 * @param a
+	 *            A Vec3.
+	 * @param b
+	 *            A Vec3.
+	 * @return A pseudorandomly generated Vec3.
+	 */
+	public static final Vec3 random(Vec3 a, Vec3 b) {
+		Vec3 max = positiveExtremes(a, b);
+		Vec3 min = negativeExtremes(a, b);
+		double x = Math.random() * (max.x - min.x) + min.x;
+		double y = Math.random() * (max.y - min.y) + min.y;
+		double z = Math.random() * (max.z - min.z) + min.z;
+		return new Vec3(x, y, z);
 	}
 
 	/**
@@ -237,13 +259,13 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Scale this Vec3.
+	 * Multiply this Vec3 by a scale factor.
 	 * 
 	 * @param f
 	 *            Scale factor.
 	 * @return A new Vec3, parallel to this Vec3 and with magnitude <code>f</code> times the magnitude of this Vec3.
 	 */
-	public Vec3 scale(double f) {
+	public Vec3 mul(double f) {
 		Vec3 scalevec = new Vec3(x * f, y * f, z * f);
 		// if mag was already calculated, scale that as well
 		if (m > 0) scalevec.m = m * f;
@@ -275,8 +297,9 @@ public final class Vec3 {
 	 */
 	public Vec3 unit() {
 		invmag();
-		if (Double.isInfinite(im) || Double.isInfinite(m)) throw new IllegalStateException("NaN bug intercepted in Vec3 normalisation.");
-		Vec3 unitvec = scale(im);
+		if (Double.isInfinite(im) || Double.isInfinite(m))
+			throw new IllegalStateException("NaN bug intercepted in Vec3 normalisation.");
+		Vec3 unitvec = mul(im);
 		unitvec.m = 1;
 		unitvec.im = 1;
 		return unitvec;
@@ -291,7 +314,7 @@ public final class Vec3 {
 	 * @return The projection.
 	 */
 	public Vec3 project(Vec3 vec) {
-		return vec.scale(this.dot(vec) / vec.dot(vec));
+		return vec.mul(this.dot(vec) / vec.dot(vec));
 	}
 
 	/**
@@ -303,7 +326,7 @@ public final class Vec3 {
 	 * @return The rejection.
 	 */
 	public Vec3 reject(Vec3 vec) {
-		return this.sub(vec.scale(this.dot(vec) / vec.dot(vec)));
+		return this.sub(vec.mul(this.dot(vec) / vec.dot(vec)));
 	}
 
 	/**

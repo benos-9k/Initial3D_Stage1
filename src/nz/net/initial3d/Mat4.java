@@ -753,7 +753,7 @@ public final class Mat4 implements Cloneable {
 	 *            View frustum aspect ratio, as width / height.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createPerspectiveFOV(double near, double far, double fov, double ratio) {
+	public static Mat4 perspectiveFOV(double near, double far, double fov, double ratio) {
 		Mat4 m = new Mat4(0);
 		double fov_ = Math.cos(fov / 2d) / Math.sin(fov / 2d);
 		m.set(0, 0, fov_ / ratio);
@@ -775,7 +775,7 @@ public final class Mat4 implements Cloneable {
 	 *            Shear coefficient.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createShear(int t_dim, int s_dim, double f) {
+	public static Mat4 shear(int t_dim, int s_dim, double f) {
 		Mat4 m = new Mat4();
 		m.set(t_dim, s_dim, f);
 		return m;
@@ -792,12 +792,23 @@ public final class Mat4 implements Cloneable {
 	 *            Delta z.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createTranslate(double dx, double dy, double dz) {
+	public static Mat4 translate(double dx, double dy, double dz) {
 		Mat4 m = new Mat4();
 		m.set(0, 3, dx);
 		m.set(1, 3, dy);
 		m.set(2, 3, dz);
 		return m;
+	}
+
+	/**
+	 * Construct a translation transform.
+	 * 
+	 * @param d
+	 *            Vector representing the displacement to translate by.
+	 * @return The transform, as a new Mat4.
+	 */
+	public static Mat4 translate(Vec3 d) {
+		return translate(d.x, d.y, d.z);
 	}
 
 	/**
@@ -811,12 +822,34 @@ public final class Mat4 implements Cloneable {
 	 *            Z scale factor.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createScale(double fx, double fy, double fz) {
+	public static Mat4 scale(double fx, double fy, double fz) {
 		Mat4 m = new Mat4();
 		m.set(0, 0, fx);
 		m.set(1, 1, fy);
 		m.set(2, 2, fz);
 		return m;
+	}
+
+	/**
+	 * Construct a non-uniform scaling transform.
+	 * 
+	 * @param f
+	 *            Vector of scale factors.
+	 * @return The transform, as a new Mat4.
+	 */
+	public static Mat4 scale(Vec3 f) {
+		return scale(f.x, f.y, f.z);
+	}
+
+	/**
+	 * Construct a uniform scaling transform.
+	 * 
+	 * @param f
+	 *            Scale factor.
+	 * @return The transform, as a new Mat4.
+	 */
+	public static Mat4 scale(double f) {
+		return scale(f, f, f);
 	}
 
 	/**
@@ -827,7 +860,7 @@ public final class Mat4 implements Cloneable {
 	 *            Angle to rotate, in radians.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createRotateX(double angle) {
+	public static Mat4 rotateX(double angle) {
 		Mat4 m = new Mat4();
 		m.set(1, 1, Math.cos(angle));
 		m.set(1, 2, -Math.sin(angle));
@@ -844,7 +877,7 @@ public final class Mat4 implements Cloneable {
 	 *            Angle to rotate, in radians.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createRotateY(double angle) {
+	public static Mat4 rotateY(double angle) {
 		Mat4 m = new Mat4();
 		m.set(0, 0, Math.cos(angle));
 		m.set(0, 2, Math.sin(angle));
@@ -861,13 +894,48 @@ public final class Mat4 implements Cloneable {
 	 *            Angle to rotate, in radians.
 	 * @return The transform, as a new Mat4.
 	 */
-	public static Mat4 createRotateZ(double angle) {
+	public static Mat4 rotateZ(double angle) {
 		Mat4 m = new Mat4();
 		m.set(0, 0, Math.cos(angle));
 		m.set(0, 1, -Math.sin(angle));
 		m.set(1, 0, Math.sin(angle));
 		m.set(1, 1, Math.cos(angle));
 		return m;
+	}
+
+	/**
+	 * Construct the rotation transform described by a quaternion.
+	 * 
+	 * @param q
+	 *            Rotation quaternion.
+	 * @return The transform, as a new Mat4.
+	 */
+	public static Mat4 rotate(Quat q) {
+		double x = q.x, y = q.y, z = q.z, w = q.w;
+		Mat4 m = new Mat4();
+		m.set(0, 0, w * w + x * x - y * y - z * z);
+		m.set(1, 0, 2 * x * y + 2 * w * z);
+		m.set(2, 0, 2 * x * z - 2 * w * y);
+		m.set(0, 1, 2 * x * y - 2 * w * z);
+		m.set(1, 1, w * w - x * x + y * y - z * z);
+		m.set(2, 1, 2 * y * z + 2 * w * x);
+		m.set(0, 2, 2 * x * z + 2 * w * y);
+		m.set(1, 2, 2 * y * z - 2 * w * x);
+		m.set(2, 2, w * w - x * x - y * y + z * z);
+		m.set(3, 3, w * w + x * x + y * y + z * z);
+		return m;
+	}
+
+	/**
+	 * Construct the rotation transform described by a vector, where the vector's direction is the axis of rotation and
+	 * its magnitude is the rotation angle (in radians).
+	 * 
+	 * @param r
+	 *            Rotation vector.
+	 * @return The transform, as a new Mat4.
+	 */
+	public static Mat4 rotate(Vec3 r) {
+		return rotate(new Quat(r));
 	}
 
 }

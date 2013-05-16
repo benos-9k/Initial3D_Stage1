@@ -356,32 +356,6 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Get a Mat4 representing the translation transformation implied by this
-	 * Vec3.
-	 *
-	 * @param m
-	 *            Mat4 to store result in.
-	 * @return <code>m</code>
-	 */
-	public Mat4 toMatrix(Mat4 m) {
-		m.setIden();
-		m.set(0, 3, x);
-		m.set(1, 3, y);
-		m.set(2, 3, z);
-		return m;
-	}
-
-	/**
-	 * Get a Mat4 representing the translation transformation implied by this
-	 * Vec3.
-	 *
-	 * @return The transform as a new Mat4.
-	 */
-	public Mat4 toMatrix() {
-		return toMatrix(new Mat4());
-	}
-
-	/**
 	 * @param x
 	 *            New x value.
 	 * @return A copy of this Vec3, except with <code>x</code> set to the

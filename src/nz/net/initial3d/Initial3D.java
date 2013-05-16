@@ -2,14 +2,14 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- *
+ * 
  * Yes, much of this does mimic OpenGL 1 / 2.
- *
+ * 
  * All methods will throw <code>I3DException</code> if they want to, and may throw <code>NullPointerException</code> if
  * any parameter is null, unless explicity stated otherwise.
- *
+ * 
  * @author Ben Allen
- *
+ * 
  */
 public abstract class Initial3D {
 
@@ -84,7 +84,7 @@ public abstract class Initial3D {
 	public static final int ONE_MINUS_SRC_ALPHA = 10205;
 	public static final int DST_ALPHA = 10206;
 	public static final int ONE_MINUS_DST_ALPHA = 10207;
-	
+
 	// blend equation parameters
 	public static final int FUNC_ADD = 10250;
 	public static final int FUNC_SUBTRACT = 10251;
@@ -177,7 +177,7 @@ public abstract class Initial3D {
 
 	/**
 	 * Query the value of a named enum constant, including non-standard ones like 'I3DX_FOG_A'.
-	 *
+	 * 
 	 * @param name
 	 *            Name of the constant. Case sensitive.
 	 * @return The value of the constant.
@@ -193,7 +193,7 @@ public abstract class Initial3D {
 
 	/**
 	 * Query for a named Initial3D method, including non-standard ones like 'flipZSign'.
-	 *
+	 * 
 	 * @param name
 	 *            Name of method. Case sensitive.
 	 * @param paramtypes
@@ -368,9 +368,9 @@ public abstract class Initial3D {
 	}
 
 	public abstract void cullFace(int face);
-	
+
 	public abstract void nearClip(double z);
-	
+
 	public abstract void farCull(double z);
 
 	public abstract void finish();
@@ -403,35 +403,35 @@ public abstract class Initial3D {
 	public abstract Mat4 getMatrix();
 
 	public void translate(Vec3 d) {
-		multMatrix(d.toMatrix());
+		multMatrix(Mat4.translate(d));
 	}
 
 	public void translate(double dx, double dy, double dz) {
-		multMatrix(Mat4.createTranslate(dx, dy, dz));
+		multMatrix(Mat4.translate(dx, dy, dz));
 	}
 
 	public void scale(double f) {
-		multMatrix(Mat4.createScale(f, f, f));
+		multMatrix(Mat4.scale(f, f, f));
 	}
 
 	public void scale(Vec3 f) {
-		multMatrix(Mat4.createScale(f.x, f.y, f.z));
+		multMatrix(Mat4.scale(f.x, f.y, f.z));
 	}
 
 	public void scale(double fx, double fy, double fz) {
-		multMatrix(Mat4.createScale(fx, fy, fz));
+		multMatrix(Mat4.scale(fx, fy, fz));
 	}
 
 	public void rotate(Quat q) {
-		multMatrix(q.toMatrix());
+		multMatrix(Mat4.rotate(q));
 	}
 
 	public void rotate(double angle, Vec3 axis) {
-		multMatrix(new Quat(angle, axis).toMatrix());
+		multMatrix(Mat4.rotate(new Quat(angle, axis)));
 	}
 
 	public void rotate(double angle, double ax, double ay, double az) {
-		multMatrix(new Quat(angle, new Vec3(ax, ay, az)).toMatrix());
+		multMatrix(Mat4.rotate(new Quat(angle, new Vec3(ax, ay, az))));
 	}
 
 }

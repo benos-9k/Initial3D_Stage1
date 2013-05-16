@@ -63,7 +63,7 @@ public final class Quat {
 	 * Construct a Quat describing a rotation of an angle about an axis.
 	 * 
 	 * @param angle
-	 *            Angle of rotation.
+	 *            Angle of rotation (radians).
 	 * @param axis
 	 *            Axis of rotation.
 	 */
@@ -82,7 +82,7 @@ public final class Quat {
 	 * the rotation vector's inverse magnitude is inifinite, the 'one' Quat will be constructed.
 	 * 
 	 * @param rot
-	 *            Axis of rotation. Angle of rotation is equal to its magnitude.
+	 *            Axis of rotation. Angle of rotation (radians) is equal to its magnitude.
 	 */
 	public Quat(Vec3 rot) {
 		if (Double.isInfinite(rot.invmag())) {
@@ -318,37 +318,6 @@ public final class Quat {
 		double dy = y - q.y;
 		double dz = z - q.z;
 		return Math.sqrt(dw * dw + dx * dx + dy * dy + dz * dz);
-	}
-
-	/**
-	 * Get a Mat4 representing the rotation transformation implied by this Quat.
-	 * 
-	 * @param m
-	 *            Mat4 to store result in.
-	 * @return <code>m</code>
-	 */
-	public Mat4 toMatrix(Mat4 m) {
-		m.setIden();
-		m.set(0, 0, w * w + x * x - y * y - z * z);
-		m.set(1, 0, 2 * x * y + 2 * w * z);
-		m.set(2, 0, 2 * x * z - 2 * w * y);
-		m.set(0, 1, 2 * x * y - 2 * w * z);
-		m.set(1, 1, w * w - x * x + y * y - z * z);
-		m.set(2, 1, 2 * y * z + 2 * w * x);
-		m.set(0, 2, 2 * x * z + 2 * w * y);
-		m.set(1, 2, 2 * y * z - 2 * w * x);
-		m.set(2, 2, w * w - x * x - y * y + z * z);
-		m.set(3, 3, w * w + x * x + y * y + z * z);
-		return m;
-	}
-
-	/**
-	 * Get a Mat4 representing the rotation transformation implied by this Quat.
-	 * 
-	 * @return The transform as a new Mat4.
-	 */
-	public Mat4 toMatrix() {
-		return toMatrix(new Mat4());
 	}
 
 	/**

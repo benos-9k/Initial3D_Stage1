@@ -1,16 +1,15 @@
 package nz.net.initial3d;
 
-import Vec3;
-
 /**
  * <p>
  * An immutable 3-dimensional vector.
  * </p>
  * <p>
- * Unless specified otherwise, all methods will throw <code>NullPointerException</code> if called with any argument
- * equal to <code>null</code>.
+ * Unless specified otherwise, all methods will throw
+ * <code>NullPointerException</code> if called with any argument equal to
+ * <code>null</code>.
  * </p>
- * 
+ *
  * @author Ben Allen
  */
 
@@ -64,7 +63,7 @@ public final class Vec3 {
 
 	/**
 	 * Construct a Vec3 from components.
-	 * 
+	 *
 	 * @param x_
 	 *            X component.
 	 * @param y_
@@ -79,10 +78,11 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Randomly generate a Vec3, with each component between the respective minimum (inclusive) and maximum (exclusive)
-	 * of the input vectors. Returned values are chosen pseudorandomly with (approximately) uniform distribution from
-	 * that range.
-	 * 
+	 * Randomly generate a Vec3, with each component between the respective
+	 * minimum (inclusive) and maximum (exclusive) of the input vectors.
+	 * Returned values are chosen pseudorandomly with (approximately) uniform
+	 * distribution from that range.
+	 *
 	 * @param a
 	 *            A Vec3.
 	 * @param b
@@ -100,15 +100,17 @@ public final class Vec3 {
 
 	/**
 	 * Construct the normal of a plane from 3 points on it.
-	 * 
+	 *
 	 * @param p0
 	 *            First point on the plane.
 	 * @param p1
 	 *            Second point on the plane.
 	 * @param p2
 	 *            Third point on the plane.
-	 * @return The normal of a plane defined by the 3 points such that the normal lies on the side of the plane from
-	 *         which the points appear to be ordered anticlockwise, ie <i>normal == (p1 - p0) x (p2 - p1)</i>.
+	 * @return The normal of a plane defined by the 3 points such that the
+	 *         normal lies on the side of the plane from which the points appear
+	 *         to be ordered anticlockwise, ie <i>normal == (p1 - p0) x (p2 -
+	 *         p1)</i>.
 	 */
 	public static final Vec3 planeNorm(Vec3 p0, Vec3 p1, Vec3 p2) {
 		return p1.sub(p0).cross(p2.sub(p1));
@@ -119,7 +121,8 @@ public final class Vec3 {
 	 *            A Vec3.
 	 * @param b
 	 *            A Vec3.
-	 * @return A new Vec3 constructed from the per-component positive extremes of <code>a</code> and <code>b</code>.
+	 * @return A new Vec3 constructed from the per-component positive extremes
+	 *         of <code>a</code> and <code>b</code>.
 	 */
 	public static final Vec3 positiveExtremes(Vec3 a, Vec3 b) {
 		return new Vec3(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
@@ -130,7 +133,8 @@ public final class Vec3 {
 	 *            A Vec3.
 	 * @param b
 	 *            A Vec3.
-	 * @return A new Vec3 constructed from the per-component negative extremes of <code>a</code> and <code>b</code>.
+	 * @return A new Vec3 constructed from the per-component negative extremes
+	 *         of <code>a</code> and <code>b</code>.
 	 */
 	public static final Vec3 negativeExtremes(Vec3 a, Vec3 b) {
 		return new Vec3(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
@@ -138,7 +142,7 @@ public final class Vec3 {
 
 	/**
 	 * Add this Vec3 to another.
-	 * 
+	 *
 	 * @param rhs
 	 *            Right-hand-side of the addition.
 	 * @return The sum.
@@ -149,7 +153,7 @@ public final class Vec3 {
 
 	/**
 	 * Add this Vec3 to another given as components.
-	 * 
+	 *
 	 * @param rightx
 	 *            X component of the right-hand-side of the addition.
 	 * @param righty
@@ -164,7 +168,7 @@ public final class Vec3 {
 
 	/**
 	 * Subtract a Vec3 from this one.
-	 * 
+	 *
 	 * @param rhs
 	 *            Right-hand-side of the subtraction.
 	 * @return The difference.
@@ -175,7 +179,7 @@ public final class Vec3 {
 
 	/**
 	 * Subtract a Vec3 given as components from this one.
-	 * 
+	 *
 	 * @param rightx
 	 *            X component of the right-hand-side of the subtraction.
 	 * @param righty
@@ -189,7 +193,8 @@ public final class Vec3 {
 	}
 
 	/**
-	 * @return A new Vec3 with the same magnitude as this one, but pointing in the opposite direction.
+	 * @return A new Vec3 with the same magnitude as this one, but pointing in
+	 *         the opposite direction.
 	 */
 	public Vec3 neg() {
 		Vec3 negvec = new Vec3(-x, -y, -z);
@@ -200,8 +205,9 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Get the distance from this Vec3 to another, defined as the magnitude of their difference.
-	 * 
+	 * Get the distance from this Vec3 to another, defined as the magnitude of
+	 * their difference.
+	 *
 	 * @param v
 	 *            Other Vec3.
 	 * @return The distance.
@@ -215,7 +221,7 @@ public final class Vec3 {
 
 	/**
 	 * Compute the dot product of this Vec3 and another.
-	 * 
+	 *
 	 * @param rhs
 	 *            Right-hand-side of the dot product.
 	 * @return The dot product.
@@ -226,7 +232,7 @@ public final class Vec3 {
 
 	/**
 	 * Compute the cross product of this Vec3 and another.
-	 * 
+	 *
 	 * @param rhs
 	 *            Right-hand-side of the cross product.
 	 * @return The cross product.
@@ -237,7 +243,7 @@ public final class Vec3 {
 
 	/**
 	 * Compute the magnitude of the cross product of this Vec3 and another.
-	 * 
+	 *
 	 * @param rhs
 	 *            Right-hand-side of the cross product.
 	 * @return The magnitude of the cross product.
@@ -249,7 +255,7 @@ public final class Vec3 {
 
 	/**
 	 * Compute the included angle between this Vec3 and another.
-	 * 
+	 *
 	 * @param vec
 	 *            A Vec3.
 	 * @return The included angle, in radians.
@@ -260,16 +266,34 @@ public final class Vec3 {
 
 	/**
 	 * Multiply this Vec3 by a scale factor.
-	 * 
+	 *
 	 * @param f
 	 *            Scale factor.
-	 * @return A new Vec3, parallel to this Vec3 and with magnitude <code>f</code> times the magnitude of this Vec3.
+	 * @return A new Vec3, parallel to this Vec3 and with magnitude
+	 *         <code>f</code> times the magnitude of this Vec3.
 	 */
 	public Vec3 mul(double f) {
 		Vec3 scalevec = new Vec3(x * f, y * f, z * f);
 		// if mag was already calculated, scale that as well
 		if (m > 0) scalevec.m = m * f;
 		return scalevec;
+	}
+
+	/**
+	 * Scale this Vec3 to a specified magnitude.
+	 *
+	 * @param m
+	 *            Magnitude to scale to.
+	 * @return A new Vec3, parallel to this Vec3 and with magnitude as close to
+	 *         <code>m</code> as possible.
+	 * @throws IllegalStateException
+	 *             If any of the components of the resulting vector are NaN.
+	 */
+	public Vec3 scaleto(double m) {
+		Vec3 v = mul(invmag() * m);
+		v.m = m;
+		if (Double.isNaN(v.x + v.y + v.z)) throw new IllegalStateException("NaN bug intercepted in Vec3 scaling.");
+		return v;
 	}
 
 	/**
@@ -290,25 +314,26 @@ public final class Vec3 {
 
 	/**
 	 * Normalise this Vec3.
-	 * 
-	 * @return A new Vec3, parallel to this Vec3 and with magnitude as close to 1 as possible.
+	 *
+	 * @return A new Vec3, parallel to this Vec3 and with magnitude as close to
+	 *         1 as possible.
 	 * @throws IllegalStateException
-	 *             If the magnitude or inverse magnitude are inifinite.
+	 *             If any of the components of the resulting vector are NaN.
 	 */
 	public Vec3 unit() {
-		invmag();
-		if (Double.isInfinite(im) || Double.isInfinite(m))
+		Vec3 v = mul(invmag());
+		v.m = 1;
+		v.im = 1;
+		if (Double.isNaN(v.x + v.y + v.z))
 			throw new IllegalStateException("NaN bug intercepted in Vec3 normalisation.");
-		Vec3 unitvec = mul(im);
-		unitvec.m = 1;
-		unitvec.im = 1;
-		return unitvec;
+		return v;
 	}
 
 	/**
-	 * Compute the vector projection of this Vec3 onto another Vec3. If the other Vec3 is a plane normal, this will
-	 * result in the rejection of this Vec3 from that plane.
-	 * 
+	 * Compute the vector projection of this Vec3 onto another Vec3. If the
+	 * other Vec3 is a plane normal, this will result in the rejection of this
+	 * Vec3 from that plane.
+	 *
 	 * @param vec
 	 *            Vec3 to project onto.
 	 * @return The projection.
@@ -318,9 +343,10 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Compute the vector rejection of this Vec3 from another Vec3. If the other Vec3 is a plane normal, this will
-	 * result in the projection of this Vec3 onto that plane.
-	 * 
+	 * Compute the vector rejection of this Vec3 from another Vec3. If the other
+	 * Vec3 is a plane normal, this will result in the projection of this Vec3
+	 * onto that plane.
+	 *
 	 * @param vec
 	 *            Vec3 to reject from.
 	 * @return The rejection.
@@ -330,8 +356,9 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Get a Mat4 representing the translation transformation implied by this Vec3.
-	 * 
+	 * Get a Mat4 representing the translation transformation implied by this
+	 * Vec3.
+	 *
 	 * @param m
 	 *            Mat4 to store result in.
 	 * @return <code>m</code>
@@ -345,8 +372,9 @@ public final class Vec3 {
 	}
 
 	/**
-	 * Get a Mat4 representing the translation transformation implied by this Vec3.
-	 * 
+	 * Get a Mat4 representing the translation transformation implied by this
+	 * Vec3.
+	 *
 	 * @return The transform as a new Mat4.
 	 */
 	public Mat4 toMatrix() {
@@ -356,7 +384,8 @@ public final class Vec3 {
 	/**
 	 * @param x
 	 *            New x value.
-	 * @return A copy of this Vec3, except with <code>x</code> set to the specified value.
+	 * @return A copy of this Vec3, except with <code>x</code> set to the
+	 *         specified value.
 	 */
 	public Vec3 copySetX(double x) {
 		return new Vec3(x, y, z);
@@ -365,7 +394,8 @@ public final class Vec3 {
 	/**
 	 * @param y
 	 *            New y value.
-	 * @return A copy of this Vec3, except with <code>y</code> set to the specified value.
+	 * @return A copy of this Vec3, except with <code>y</code> set to the
+	 *         specified value.
 	 */
 	public Vec3 copySetY(double y) {
 		return new Vec3(x, y, z);
@@ -374,7 +404,8 @@ public final class Vec3 {
 	/**
 	 * @param z
 	 *            New z value.
-	 * @return A copy of this Vec3, except with <code>z</code> set to the specified value.
+	 * @return A copy of this Vec3, except with <code>z</code> set to the
+	 *         specified value.
 	 */
 	public Vec3 copySetZ(double z) {
 		return new Vec3(x, y, z);

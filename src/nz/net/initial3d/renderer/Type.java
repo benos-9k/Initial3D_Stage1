@@ -21,7 +21,7 @@ final class Type {
 
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
-			return 9001;
+			return 6620;
 		}
 
 		// in no particular order:
@@ -32,7 +32,7 @@ final class Type {
 		// polygon mode, front + back
 		// shade model
 		// material, front + back [includes tex pointers]
-		// blend func, front + back
+		// blend func, front + back (sfactor, dfactor, mode)
 		// alpha func (func, ref)
 		// depth func
 		// stencil func, front + back
@@ -64,10 +64,10 @@ final class Type {
 		// lights [maybe 16?]
 		// scissor rect
 		// depth func
-		// stencil func, front + back
+		// stencil func, front + back (func, ref, mask)
 		// alpha func (func, ref)
-		// stencil op, front + back
-		// blend func, front + back
+		// stencil op, front + back (sfail, dfail, dpass)
+		// blend func, front + back (sfactor, dfactor, mode)
 		// fog params (color, fog_a, fog_b)
 		// bound framebuffer
 
@@ -194,7 +194,212 @@ final class Type {
 			return 1240;
 		}
 
-		// next: 1368
+		/** Field type: int */
+		static int face_cull() {
+			return 1368;
+		}
+
+		/** Field type: double */
+		static int near_clip() {
+			return 1372;
+		}
+
+		/** Field type: double */
+		static int far_cull() {
+			return 1380;
+		}
+
+		/** Field type: clipfunc */
+		static int clip_top() {
+			return 1388;
+		}
+
+		/** Field type: clipfunc */
+		static int clip_bottom() {
+			return 1420;
+		}
+
+		/** Field type: clipfunc */
+		static int clip_left() {
+			return 1452;
+		}
+
+		/** Field type: clipfunc */
+		static int clip_right() {
+			return 1484;
+		}
+
+		// reserved for (8) user clipfuncs -> 1772
+
+		/** Field type: material */
+		static int mtl_front() {
+			return 1772;
+		}
+
+		/** Field type: material */
+		static int mtl_back() {
+			return 2028;
+		}
+
+		/** Field type: color[float] */
+		static int scene_ambient() {
+			return 2284;
+		}
+
+		/** Field type: light */
+		static int light0() {
+			return 2300;
+		}
+
+		/** Constant: maximum number of lights supported. */
+		static int MAX_LIGHTS() {
+			return 16;
+		}
+
+		/** Field type: none; marks end of lights */
+		static int light_end() {
+			return 6396;
+		}
+
+		/** Field type: int */
+		static int scissor_xmin() {
+			return 6396;
+		}
+
+		/** Field type: int */
+		static int scissor_xmax() {
+			return 6400;
+		}
+
+		/** Field type: int */
+		static int scissor_ymin() {
+			return 6404;
+		}
+
+		/** Field type: int */
+		static int scissor_ymax() {
+			return 6408;
+		}
+
+		/** Field type: int */
+		static int depth_func() {
+			return 6412;
+		}
+
+		/** Field type: int */
+		static int stencil_func_front() {
+			return 6416;
+		}
+
+		/** Field type: int */
+		static int stencil_func_front_ref() {
+			return 6420;
+		}
+
+		/** Field type: int */
+		static int stencil_func_front_mask() {
+			return 6424;
+		}
+
+		/** Field type: int */
+		static int stencil_func_back() {
+			return 6428;
+		}
+
+		/** Field type: int */
+		static int stencil_func_back_ref() {
+			return 6432;
+		}
+
+		/** Field type: int */
+		static int stencil_func_back_mask() {
+			return 6436;
+		}
+
+		/** Field type: int */
+		static int alpha_func() {
+			return 6440;
+		}
+
+		/** Field type: int */
+		static int stencil_op_front_sfail() {
+			return 6444;
+		}
+
+		/** Field type: int */
+		static int stencil_op_front_dfail() {
+			return 6448;
+		}
+
+		/** Field type: int */
+		static int stencil_op_front_dpass() {
+			return 6452;
+		}
+
+		/** Field type: int */
+		static int stencil_op_back_sfail() {
+			return 6456;
+		}
+
+		/** Field type: int */
+		static int stencil_op_back_dfail() {
+			return 6460;
+		}
+
+		/** Field type: int */
+		static int stencil_op_back_dpass() {
+			return 6464;
+		}
+
+		/** Field type: int */
+		static int blend_func_front_sfactor() {
+			return 6468;
+		}
+
+		/** Field type: int */
+		static int blend_func_front_dfactor() {
+			return 6472;
+		}
+
+		/** Field type: int */
+		static int blend_func_front_mode() {
+			return 6476;
+		}
+
+		/** Field type: int */
+		static int blend_func_back_sfactor() {
+			return 6480;
+		}
+
+		/** Field type: int */
+		static int blend_func_back_dfactor() {
+			return 6484;
+		}
+
+		/** Field type: int */
+		static int blend_func_back_mode() {
+			return 6488;
+		}
+
+		/** Field type: color[float] */
+		static int fog_color() {
+			return 6492;
+		}
+
+		/** Field type: float */
+		static int fog_a() {
+			return 6508;
+		}
+
+		/** Field type: float */
+		static int fog_b() {
+			return 6512;
+		}
+
+		/** Field type: framebuf */
+		static int framebuf() {
+			return 6516;
+		}
 
 	}
 
@@ -780,6 +985,26 @@ final class Type {
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
 			return 32;
+		}
+
+		/** Field type: double */
+		static int cx() {
+			return 0;
+		}
+
+		/** Field type: double */
+		static int cy() {
+			return 8;
+		}
+
+		/** Field type: double */
+		static int cz() {
+			return 16;
+		}
+
+		/** Field type: double */
+		static int cutoff() {
+			return 24;
 		}
 
 	}

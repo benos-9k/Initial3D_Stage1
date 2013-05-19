@@ -2,14 +2,14 @@ package nz.net.initial3d;
 
 /**
  * Initial3D Rendering API.
- * 
+ *
  * Yes, much of this does mimic OpenGL 1 / 2.
- * 
+ *
  * All methods will throw <code>I3DException</code> if they want to, and may throw <code>NullPointerException</code> if
  * any parameter is null, unless explicity stated otherwise.
- * 
+ *
  * @author Ben Allen
- * 
+ *
  */
 public abstract class Initial3D {
 
@@ -27,6 +27,7 @@ public abstract class Initial3D {
 	 */
 
 	public static final int ZERO = 0;
+	public static final int NONE = 0;
 	public static final int ONE = 1;
 
 	// capabilities
@@ -41,10 +42,8 @@ public abstract class Initial3D {
 	public static final int TWO_SIDED_LIGHTING = 10;
 	public static final int TEXTURE_2D = 11;
 	public static final int MIPMAPS = 12;
-	public static final int AUTO_FLIP_ZSIGN = 13;
-	public static final int ALPHAREF_RANDOM = 14;
-	public static final int COLOR_SUM = 14;
-	public static final int SEPARATE_SPECULAR = 16;
+	public static final int COLOR_SUM = 13;
+	public static final int SEPARATE_SPECULAR = 14;
 
 	public static final int LIGHT0 = 1000;
 	public static final int LIGHT1 = 1001;
@@ -114,6 +113,7 @@ public abstract class Initial3D {
 	public static final int INVERT = 10406; // bitwise invert
 
 	// faces
+	// share NONE
 	public static final int FRONT = 10500;
 	public static final int BACK = 10501;
 	public static final int FRONT_AND_BACK = 10502;
@@ -177,7 +177,7 @@ public abstract class Initial3D {
 
 	/**
 	 * Query the value of a named enum constant, including non-standard ones like 'I3DX_FOG_A'.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the constant. Case sensitive.
 	 * @return The value of the constant.
@@ -193,7 +193,7 @@ public abstract class Initial3D {
 
 	/**
 	 * Query for a named Initial3D method, including non-standard ones like 'flipZSign'.
-	 * 
+	 *
 	 * @param name
 	 *            Name of method. Case sensitive.
 	 * @param paramtypes

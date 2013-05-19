@@ -74,24 +74,24 @@ final class Type {
 		/**
 		 * Field type: long
 		 * <p>
-		 * (1 << 00) 0x0000000000000001: <br>
-		 * (1 << 01) 0x0000000000000002: <br>
-		 * (1 << 02) 0x0000000000000004: <br>
-		 * (1 << 03) 0x0000000000000008: <br>
-		 * (1 << 04) 0x0000000000000010: <br>
-		 * (1 << 05) 0x0000000000000020: <br>
-		 * (1 << 06) 0x0000000000000040: <br>
-		 * (1 << 07) 0x0000000000000080: <br>
-		 * (1 << 08) 0x0000000000000100: <br>
-		 * (1 << 09) 0x0000000000000200: <br>
-		 * (1 << 10) 0x0000000000000400: <br>
-		 * (1 << 11) 0x0000000000000800: <br>
-		 * (1 << 12) 0x0000000000001000: <br>
-		 * (1 << 13) 0x0000000000002000: <br>
-		 * (1 << 14) 0x0000000000004000: <br>
-		 * (1 << 15) 0x0000000000008000: <br>
-		 * (1 << 16) 0x0000000000010000: <br>
-		 * (1 << 17) 0x0000000000020000: <br>
+		 * (1 << 00) 0x0000000000000001: Write BUFFER_COLOR0<br>
+		 * (1 << 01) 0x0000000000000002: Write BUFFER_COLOR1<br>
+		 * (1 << 02) 0x0000000000000004: Write BUFFER_Z<br>
+		 * (1 << 03) 0x0000000000000008: Write BUFFER_STENCIL<br>
+		 * (1 << 04) 0x0000000000000010: Write BUFFER_ID<br>
+		 * (1 << 05) 0x0000000000000020: SCISSOR_TEST<br>
+		 * (1 << 06) 0x0000000000000040: ALPHA_TEST<br>
+		 * (1 << 07) 0x0000000000000080: DEPTH_TEST<br>
+		 * (1 << 08) 0x0000000000000100: STENCIL_TEST<br>
+		 * (1 << 09) 0x0000000000000200: CULL_FACE<br>
+		 * (1 << 10) 0x0000000000000400: BLEND<br>
+		 * (1 << 11) 0x0000000000000800: FOG<br>
+		 * (1 << 12) 0x0000000000001000: LIGHTING<br>
+		 * (1 << 13) 0x0000000000002000: TWO_SIDED_LIGHTING<br>
+		 * (1 << 14) 0x0000000000004000: TEXTURE_2D<br>
+		 * (1 << 15) 0x0000000000008000: MIPMAPS<br>
+		 * (1 << 16) 0x0000000000010000: COLOR_SUM<br>
+		 * (1 << 17) 0x0000000000020000: SEPARATE_SPECULAR<br>
 		 * (1 << 18) 0x0000000000040000: <br>
 		 * (1 << 19) 0x0000000000080000: <br>
 		 * (1 << 20) 0x0000000000100000: <br>
@@ -122,22 +122,49 @@ final class Type {
 			return 8;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ORTHOGRAPHIC<br>
+		 * 1: PERSPECTIVE<br>
+		 * </p>
+		 */
 		static int projection_mode() {
 			return 16;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: FLAT<br>
+		 * 1: SMOOTH<br>
+		 * 2: PHONG<br>
+		 * </p>
+		 */
 		static int shade_model() {
 			return 20;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: POINT<br>
+		 * 1: LINE<br>
+		 * 2: FILL<br>
+		 * </p>
+		 */
 		static int polymode_front() {
 			return 24;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: POINT<br>
+		 * 1: LINE<br>
+		 * 2: FILL<br>
+		 * </p>
+		 */
 		static int polymode_back() {
 			return 28;
 		}
@@ -194,17 +221,36 @@ final class Type {
 			return 1240;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: NONE<br>
+		 * 1: FRONT<br>
+		 * 2: BACK<br>
+		 * 3: FRONT_AND_BACK<br>
+		 * </p>
+		 */
 		static int face_cull() {
 			return 1368;
 		}
 
-		/** Field type: double */
+		/**
+		 * Field type: double
+		 * <p>
+		 * Distance in view space to near clip plane.
+		 * </p>
+		 */
 		static int near_clip() {
 			return 1372;
 		}
 
-		/** Field type: double */
+		/**
+		 * Field type: double
+		 * <p>
+		 * Distance beyond which if a primitive falls completely it should be
+		 * culled.
+		 * </p>
+		 */
 		static int far_cull() {
 			return 1380;
 		}
@@ -227,6 +273,26 @@ final class Type {
 		/** Field type: clipfunc */
 		static int clip_right() {
 			return 1484;
+		}
+
+		/**
+		 * Field type: clipfunc
+		 * <p>
+		 * First custom clipfunc.
+		 * </p>
+		 */
+		static int clip0() {
+			return 1516;
+		}
+
+		/** Constant: maximum number of custom clipfuncs supported. */
+		static int MAX_CLIPFUNCS() {
+			return 8;
+		}
+
+		/** Field type: none, marks end of custom clipfuncs. */
+		static int clip_end() {
+			return 1772;
 		}
 
 		// reserved for (8) user clipfuncs -> 1772

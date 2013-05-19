@@ -19,6 +19,8 @@ public final class Initial3DImpl extends Initial3D {
 	private final List<String> exposed_enums = new ArrayList<String>();
 
 	// enum constants
+	public static final int ALPHAREF_RANDOM = 999;
+	public static final int AUTO_FLIP_ZSIGN = 998;
 	public static final int I3DX_FOG_A = 11199;
 	public static final int I3DX_FOG_B = 11198;
 
@@ -491,6 +493,8 @@ public final class Initial3DImpl extends Initial3D {
 		// expose enum constants
 		exposed_enums.add("I3DX_FOG_A");
 		exposed_enums.add("I3DX_FOG_B");
+		exposed_enums.add("ALPHAREF_RANDOM");
+		exposed_enums.add("AUTO_FLIP_ZSIGN");
 
 		// create default framebuffer
 		default_framebuffer = new FrameBufferImpl();

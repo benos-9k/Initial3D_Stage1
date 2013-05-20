@@ -354,7 +354,7 @@ public final class Initial3DImpl extends Initial3D {
 
 		}
 
-		void blendFunc(int sfactor, int dfactor, int mode) {
+		void blendFunc(int func, int sfactor, int dfactor) {
 			// TODO Auto-generated method stub
 
 		}
@@ -710,8 +710,8 @@ public final class Initial3DImpl extends Initial3D {
 	}
 
 	@Override
-	public void blendFunc(int sfactor, int dfactor, int mode) {
-		state.peek().blendFunc(sfactor, dfactor, mode);
+	public void blendFunc(int func, int sfactor, int dfactor) {
+		state.peek().blendFunc(func, sfactor, dfactor);
 	}
 
 	@Override

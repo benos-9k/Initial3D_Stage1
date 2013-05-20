@@ -124,6 +124,143 @@ final class Util {
 		throw new I3DException(msg, cause);
 	}
 
+	/**
+	 * 0: NEVER<br>
+	 * 1: LESS<br>
+	 * 2: LEQUAL<br>
+	 * 3: GREATER<br>
+	 * 4: GEQUAL<br>
+	 * 5: EQUAL<br>
+	 * 6: NOTEQUAL<br>
+	 * 7: ALWAYS<br>
+	 */
+	static boolean compare(int func, int l, int r) {
+		switch (func) {
+		case 1:
+			return l < r;
+		case 2:
+			return l <= r;
+		case 3:
+			return l > r;
+		case 4:
+			return l >= r;
+		case 5:
+			return l == r;
+		case 6:
+			return l != r;
+		case 7:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	/**
+	 * 0: NEVER<br>
+	 * 1: LESS<br>
+	 * 2: LEQUAL<br>
+	 * 3: GREATER<br>
+	 * 4: GEQUAL<br>
+	 * 5: EQUAL<br>
+	 * 6: NOTEQUAL<br>
+	 * 7: ALWAYS<br>
+	 */
+	static boolean compare(int func, float l, float r) {
+		switch (func) {
+		case 1:
+			return l < r;
+		case 2:
+			return l <= r;
+		case 3:
+			return l > r;
+		case 4:
+			return l >= r;
+		case 5:
+			return l == r;
+		case 6:
+			return l != r;
+		case 7:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	/**
+	 * Blend func:<br>
+	 * 0: ADD<br>
+	 * 1: SUBTRACT<br>
+	 * 2: REVERSE_SUBTRACT<br>
+	 * 3: MIN<br>
+	 * 4: MAX<br>
+	 * Blend factor:<br>
+	 * 0: ZERO<br>
+	 * 1: ONE<br>
+	 * 2: SRC_COLOR<br>
+	 * 3: ONE_MINUS_SRC_COLOR<br>
+	 * 4: DST_COLOR<br>
+	 * 5: ONE_MINUS_DST_COLOR<br>
+	 * 6: SRC_ALPHA<br>
+	 * 7: ONE_MINUS_SRC_ALPHA<br>
+	 * 8: DST_ALPHA<br>
+	 * 9: ONE_MINUS_DST_ALPHA<br>
+	 */
+	static int blend(int func, int src_factor, int dst_factor, int src, int dst) {
+		int s2 = blendfactor(src, src_factor, src, dst);
+		int d2 = blendfactor(dst, dst_factor, src, dst);
+		switch (func) {
+		case 0:
+			return colorAdd(s2, d2);
+		case 1:
+			return colorSub(s2, d2);
+		case 2:
+			return colorSub(d2, s2);
+		case 3:
+			throw nope("blendfunc-min unimplemented");
+		case 4:
+			throw nope("blendfunc-max unimplemented");
+		default:
+			return 0;
+		}
+	}
+
+	/**
+	 * 0: ZERO<br>
+	 * 1: ONE<br>
+	 * 2: SRC_COLOR<br>
+	 * 3: ONE_MINUS_SRC_COLOR<br>
+	 * 4: DST_COLOR<br>
+	 * 5: ONE_MINUS_DST_COLOR<br>
+	 * 6: SRC_ALPHA<br>
+	 * 7: ONE_MINUS_SRC_ALPHA<br>
+	 * 8: DST_ALPHA<br>
+	 * 9: ONE_MINUS_DST_ALPHA<br>
+	 */
+	static int blendfactor(int c, int factor, int src, int dst) {
+		switch (factor) {
+		case 1:
+			return c;
+		case 2:
+			return colorMul(c, src);
+		case 3:
+			return colorMul(c, colorSub(0xFFFFFFFF, src));
+		case 4:
+			return colorMul(c, dst);
+		case 5:
+			return colorMul(c, colorSub(0xFFFFFFFF, dst));
+		case 6:
+			return colorScale(c, src >>> 24);
+		case 7:
+			return colorScale(c, 255 - (src >>> 24));
+		case 8:
+			return colorScale(c, dst >>> 24);
+		case 9:
+			return colorScale(c, 255 - (dst >>> 24));
+		default:
+			return 0;
+		}
+	}
+
 	static int colorGrey(int g) {
 		g = clamp(g, 0, 255);
 		return (g << 24) | (g << 16) | (g << 8) | g;

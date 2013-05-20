@@ -72,40 +72,40 @@ final class Type {
 		// bound framebuffer
 
 		/**
-		 * Field type: long
+		 * Field type: int
 		 * <p>
-		 * (1 << 00) 0x0000000000000001: Write BUFFER_COLOR0<br>
-		 * (1 << 01) 0x0000000000000002: Write BUFFER_COLOR1<br>
-		 * (1 << 02) 0x0000000000000004: Write BUFFER_Z<br>
-		 * (1 << 03) 0x0000000000000008: Write BUFFER_STENCIL<br>
-		 * (1 << 04) 0x0000000000000010: Write BUFFER_ID<br>
-		 * (1 << 05) 0x0000000000000020: SCISSOR_TEST<br>
-		 * (1 << 06) 0x0000000000000040: ALPHA_TEST<br>
-		 * (1 << 07) 0x0000000000000080: DEPTH_TEST<br>
-		 * (1 << 08) 0x0000000000000100: STENCIL_TEST<br>
-		 * (1 << 09) 0x0000000000000200: CULL_FACE<br>
-		 * (1 << 10) 0x0000000000000400: BLEND<br>
-		 * (1 << 11) 0x0000000000000800: FOG<br>
-		 * (1 << 12) 0x0000000000001000: LIGHTING<br>
-		 * (1 << 13) 0x0000000000002000: TWO_SIDED_LIGHTING<br>
-		 * (1 << 14) 0x0000000000004000: TEXTURE_2D<br>
-		 * (1 << 15) 0x0000000000008000: MIPMAPS<br>
-		 * (1 << 16) 0x0000000000010000: COLOR_SUM<br>
-		 * (1 << 17) 0x0000000000020000: SEPARATE_SPECULAR<br>
-		 * (1 << 18) 0x0000000000040000: <br>
-		 * (1 << 19) 0x0000000000080000: <br>
-		 * (1 << 20) 0x0000000000100000: <br>
-		 * (1 << 21) 0x0000000000200000: <br>
-		 * (1 << 22) 0x0000000000400000: <br>
-		 * (1 << 23) 0x0000000000800000: <br>
-		 * (1 << 24) 0x0000000001000000: <br>
-		 * (1 << 25) 0x0000000002000000: <br>
-		 * (1 << 26) 0x0000000004000000: <br>
-		 * (1 << 27) 0x0000000008000000: <br>
-		 * (1 << 28) 0x0000000010000000: <br>
-		 * (1 << 29) 0x0000000020000000: <br>
-		 * (1 << 30) 0x0000000040000000: <br>
-		 * (1 << 31) 0x0000000080000000: <br>
+		 * (1 << 00) 0x00000001: Write BUFFER_COLOR0<br>
+		 * (1 << 01) 0x00000002: Write BUFFER_COLOR1<br>
+		 * (1 << 02) 0x00000004: Write BUFFER_Z<br>
+		 * (1 << 03) 0x00000008: Write BUFFER_STENCIL<br>
+		 * (1 << 04) 0x00000010: Write BUFFER_ID<br>
+		 * (1 << 05) 0x00000020: SCISSOR_TEST<br>
+		 * (1 << 06) 0x00000040: ALPHA_TEST<br>
+		 * (1 << 07) 0x00000080: DEPTH_TEST<br>
+		 * (1 << 08) 0x00000100: STENCIL_TEST<br>
+		 * (1 << 09) 0x00000200: CULL_FACE<br>
+		 * (1 << 10) 0x00000400: BLEND<br>
+		 * (1 << 11) 0x00000800: FOG<br>
+		 * (1 << 12) 0x00001000: LIGHTING<br>
+		 * (1 << 13) 0x00002000: TWO_SIDED_LIGHTING<br>
+		 * (1 << 14) 0x00004000: TEXTURE_2D<br>
+		 * (1 << 15) 0x00008000: MIPMAPS<br>
+		 * (1 << 16) 0x00010000: COLOR_SUM<br>
+		 * (1 << 17) 0x00020000: SEPARATE_SPECULAR<br>
+		 * (1 << 18) 0x00040000: ALPHAREF_RANDOM<br>
+		 * (1 << 19) 0x00080000: AUTO_FLIP_ZSIGN<br>
+		 * (1 << 20) 0x00100000: <br>
+		 * (1 << 21) 0x00200000: <br>
+		 * (1 << 22) 0x00400000: <br>
+		 * (1 << 23) 0x00800000: <br>
+		 * (1 << 24) 0x01000000: <br>
+		 * (1 << 25) 0x02000000: <br>
+		 * (1 << 26) 0x04000000: <br>
+		 * (1 << 27) 0x08000000: <br>
+		 * (1 << 28) 0x10000000: <br>
+		 * (1 << 29) 0x20000000: <br>
+		 * (1 << 30) 0x40000000: <br>
+		 * (1 << 31) 0x80000000: <br>
 		 * </p>
 		 */
 		static int flags0() {
@@ -113,14 +113,16 @@ final class Type {
 		}
 
 		/**
-		 * Field type: long
+		 * Field type: int
 		 * <p>
 		 * Reserved for future use.
 		 * </p>
 		 */
 		static int flags1() {
-			return 8;
+			return 4;
 		}
+
+		// bytes 8 - 15 free
 
 		/**
 		 * Field type: int
@@ -347,12 +349,36 @@ final class Type {
 			return 6408;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: NEVER<br>
+		 * 1: LESS<br>
+		 * 2: LEQUAL<br>
+		 * 3: GREATER<br>
+		 * 4: GEQUAL<br>
+		 * 5: EQUAL<br>
+		 * 6: NOTEQUAL<br>
+		 * 7: ALWAYS<br>
+		 * </p>
+		 */
 		static int depth_func() {
 			return 6412;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: NEVER<br>
+		 * 1: LESS<br>
+		 * 2: LEQUAL<br>
+		 * 3: GREATER<br>
+		 * 4: GEQUAL<br>
+		 * 5: EQUAL<br>
+		 * 6: NOTEQUAL<br>
+		 * 7: ALWAYS<br>
+		 * </p>
+		 */
 		static int stencil_func_front() {
 			return 6416;
 		}
@@ -367,7 +393,19 @@ final class Type {
 			return 6424;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: NEVER<br>
+		 * 1: LESS<br>
+		 * 2: LEQUAL<br>
+		 * 3: GREATER<br>
+		 * 4: GEQUAL<br>
+		 * 5: EQUAL<br>
+		 * 6: NOTEQUAL<br>
+		 * 7: ALWAYS<br>
+		 * </p>
+		 */
 		static int stencil_func_back() {
 			return 6428;
 		}
@@ -382,67 +420,225 @@ final class Type {
 			return 6436;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: NEVER<br>
+		 * 1: LESS<br>
+		 * 2: LEQUAL<br>
+		 * 3: GREATER<br>
+		 * 4: GEQUAL<br>
+		 * 5: EQUAL<br>
+		 * 6: NOTEQUAL<br>
+		 * 7: ALWAYS<br>
+		 * </p>
+		 */
 		static int alpha_func() {
 			return 6440;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
+		 * </p>
+		 */
 		static int stencil_op_front_sfail() {
 			return 6444;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
+		 * </p>
+		 */
 		static int stencil_op_front_dfail() {
 			return 6448;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
+		 * </p>
+		 */
 		static int stencil_op_front_dpass() {
 			return 6452;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
+		 * </p>
+		 */
 		static int stencil_op_back_sfail() {
 			return 6456;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
+		 * </p>
+		 */
 		static int stencil_op_back_dfail() {
 			return 6460;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
+		 * </p>
+		 */
 		static int stencil_op_back_dpass() {
 			return 6464;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: ONE<br>
+		 * 2: SRC_COLOR<br>
+		 * 3: ONE_MINUS_SRC_COLOR<br>
+		 * 4: DST_COLOR<br>
+		 * 5: ONE_MINUS_DST_COLOR<br>
+		 * 6: SRC_ALPHA<br>
+		 * 7: ONE_MINUS_SRC_ALPHA<br>
+		 * 8: DST_ALPHA<br>
+		 * 9: ONE_MINUS_DST_ALPHA<br>
+		 * </p>
+		 */
 		static int blend_func_front_sfactor() {
 			return 6468;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: ONE<br>
+		 * 2: SRC_COLOR<br>
+		 * 3: ONE_MINUS_SRC_COLOR<br>
+		 * 4: DST_COLOR<br>
+		 * 5: ONE_MINUS_DST_COLOR<br>
+		 * 6: SRC_ALPHA<br>
+		 * 7: ONE_MINUS_SRC_ALPHA<br>
+		 * 8: DST_ALPHA<br>
+		 * 9: ONE_MINUS_DST_ALPHA<br>
+		 * </p>
+		 */
 		static int blend_func_front_dfactor() {
 			return 6472;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ADD<br>
+		 * 1: SUBTRACT<br>
+		 * 2: REVERSE_SUBTRACT<br>
+		 * 3: MIN<br>
+		 * 4: MAX<br>
+		 * </p>
+		 */
 		static int blend_func_front_mode() {
 			return 6476;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: ONE<br>
+		 * 2: SRC_COLOR<br>
+		 * 3: ONE_MINUS_SRC_COLOR<br>
+		 * 4: DST_COLOR<br>
+		 * 5: ONE_MINUS_DST_COLOR<br>
+		 * 6: SRC_ALPHA<br>
+		 * 7: ONE_MINUS_SRC_ALPHA<br>
+		 * 8: DST_ALPHA<br>
+		 * 9: ONE_MINUS_DST_ALPHA<br>
+		 * </p>
+		 */
 		static int blend_func_back_sfactor() {
 			return 6480;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: ONE<br>
+		 * 2: SRC_COLOR<br>
+		 * 3: ONE_MINUS_SRC_COLOR<br>
+		 * 4: DST_COLOR<br>
+		 * 5: ONE_MINUS_DST_COLOR<br>
+		 * 6: SRC_ALPHA<br>
+		 * 7: ONE_MINUS_SRC_ALPHA<br>
+		 * 8: DST_ALPHA<br>
+		 * 9: ONE_MINUS_DST_ALPHA<br>
+		 * </p>
+		 */
 		static int blend_func_back_dfactor() {
 			return 6484;
 		}
 
-		/** Field type: int */
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ADD<br>
+		 * 1: SUBTRACT<br>
+		 * 2: REVERSE_SUBTRACT<br>
+		 * 3: MIN<br>
+		 * 4: MAX<br>
+		 * </p>
+		 */
 		static int blend_func_back_mode() {
 			return 6488;
 		}

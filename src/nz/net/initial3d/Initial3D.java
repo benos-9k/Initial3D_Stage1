@@ -72,7 +72,7 @@ public abstract class Initial3D {
 	public static final int SMOOTH = 10101;
 	public static final int PHONG = 10102;
 
-	// blend func parameters
+	// blend func src / dst factors
 	// share ZERO, ONE
 	// idea: if COLOR_SUM is enabled, do 2 blends with both color buffers then add the result
 	public static final int SRC_COLOR = 10200;
@@ -84,7 +84,7 @@ public abstract class Initial3D {
 	public static final int DST_ALPHA = 10206;
 	public static final int ONE_MINUS_DST_ALPHA = 10207;
 
-	// blend equation parameters
+	// blend funcs
 	public static final int FUNC_ADD = 10250;
 	public static final int FUNC_SUBTRACT = 10251;
 	public static final int FUNC_REVERSE_SUBTRACT = 10252;
@@ -307,7 +307,7 @@ public abstract class Initial3D {
 		material(face, param, c.r, c.g, c.b, c.a);
 	}
 
-	public abstract void blendFunc(int sfactor, int dfactor, int mode);
+	public abstract void blendFunc(int func, int sfactor, int dfactor);
 
 	public abstract void alphaFunc(int func, double ref);
 

@@ -57,6 +57,7 @@ public final class Initial3DImpl extends Initial3D {
 			pBase = buf_base.getPointer();
 
 			// TODO init the unsafe state
+			projectionMode(ORTHOGRAPHIC);
 
 			// bind default framebuffer
 			bound_framebuffer = default_framebuffer;
@@ -82,8 +83,6 @@ public final class Initial3DImpl extends Initial3D {
 			matrix_mode = MODELVIEW;
 			modelview.push(new Mat4());
 			projection.push(new Mat4());
-
-			projectionMode(ORTHOGRAPHIC);
 		}
 
 		State(State other_) {
@@ -130,13 +129,50 @@ public final class Initial3DImpl extends Initial3D {
 			buf_base.release();
 		}
 
+		private void genClipFunc(Mat4 inv_p, Vec3 p0, Vec3 p1, Vec3 p2, long pClipFunc) {
+			// the side with the acw normal is the 'keep' side
+			// transform
+			p0 = inv_p.mul(p0);
+			p1 = inv_p.mul(p1);
+			p2 = inv_p.mul(p2);
+			// calculate new normal
+			Vec3 n = Vec3.planeNorm(p0, p1, p2);
+			// eval clip func at one point
+			double cutoff = n.dot(p0);
+			writeVector(unsafe, pClipFunc, n.x, n.y, n.z, cutoff);
+		}
+
 		private void loadUnsafeState() {
 			// this shouldn't require pipeline to be finished
 			// load the 'unsafe' parts of the state that depend on 'safe' parts
-			// specifically the matrices, and anything dependent on them, like
-			// the clipfuncs
-			// also copy info from framebuffer
 
+			// copy matrices
+			// TODO optimise matrix re-calculation
+			Mat4 mv = modelview.peek();
+			Mat4 p = projection.peek();
+			// TODO check normal matrix formula
+			Mat4 n = mv.inv().xpose();
+			// texture matrix not exposed yet
+			Mat4 t = new Mat4();
+			writeMat(unsafe, pBase + i3d_t.mat_mv(), mv);
+			writeMat(unsafe, pBase + i3d_t.mat_p(), p);
+			writeMat(unsafe, pBase + i3d_t.mat_mvp(), p.mul(mv));
+			writeMat(unsafe, pBase + i3d_t.mat_inv_mv(), mv.inv());
+			writeMat(unsafe, pBase + i3d_t.mat_inv_p(), p.inv());
+			writeMat(unsafe, pBase + i3d_t.mat_inv_mvp(), (p.mul(mv)).inv());
+			writeMat(unsafe, pBase + i3d_t.mat_n(), n);
+			writeMat(unsafe, pBase + i3d_t.mat_inv_n(), n.inv());
+			writeMat(unsafe, pBase + i3d_t.mat_t(), t);
+			writeMat(unsafe, pBase + i3d_t.mat_inv_t(), t.inv());
+
+			// gen clipfuncs for sides of view frustum
+			genClipFunc(p.inv(), new Vec3(1, 0, 0), new Vec3(1, 0, 1), new Vec3(1, 1, 1), pBase + i3d_t.clip_left());
+			genClipFunc(p.inv(), new Vec3(-1, 0, 0), new Vec3(-1, 1, 0), new Vec3(-1, 1, 1), pBase + i3d_t.clip_right());
+			genClipFunc(p.inv(), new Vec3(0, 1, 0), new Vec3(1, 1, 0), new Vec3(1, 1, 1), pBase + i3d_t.clip_top());
+			genClipFunc(p.inv(), new Vec3(0, -1, 0), new Vec3(-1, -1, 0), new Vec3(-1, -1, 1), pBase + i3d_t.clip_bottom());
+
+			// copy info from framebuffer
+			bound_framebuffer.writeUnsafeState(pBase + i3d_t.framebuf());
 		}
 
 		void bindFrameBuffer(FrameBuffer fb) {

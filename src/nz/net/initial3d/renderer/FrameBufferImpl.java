@@ -3,6 +3,7 @@ package nz.net.initial3d.renderer;
 import static nz.net.initial3d.renderer.Util.*;
 import sun.misc.Unsafe;
 import nz.net.initial3d.*;
+import nz.net.initial3d.renderer.Type.framebuf_t;
 
 final class FrameBufferImpl extends FrameBuffer {
 
@@ -186,4 +187,38 @@ final class FrameBufferImpl extends FrameBuffer {
 			}
 		}
 	}
+
+	void writeUnsafeState(long pFrameBuf) {
+		unsafe.putInt(pFrameBuf + framebuf_t.viewport_x(), viewport_x);
+		unsafe.putInt(pFrameBuf + framebuf_t.viewport_y(), viewport_y);
+		unsafe.putInt(pFrameBuf + framebuf_t.viewport_w(), viewport_w);
+		unsafe.putInt(pFrameBuf + framebuf_t.viewport_h(), viewport_h);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pColor0(), pColor0);
+		unsafe.putInt(pFrameBuf + framebuf_t.stride_color0(), stride_color0);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pColor1(), pColor1);
+		unsafe.putInt(pFrameBuf + framebuf_t.stride_color1(), stride_color1);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pZ(), pZ);
+		unsafe.putInt(pFrameBuf + framebuf_t.stride_z(), stride_z);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pSZ(), pSZ);
+		unsafe.putInt(pFrameBuf + framebuf_t.stride_sz(), stride_sz);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pZSign(), pZSign);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pStencil(), pStencil);
+		unsafe.putInt(pFrameBuf + framebuf_t.stride_stencil(), stride_stencil);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pID(), pID);
+		unsafe.putInt(pFrameBuf + framebuf_t.stride_id(), stride_id);
+		unsafe.putAddress(pFrameBuf + framebuf_t.pFC(), pFC);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

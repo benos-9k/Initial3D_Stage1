@@ -2,11 +2,11 @@ package nz.net.initial3d.renderer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import nz.net.initial3d.util.Profiler;
-import nz.net.initial3d.util.Queue;
-
 import sun.misc.Unsafe;
 
 /**
@@ -21,13 +21,13 @@ final class Buffer {
 	private static final Unsafe unsafe = Util.getUnsafe();
 
 	@SuppressWarnings("unchecked")
-	private static final Queue<Buffer>[] buf_queues = new Queue[31];
+	private static final BlockingQueue<Buffer>[] buf_queues = new BlockingQueue[31];
 
 	private static final int SEC_MALLOC = Profiler.createSection("Buffer-malloc");
 
 	static {
 		for (int i = 0; i < buf_queues.length; i++) {
-			buf_queues[i] = new Queue<Buffer>(2048 >> (i / 3));
+			buf_queues[i] = new ArrayBlockingQueue<Buffer>(2048 >> (i / 3));
 			// System.out.println(i + " : " + buf_queues[i].capacity());
 		}
 	}
@@ -95,7 +95,7 @@ final class Buffer {
 			tag = 0;
 			extra = null;
 			if (!buf_queues[sidx].offer(this)) {
-				System.out.println("Buffer free().");
+				System.out.println("Buffer free(): " + (1 << sidx) + " bytes.");
 				unsafe.freeMemory(pBuffer);
 			}
 			// System.out.println("Returning " + this + " to pool.");

@@ -1,6 +1,8 @@
 package nz.net.initial3d.util;
 
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -44,7 +46,7 @@ public final class Profiler {
 	private static final ThreadData[] thread_data = new ThreadData[MAX_THREADS];
 
 	// thread data for dead threads. processed by reset().
-	private static final Queue<ThreadData> thread_dead = new Queue<ThreadData>(MAX_THREADS);
+	private static final BlockingQueue<ThreadData> thread_dead = new ArrayBlockingQueue<ThreadData>(MAX_THREADS);
 
 	private static final long[][] reset_sec_time = new long[MAX_THREADS][MAX_SECTIONS];
 	private static final String[] reset_tname = new String[MAX_THREADS];

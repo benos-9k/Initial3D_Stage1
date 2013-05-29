@@ -1,7 +1,9 @@
 package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
-import nz.net.initial3d.util.Queue;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 final class RasterPipe {
 
@@ -69,7 +71,7 @@ final class RasterPipe {
 
 	private class WorkerThread extends Thread {
 
-		private Queue<Buffer> work = new Queue<Buffer>(1024);
+		private BlockingQueue<Buffer> work = new ArrayBlockingQueue<Buffer>(1024);
 		private final Object waiter_begin = new Object();
 		private final Object waiter_finish = new Object();
 		private volatile boolean waiting = true;

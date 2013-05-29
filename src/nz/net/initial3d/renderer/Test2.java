@@ -5,8 +5,6 @@ import static nz.net.initial3d.renderer.Util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import nz.net.initial3d.util.Queue;
-
 
 public class Test2 {
 
@@ -32,7 +30,7 @@ public class Test2 {
 
 		private Object waiter = new Object();
 
-		private Queue<Buffer> q = new Queue<Buffer>(16);
+		private BlockingQueue<Buffer> q = new ArrayBlockingQueue<Buffer>(16);
 
 		public Foo() {
 

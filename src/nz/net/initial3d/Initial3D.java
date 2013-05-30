@@ -74,7 +74,8 @@ public abstract class Initial3D {
 
 	// blend func src / dst factors
 	// share ZERO, ONE
-	// idea: if COLOR_SUM is enabled, do 2 blends with both color buffers then add the result
+	// idea: if COLOR_SUM is enabled, do 2 blends with both color buffers then
+	// add the result
 	public static final int SRC_COLOR = 10200;
 	public static final int ONE_MINUS_SRC_COLOR = 10201;
 	public static final int DST_COLOR = 10202;
@@ -160,7 +161,8 @@ public abstract class Initial3D {
 	// fog parameters
 	public static final int FOG_COLOR = 11100;
 
-	// use queryEnum() for the other fog params and functions. yes, even my own fog implementation is non-standard!
+	// use queryEnum() for the other fog params and functions. yes, even my own
+	// fog implementation is non-standard!
 
 	// matrices
 	public static final int MODELVIEW = 11200;
@@ -176,7 +178,7 @@ public abstract class Initial3D {
 	public abstract void popState();
 
 	/**
-	 * Query the value of a named enum constant, including non-standard ones like 'I3DX_FOG_A'.
+	 * Query the value of a named Initial3D enum constant, including non-standard ones like 'I3DX_FOG_A'.
 	 *
 	 * @param name
 	 *            Name of the constant. Case sensitive.
@@ -280,11 +282,11 @@ public abstract class Initial3D {
 	public abstract void secondaryColor(double r, double g, double b, double a);
 
 	public void secondaryColor(double r, double g, double b) {
-		color(r, g, b, 1);
+		secondaryColor(r, g, b, 1);
 	}
 
 	public void secondaryColor(Color c) {
-		color(c.r, c.g, c.b, c.a);
+		secondaryColor(c.r, c.g, c.b, c.a);
 	}
 
 	public abstract void texCoord(double u, double v);

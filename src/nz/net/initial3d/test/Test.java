@@ -20,6 +20,8 @@ public class Test {
 		final int FOG_A = i3d.queryEnum("I3DX_FOG_A");
 		System.out.println(FOG_A);
 
+		i3d.isEnabled(-42);
+
 	}
 
 }

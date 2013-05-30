@@ -4,7 +4,9 @@ import static nz.net.initial3d.renderer.Util.*;
 import static nz.net.initial3d.renderer.Type.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import nz.net.initial3d.*;
@@ -35,6 +37,32 @@ public final class Initial3DImpl extends Initial3D {
 
 	// state
 	Stack<State> state = new Stack<State>();
+
+	// map api enums to enable bits
+	private static final Map<Integer, Integer> enable_bits = new HashMap<Integer, Integer>();
+
+	static {
+		enable_bits.put(BUFFER_COLOR0, 0x1);
+		enable_bits.put(BUFFER_COLOR1, 0x2);
+		enable_bits.put(BUFFER_Z, 0x4);
+		enable_bits.put(BUFFER_STENCIL, 0x8);
+		enable_bits.put(BUFFER_ID, 0x10);
+		enable_bits.put(SCISSOR_TEST, 0x20);
+		enable_bits.put(ALPHA_TEST, 0x40);
+		enable_bits.put(DEPTH_TEST, 0x80);
+		enable_bits.put(STENCIL_TEST, 0x100);
+		enable_bits.put(CULL_FACE, 0x200);
+		enable_bits.put(BLEND, 0x400);
+		enable_bits.put(FOG, 0x800);
+		enable_bits.put(LIGHTING, 0x1000);
+		enable_bits.put(TWO_SIDED_LIGHTING, 0x2000);
+		enable_bits.put(TEXTURE_2D, 0x4000);
+		enable_bits.put(MIPMAPS, 0x8000);
+		enable_bits.put(COLOR_SUM, 0x10000);
+		enable_bits.put(SEPARATE_SPECULAR, 0x20000);
+		enable_bits.put(ALPHAREF_RANDOM, 0x40000);
+		enable_bits.put(AUTO_FLIP_ZSIGN, 0x80000);
+	}
 
 	class State {
 
@@ -169,7 +197,8 @@ public final class Initial3DImpl extends Initial3D {
 			genClipFunc(p.inv(), new Vec3(1, 0, 0), new Vec3(1, 0, 1), new Vec3(1, 1, 1), pBase + i3d_t.clip_left());
 			genClipFunc(p.inv(), new Vec3(-1, 0, 0), new Vec3(-1, 1, 0), new Vec3(-1, 1, 1), pBase + i3d_t.clip_right());
 			genClipFunc(p.inv(), new Vec3(0, 1, 0), new Vec3(1, 1, 0), new Vec3(1, 1, 1), pBase + i3d_t.clip_top());
-			genClipFunc(p.inv(), new Vec3(0, -1, 0), new Vec3(-1, -1, 0), new Vec3(-1, -1, 1), pBase + i3d_t.clip_bottom());
+			genClipFunc(p.inv(), new Vec3(0, -1, 0), new Vec3(-1, -1, 0), new Vec3(-1, -1, 1),
+					pBase + i3d_t.clip_bottom());
 
 			// copy info from framebuffer
 			bound_framebuffer.writeUnsafeState(pBase + i3d_t.framebuf());
@@ -188,43 +217,100 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void bindTexture(int target, Texture2D tex) {
-			// TODO Auto-generated method stub
+			long pTex = ((Texture2DImpl) tex).pTex;
+			// set texture for front and back mtl
+			switch (target) {
+			case TEXTURE_2D_KD:
+				unsafe.putAddress(pBase + i3d_t.mtl_front() + material_t.pMap_kd(), pTex);
+				unsafe.putAddress(pBase + i3d_t.mtl_back() + material_t.pMap_kd(), pTex);
+				break;
+			case TEXTURE_2D_KS:
+				unsafe.putAddress(pBase + i3d_t.mtl_front() + material_t.pMap_ks(), pTex);
+				unsafe.putAddress(pBase + i3d_t.mtl_back() + material_t.pMap_ks(), pTex);
+				break;
+			case TEXTURE_2D_KE:
+				unsafe.putAddress(pBase + i3d_t.mtl_front() + material_t.pMap_ke(), pTex);
+				unsafe.putAddress(pBase + i3d_t.mtl_back() + material_t.pMap_ke(), pTex);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 
 		}
 
 		void enable(int... caps) {
 			for (int cap : caps) {
-				// TODO enable
+				Integer bit = enable_bits.get(cap);
+				if (bit != null) {
+					int flags = unsafe.getInt(pBase + i3d_t.flags0());
+					flags |= bit;
+					unsafe.putInt(pBase + i3d_t.flags0(), flags);
+				} else {
+					throw nope("Invalid enum.");
+				}
 			}
 		}
 
 		void disable(int... caps) {
 			for (int cap : caps) {
-				// TODO disable
+				Integer bit = enable_bits.get(cap);
+				if (bit != null) {
+					int flags = unsafe.getInt(pBase + i3d_t.flags0());
+					flags &= ~bit;
+					unsafe.putInt(pBase + i3d_t.flags0(), flags);
+				} else {
+					throw nope("Invalid enum.");
+				}
 			}
 		}
 
 		boolean isEnabled(int cap) {
-			// TODO is enabled
-			return false;
+			try {
+				int bit = enable_bits.get(cap);
+				int flags = unsafe.getInt(pBase + i3d_t.flags0());
+				return (flags & bit) == bit;
+			} catch (NullPointerException e) {
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void projectionMode(int mode) {
-			// TODO projection mode
-
+			switch (mode) {
+			case ORTHOGRAPHIC:
+				unsafe.putInt(pBase + i3d_t.projection_mode(), 0);
+				break;
+			case PERSPECTIVE:
+				unsafe.putInt(pBase + i3d_t.projection_mode(), 1);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void polygonMode(int face, int mode) {
-			// TODO polymode
+			switch (mode) {
+			case POINT:
+				mode = 0;
+				break;
+			case LINE:
+				mode = 1;
+				break;
+			case FILL:
+				mode = 2;
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 			switch (face) {
 			case FRONT:
-
+				unsafe.putInt(pBase + i3d_t.polymode_front(), mode);
 				break;
 			case BACK:
-
+				unsafe.putInt(pBase + i3d_t.polymode_back(), mode);
 				break;
 			case FRONT_AND_BACK:
-
+				unsafe.putInt(pBase + i3d_t.polymode_front(), mode);
+				unsafe.putInt(pBase + i3d_t.polymode_back(), mode);
 				break;
 			default:
 				throw nope("Invalid enum.");
@@ -232,8 +318,18 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void shadeModel(int model) {
-			// TODO shade model
-
+			switch (model) {
+			case FLAT:
+				unsafe.putInt(pBase + i3d_t.shade_model(), 0);
+				break;
+			case SMOOTH:
+				unsafe.putInt(pBase + i3d_t.shade_model(), 1);
+				break;
+			case PHONG:
+				throw nope("Phong shading not supported (yet).");
+			default:
+				throw nope("Invalid enum");
+			}
 		}
 
 		void viewport(int x, int y, int w, int h) {
@@ -251,10 +347,9 @@ public final class Initial3DImpl extends Initial3D {
 		void flipZSign() {
 			// it should be possible to do this without a finish(), but only if
 			// draw calls in progress at any one time span no more than one
-			// z-flip.
+			// z-flip. so let's leave that for the moment.
 			finish();
-			System.out.println("flippity");
-			// TODO flip zsign
+			bound_framebuffer.setZSign(bound_framebuffer.getZSign() * -1);
 		}
 
 		void bindVertexBuffer(int att, VectorBuffer vbuf) {
@@ -376,33 +471,162 @@ public final class Initial3DImpl extends Initial3D {
 
 		void end() {
 			loadUnsafeState();
-			// TODO Auto-generated method stub
+			// TODO end()
 
 		}
 
 		void material(int face, int param, double f) {
-			// TODO Auto-generated method stub
-
+			int field = 0;
+			switch (param) {
+			case SHININESS:
+				field = material_t.ks_a_shininess();
+				break;
+			case OPACITY:
+				field = material_t.kd_a_opacity();
+				break;
+			default:
+				throw nope("Invalid enum");
+			}
+			switch (face) {
+			case FRONT:
+				unsafe.putFloat(pBase + i3d_t.mtl_front() + field, (float) f);
+				break;
+			case BACK:
+				unsafe.putFloat(pBase + i3d_t.mtl_back() + field, (float) f);
+				break;
+			case FRONT_AND_BACK:
+				unsafe.putFloat(pBase + i3d_t.mtl_front() + field, (float) f);
+				unsafe.putFloat(pBase + i3d_t.mtl_back() + field, (float) f);
+				break;
+			default:
+				throw nope("Invalid enum");
+			}
 		}
 
 		void material(int face, int param, double r, double g, double b, double a) {
-			// TODO Auto-generated method stub
+			int field = 0;
+			switch (param) {
+			case AMBIENT:
+				field = material_t.ka_a_unused();
+				break;
+			case DIFFUSE:
+				field = material_t.kd_a_opacity();
+				break;
+			case SPECULAR:
+				field = material_t.ks_a_shininess();
+				break;
+			case EMISSION:
+				field = material_t.ke_a_unused();
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
+			switch (face) {
+			case FRONT:
+				writeVector_float(unsafe, pBase + i3d_t.mtl_front() + field, (float) a, (float) r, (float) g, (float) b);
+				break;
+			case BACK:
+				writeVector_float(unsafe, pBase + i3d_t.mtl_back() + field, (float) a, (float) r, (float) g, (float) b);
+				break;
+			case FRONT_AND_BACK:
+				writeVector_float(unsafe, pBase + i3d_t.mtl_front() + field, (float) a, (float) r, (float) g, (float) b);
+				writeVector_float(unsafe, pBase + i3d_t.mtl_back() + field, (float) a, (float) r, (float) g, (float) b);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
+		}
 
+		private int blendFactorSanitise(int factor) {
+			switch (factor) {
+			case ZERO:
+				return 0;
+			case ONE:
+				return 1;
+			case SRC_COLOR:
+				return 2;
+			case ONE_MINUS_SRC_COLOR:
+				return 3;
+			case DST_COLOR:
+				return 4;
+			case ONE_MINUS_DST_COLOR:
+				return 5;
+			case SRC_ALPHA:
+				return 6;
+			case ONE_MINUS_SRC_ALPHA:
+				return 7;
+			case DST_ALPHA:
+				return 8;
+			case ONE_MINUS_DST_ALPHA:
+				return 9;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void blendFunc(int func, int sfactor, int dfactor) {
-			// TODO Auto-generated method stub
+			switch (func) {
+			case FUNC_ADD:
+				func = 0;
+				break;
+			case FUNC_SUBTRACT:
+				func = 1;
+				break;
+			case FUNC_REVERSE_SUBTRACT:
+				func = 2;
+				break;
+			case FUNC_MIN:
+				func = 3;
+				break;
+			case FUNC_MAX:
+				func = 4;
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
+			sfactor = blendFactorSanitise(sfactor);
+			dfactor = blendFactorSanitise(dfactor);
+			// set for front and back
+			unsafe.putInt(pBase + i3d_t.blend_func_front_mode(), func);
+			unsafe.putInt(pBase + i3d_t.blend_func_front_sfactor(), sfactor);
+			unsafe.putInt(pBase + i3d_t.blend_func_front_dfactor(), dfactor);
+			unsafe.putInt(pBase + i3d_t.blend_func_back_mode(), func);
+			unsafe.putInt(pBase + i3d_t.blend_func_back_sfactor(), sfactor);
+			unsafe.putInt(pBase + i3d_t.blend_func_back_dfactor(), dfactor);
+		}
 
+		private int compareFuncSanitise(int func) {
+			switch (func) {
+			case NEVER:
+				return 0;
+			case LESS:
+				return 1;
+			case LEQUAL:
+				return 2;
+			case GREATER:
+				return 3;
+			case GEQUAL:
+				return 4;
+			case EQUAL:
+				return 5;
+			case NOTEQUAL:
+				return 6;
+			case ALWAYS:
+				return 7;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void alphaFunc(int func, double ref) {
-			// TODO Auto-generated method stub
-
+			func = compareFuncSanitise(func);
+			unsafe.putInt(pBase + i3d_t.alpha_func(), func);
+			unsafe.putFloat(pBase + i3d_t.alpha_ref(), (float) ref);
 		}
 
 		void depthFunc(int func) {
-			// TODO Auto-generated method stub
-
+			func = compareFuncSanitise(func);
+			unsafe.putInt(pBase + i3d_t.depth_func(), func);
 		}
 
 		void stencilFuncSeparate(int face, int func, int ref, int mask) {

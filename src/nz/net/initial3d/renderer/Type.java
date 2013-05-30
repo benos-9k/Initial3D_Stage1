@@ -21,7 +21,7 @@ final class Type {
 
 		/** Constant: size in bytes of an instance of this type */
 		static int SIZEOF() {
-			return 6620;
+			return 6624;
 		}
 
 		// in no particular order:
@@ -438,19 +438,9 @@ final class Type {
 		}
 
 		/**
-		 * Field type: int
-		 * <p>
-		 * 0: ZERO<br>
-		 * 1: KEEP<br>
-		 * 2: REPLACE<br>
-		 * 3: INCR<br>
-		 * 4: INCR_WRAP<br>
-		 * 5: DECR<br>
-		 * 6: DECR_WRAP<br>
-		 * 7: INVERT<br>
-		 * </p>
+		 * Field type: float
 		 */
-		static int stencil_op_front_sfail() {
+		static int alpha_ref() {
 			return 6444;
 		}
 
@@ -467,7 +457,7 @@ final class Type {
 		 * 7: INVERT<br>
 		 * </p>
 		 */
-		static int stencil_op_front_dfail() {
+		static int stencil_op_front_sfail() {
 			return 6448;
 		}
 
@@ -484,7 +474,7 @@ final class Type {
 		 * 7: INVERT<br>
 		 * </p>
 		 */
-		static int stencil_op_front_dpass() {
+		static int stencil_op_front_dfail() {
 			return 6452;
 		}
 
@@ -501,7 +491,7 @@ final class Type {
 		 * 7: INVERT<br>
 		 * </p>
 		 */
-		static int stencil_op_back_sfail() {
+		static int stencil_op_front_dpass() {
 			return 6456;
 		}
 
@@ -518,7 +508,7 @@ final class Type {
 		 * 7: INVERT<br>
 		 * </p>
 		 */
-		static int stencil_op_back_dfail() {
+		static int stencil_op_back_sfail() {
 			return 6460;
 		}
 
@@ -535,7 +525,7 @@ final class Type {
 		 * 7: INVERT<br>
 		 * </p>
 		 */
-		static int stencil_op_back_dpass() {
+		static int stencil_op_back_dfail() {
 			return 6464;
 		}
 
@@ -543,18 +533,16 @@ final class Type {
 		 * Field type: int
 		 * <p>
 		 * 0: ZERO<br>
-		 * 1: ONE<br>
-		 * 2: SRC_COLOR<br>
-		 * 3: ONE_MINUS_SRC_COLOR<br>
-		 * 4: DST_COLOR<br>
-		 * 5: ONE_MINUS_DST_COLOR<br>
-		 * 6: SRC_ALPHA<br>
-		 * 7: ONE_MINUS_SRC_ALPHA<br>
-		 * 8: DST_ALPHA<br>
-		 * 9: ONE_MINUS_DST_ALPHA<br>
+		 * 1: KEEP<br>
+		 * 2: REPLACE<br>
+		 * 3: INCR<br>
+		 * 4: INCR_WRAP<br>
+		 * 5: DECR<br>
+		 * 6: DECR_WRAP<br>
+		 * 7: INVERT<br>
 		 * </p>
 		 */
-		static int blend_func_front_sfactor() {
+		static int stencil_op_back_dpass() {
 			return 6468;
 		}
 
@@ -573,22 +561,8 @@ final class Type {
 		 * 9: ONE_MINUS_DST_ALPHA<br>
 		 * </p>
 		 */
-		static int blend_func_front_dfactor() {
+		static int blend_func_front_sfactor() {
 			return 6472;
-		}
-
-		/**
-		 * Field type: int
-		 * <p>
-		 * 0: ADD<br>
-		 * 1: SUBTRACT<br>
-		 * 2: REVERSE_SUBTRACT<br>
-		 * 3: MIN<br>
-		 * 4: MAX<br>
-		 * </p>
-		 */
-		static int blend_func_front_mode() {
-			return 6476;
 		}
 
 		/**
@@ -606,7 +580,21 @@ final class Type {
 		 * 9: ONE_MINUS_DST_ALPHA<br>
 		 * </p>
 		 */
-		static int blend_func_back_sfactor() {
+		static int blend_func_front_dfactor() {
+			return 6476;
+		}
+
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ADD<br>
+		 * 1: SUBTRACT<br>
+		 * 2: REVERSE_SUBTRACT<br>
+		 * 3: MIN<br>
+		 * 4: MAX<br>
+		 * </p>
+		 */
+		static int blend_func_front_mode() {
 			return 6480;
 		}
 
@@ -625,8 +613,27 @@ final class Type {
 		 * 9: ONE_MINUS_DST_ALPHA<br>
 		 * </p>
 		 */
-		static int blend_func_back_dfactor() {
+		static int blend_func_back_sfactor() {
 			return 6484;
+		}
+
+		/**
+		 * Field type: int
+		 * <p>
+		 * 0: ZERO<br>
+		 * 1: ONE<br>
+		 * 2: SRC_COLOR<br>
+		 * 3: ONE_MINUS_SRC_COLOR<br>
+		 * 4: DST_COLOR<br>
+		 * 5: ONE_MINUS_DST_COLOR<br>
+		 * 6: SRC_ALPHA<br>
+		 * 7: ONE_MINUS_SRC_ALPHA<br>
+		 * 8: DST_ALPHA<br>
+		 * 9: ONE_MINUS_DST_ALPHA<br>
+		 * </p>
+		 */
+		static int blend_func_back_dfactor() {
+			return 6488;
 		}
 
 		/**
@@ -640,27 +647,27 @@ final class Type {
 		 * </p>
 		 */
 		static int blend_func_back_mode() {
-			return 6488;
+			return 6492;
 		}
 
 		/** Field type: color[float] */
 		static int fog_color() {
-			return 6492;
+			return 6496;
 		}
 
 		/** Field type: float */
 		static int fog_a() {
-			return 6508;
+			return 6512;
 		}
 
 		/** Field type: float */
 		static int fog_b() {
-			return 6512;
+			return 6516;
 		}
 
 		/** Field type: framebuf */
 		static int framebuf() {
-			return 6516;
+			return 6520;
 		}
 
 	}

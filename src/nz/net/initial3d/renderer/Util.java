@@ -363,6 +363,13 @@ final class Util {
 		unsafe.putDouble(pTarget + 24, w);
 	}
 
+	static void writeVector_float(Unsafe unsafe, long pTarget, float x, float y, float z, float w) {
+		unsafe.putFloat(pTarget, x);
+		unsafe.putFloat(pTarget + 4, y);
+		unsafe.putFloat(pTarget + 8, z);
+		unsafe.putFloat(pTarget + 12, w);
+	}
+
 	static double vectorDot(Unsafe unsafe, long pVec, double cx, double cy, double cz) {
 		double dot = unsafe.getDouble(pVec) * cx;
 		dot += unsafe.getDouble(pVec + 8) * cy;

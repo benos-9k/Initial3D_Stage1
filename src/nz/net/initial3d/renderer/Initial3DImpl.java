@@ -630,8 +630,29 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void stencilFuncSeparate(int face, int func, int ref, int mask) {
-			// TODO Auto-generated method stub
-
+			func = compareFuncSanitise(func);
+			switch (face) {
+			case FRONT:
+				unsafe.putInt(pBase + i3d_t.stencil_func_front(), func);
+				unsafe.putInt(pBase + i3d_t.stencil_func_front_ref(), ref);
+				unsafe.putInt(pBase + i3d_t.stencil_func_front_mask(), mask);
+				break;
+			case BACK:
+				unsafe.putInt(pBase + i3d_t.stencil_func_back(), func);
+				unsafe.putInt(pBase + i3d_t.stencil_func_back_ref(), ref);
+				unsafe.putInt(pBase + i3d_t.stencil_func_back_mask(), mask);
+				break;
+			case FRONT_AND_BACK:
+				unsafe.putInt(pBase + i3d_t.stencil_func_front(), func);
+				unsafe.putInt(pBase + i3d_t.stencil_func_front_ref(), ref);
+				unsafe.putInt(pBase + i3d_t.stencil_func_front_mask(), mask);
+				unsafe.putInt(pBase + i3d_t.stencil_func_back(), func);
+				unsafe.putInt(pBase + i3d_t.stencil_func_back_ref(), ref);
+				unsafe.putInt(pBase + i3d_t.stencil_func_back_mask(), mask);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void stencilOpSeparate(int face, int sfail, int dfail, int dpass) {

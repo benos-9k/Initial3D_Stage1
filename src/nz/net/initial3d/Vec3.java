@@ -361,7 +361,7 @@ public final class Vec3 {
 	 * @return A copy of this Vec3, except with <code>x</code> set to the
 	 *         specified value.
 	 */
-	public Vec3 copySetX(double x) {
+	public Vec3 withX(double x) {
 		return new Vec3(x, y, z);
 	}
 
@@ -371,7 +371,7 @@ public final class Vec3 {
 	 * @return A copy of this Vec3, except with <code>y</code> set to the
 	 *         specified value.
 	 */
-	public Vec3 copySetY(double y) {
+	public Vec3 withY(double y) {
 		return new Vec3(x, y, z);
 	}
 
@@ -381,7 +381,7 @@ public final class Vec3 {
 	 * @return A copy of this Vec3, except with <code>z</code> set to the
 	 *         specified value.
 	 */
-	public Vec3 copySetZ(double z) {
+	public Vec3 withZ(double z) {
 		return new Vec3(x, y, z);
 	}
 

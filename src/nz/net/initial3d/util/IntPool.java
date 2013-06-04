@@ -4,28 +4,55 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * Integer pool, suitable for implementing id recycling. Size of the pool is fixed upon construction.
+ * 
+ * @author Ben Allen
+ * 
+ */
 public class IntPool {
 
 	private final Set<Integer> used = new HashSet<Integer>();
-	private int used_min, used_max;
-
 	private final Set<Integer> pool = new HashSet<Integer>();
-	private int next, max;
+	private final int pool_min, pool_max;
+	private int pool_next;
 
 	public IntPool(int min_, int max_) {
-		if (min_ >= max_) throw new IllegalArgumentException("min_ must be < max_");
-		next = min_;
-		max = max_;
+		if (min_ >= max_) throw new IllegalArgumentException("min_ must be < max_.");
+		pool_min = min_;
+		pool_next = min_;
+		pool_max = max_;
 	}
 
+	/**
+	 * @return The smallest value that may be returned by <code>alloc()</code> for this pool.
+	 */
+	public int min() {
+		return pool_min;
+	}
+
+	/**
+	 * @return The largest value that may be returned by <code>alloc()</code> for this pool.
+	 */
+	public int max() {
+		return pool_max;
+	}
+
+	/**
+	 * Allocate an integer from the pool, removing it from the pool (and recording it as used).
+	 * 
+	 * @return An integer from the pool.
+	 * @throws IllegalStateException
+	 *             If the pool is exhausted.
+	 */
 	public int alloc() {
 		int m = 0;
 		if (pool.isEmpty()) {
 			// create new int
-			if (next < max) {
-				m = next++;
+			if (pool_next < pool_max) {
+				m = pool_next++;
 			} else {
-				throw new IllegalStateException("Pool exhausted.");
+				throw new IllegalStateException("Integer pool exhausted.");
 			}
 		} else {
 			// get int from pool
@@ -37,6 +64,15 @@ public class IntPool {
 		return m;
 	}
 
+	/**
+	 * Return an integer to the pool, making it available to be allocated. It is an error to return an integer obtained
+	 * from one call to <code>alloc()</code> more than once.
+	 * 
+	 * @param m
+	 *            Integer to return.
+	 * @throws IllegalStateException
+	 *             If <code>m</code> is not currently in use.
+	 */
 	public void free(int m) {
 		if (!used.remove(m)) {
 			throw new IllegalStateException("Integer '" + m + "' not allocated.");
@@ -44,9 +80,33 @@ public class IntPool {
 		pool.add(m);
 	}
 
+	/**
+	 * Determine if an integer is currently allocated from the pool.
+	 * 
+	 * @param m
+	 *            Integer to test.
+	 * @return True iff <code>m</code> is allocated.
+	 */
+	public boolean isAllocated(int m) {
+		return used.contains(m);
+	}
+
+	/**
+	 * Determine if an integer is currently available to be returned by a call to <code>alloc()</code>. An integer is
+	 * available if it is in the range of this pool and not currently allocated.
+	 * 
+	 * @param m
+	 *            Integer to test.
+	 * @return True iff <code>m</code> is available.
+	 */
+	public boolean isAvailable(int m) {
+		return (pool_next <= m && m < pool_max) || pool.contains(m);
+	}
+
 	@Override
 	public String toString() {
-		return String.format("IntPool[used:%d, free:%d, next:%d, max:%d]", used.size(), pool.size(), next, max);
+		return String.format("IntPool[used:%d, free:%d, min:%d, next:%d, max:%d]", used.size(), pool.size(), pool_min,
+				pool_next, pool_max);
 	}
 
 }

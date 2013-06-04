@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Random;
 
 import nz.net.initial3d.util.IntPool;
+import nz.net.initial3d.util.SynchronizedIntPool;
 
 public class IntPoolTest {
 
 	public static void main(String[] args) {
 
-		IntPool pool = new IntPool(0, 1024);
+		IntPool pool = new SynchronizedIntPool(0, 1024);
 
 		List<Integer> ids = new ArrayList<Integer>();
 
@@ -26,16 +27,19 @@ public class IntPoolTest {
 			int id = ids.remove(ran.nextInt(ids.size()));
 			pool.free(id);
 			if (ids.size() == 50) {
-				System.out.println("During free:");
-				System.out.println(pool);
+				break;
 			}
 		}
 
-		System.out.println("After free:");
+		System.out.println("After partial free:");
 		System.out.println(pool);
 
-		System.out.println("Next id: " + pool.alloc());
-
+		for (int i = 0; i < 10; i++) {
+			System.out.println("Next id: " + pool.alloc());
+		}
+		
+		System.out.println("At end:");
+		System.out.println(pool);
 	}
 
 }

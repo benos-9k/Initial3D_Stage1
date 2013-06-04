@@ -4,9 +4,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Synchronized subtype of IntPool. Uses busy waiting to avoid putting the waiting thread to sleep for exceedingly long
- * periods of time.
- * 
+ * Synchronized subtype of IntPool. Uses busy waiting to avoid putting the waiting thread to sleep, as the time spent
+ * asleep would far exceed the time necessary to wait before the lock was available.
+ *
  * @author Ben Allen
  *
  */
@@ -14,6 +14,14 @@ public class SynchronizedIntPool extends IntPool {
 
 	private final Lock lock = new ReentrantLock();
 
+	/**
+	 * Construct a SynchronizedIntPool with the specified range.
+	 *
+	 * @param min_
+	 *            Inclusive lower bound
+	 * @param max_
+	 *            Exclusive upper bound
+	 */
 	public SynchronizedIntPool(int min_, int max_) {
 		super(min_, max_);
 	}

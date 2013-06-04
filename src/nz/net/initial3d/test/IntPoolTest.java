@@ -10,7 +10,7 @@ public class IntPoolTest {
 
 	public static void main(String[] args) {
 
-		IntPool pool = new IntPool(0, 100);
+		IntPool pool = new IntPool(0, 1024);
 
 		List<Integer> ids = new ArrayList<Integer>();
 
@@ -19,7 +19,7 @@ public class IntPoolTest {
 		}
 
 		System.out.println("After alloc:");
-		pool.print();
+		System.out.println(pool);
 
 		Random ran = new Random();
 		while (!ids.isEmpty()) {
@@ -27,12 +27,14 @@ public class IntPoolTest {
 			pool.free(id);
 			if (ids.size() == 50) {
 				System.out.println("During free:");
-				pool.print();
+				System.out.println(pool);
 			}
 		}
 
 		System.out.println("After free:");
-		pool.print();
+		System.out.println(pool);
+
+		System.out.println("Next id: " + pool.alloc());
 
 	}
 

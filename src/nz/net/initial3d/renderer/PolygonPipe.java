@@ -6,6 +6,8 @@ import sun.misc.Unsafe;
 
 final class PolygonPipe {
 
+	// TODO idea - change to 'GeometryPipe', accept lines / points aswell
+
 	private static final Unsafe unsafe = getUnsafe();
 
 	private final long pPolyTemp;
@@ -33,7 +35,7 @@ final class PolygonPipe {
 	/**
 	 * This pipe is synchronous so can use client-side state (but vector buffers and polygon buffers aren't really
 	 * client state anyway).
-	 * 
+	 *
 	 * @param stride
 	 *            units are array indices
 	 */

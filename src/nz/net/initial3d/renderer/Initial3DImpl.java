@@ -3,10 +3,10 @@ package nz.net.initial3d.renderer;
 import static nz.net.initial3d.renderer.Util.*;
 import static nz.net.initial3d.renderer.Type.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import nz.net.initial3d.*;
@@ -17,8 +17,11 @@ public final class Initial3DImpl extends Initial3D {
 	private static final Unsafe unsafe = getUnsafe();
 
 	// exposed methods and enum constants
-	private final List<String> exposed_methods = new ArrayList<String>();
-	private final List<String> exposed_enums = new ArrayList<String>();
+	private static final Set<String> exposed_methods = new HashSet<String>();
+	private static final Set<String> exposed_enums = new HashSet<String>();
+
+	// map api enums to enable bits
+	private static final Map<Integer, Integer> enable_bits = new HashMap<Integer, Integer>();
 
 	// enum constants
 	public static final int ALPHAREF_RANDOM = 999;
@@ -38,10 +41,16 @@ public final class Initial3DImpl extends Initial3D {
 	// state
 	Stack<State> state = new Stack<State>();
 
-	// map api enums to enable bits
-	private static final Map<Integer, Integer> enable_bits = new HashMap<Integer, Integer>();
-
 	static {
+		// expose methods
+		exposed_methods.add("flipZSign");
+		exposed_methods.add("initFog");
+		// expose enum constants
+		exposed_enums.add("I3DX_FOG_A");
+		exposed_enums.add("I3DX_FOG_B");
+		exposed_enums.add("ALPHAREF_RANDOM");
+		exposed_enums.add("AUTO_FLIP_ZSIGN");
+		// enum constants -> bit flags
 		enable_bits.put(BUFFER_COLOR0, 0x1);
 		enable_bits.put(BUFFER_COLOR1, 0x2);
 		enable_bits.put(BUFFER_Z, 0x4);
@@ -178,7 +187,6 @@ public final class Initial3DImpl extends Initial3D {
 			// TODO optimise matrix re-calculation
 			Mat4 mv = modelview.peek();
 			Mat4 p = projection.peek();
-			// TODO check normal matrix formula
 			Mat4 n = mv.inv().xpose();
 			// texture matrix not exposed yet
 			Mat4 t = new Mat4();
@@ -655,53 +663,175 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		void stencilOpSeparate(int face, int sfail, int dfail, int dpass) {
-			// TODO Auto-generated method stub
+		private int stencilOpSanitise(int op) {
+			switch (op) {
+			case ZERO:
+				return 0;
+			case KEEP:
+				return 1;
+			case REPLACE:
+				return 2;
+			case INCR:
+				return 3;
+			case INCR_WRAP:
+				return 4;
+			case DECR:
+				return 5;
+			case DECR_WRAP:
+				return 6;
+			case INVERT:
+				return 7;
+			default:
+				throw nope("Invalid enum.");
+			}
+		}
 
+		void stencilOpSeparate(int face, int sfail, int dfail, int dpass) {
+			sfail = stencilOpSanitise(sfail);
+			dfail = stencilOpSanitise(dfail);
+			dpass = stencilOpSanitise(dpass);
+			switch (face) {
+			case FRONT:
+				unsafe.putInt(pBase + i3d_t.stencil_op_front_sfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_front_dfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_front_dpass(), sfail);
+				break;
+			case BACK:
+				unsafe.putInt(pBase + i3d_t.stencil_op_back_sfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_back_dfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_back_dpass(), sfail);
+				break;
+			case FRONT_AND_BACK:
+				unsafe.putInt(pBase + i3d_t.stencil_op_front_sfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_front_dfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_front_dpass(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_back_sfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_back_dfail(), sfail);
+				unsafe.putInt(pBase + i3d_t.stencil_op_back_dpass(), sfail);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void light(int light, int param, double v) {
-			// TODO Auto-generated method stub
-
+			if (light < 0 || light >= i3d_t.MAX_LIGHTS()) throw nope("Invalid enum.");
+			long pLight = pBase + i3d_t.light0() + light_t.SIZEOF() * light;
+			switch (param) {
+			case CONSTANT_ATTENUATION:
+				unsafe.putFloat(pLight + light_t.constant_attenuation(), (float) v);
+				break;
+			case LINEAR_ATTENUATION:
+				unsafe.putFloat(pLight + light_t.linear_attenuation(), (float) v);
+				break;
+			case QUADRATIC_ATTENUATION:
+				unsafe.putFloat(pLight + light_t.quadratic_attenuation(), (float) v);
+				break;
+			case SPOT_CUTOFF:
+				unsafe.putFloat(pLight + light_t.spot_cutoff(), (float) Math.cos(v));
+				break;
+			case SPOT_EXPONENT:
+				unsafe.putFloat(pLight + light_t.spot_exp(), (float) v);
+				break;
+			case EFFECT_RADIUS:
+				unsafe.putFloat(pLight + light_t.inv_effect_rad(), (float) (1 / v));
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void light(int light, int param, double f0, double f1, double f2, double f3) {
-			// TODO Auto-generated method stub
-
+			if (light < 0 || light >= i3d_t.MAX_LIGHTS()) throw nope("Invalid enum.");
+			long pLight = pBase + i3d_t.light0() + light_t.SIZEOF() * light;
+			switch (param) {
+			// colors given as rgba, stored as argb
+			case AMBIENT:
+				writeVector_float(unsafe, pLight + light_t.ia_a(), (float) f3, (float) f0, (float) f1, (float) f2);
+				break;
+			case DIFFUSE:
+				writeVector_float(unsafe, pLight + light_t.id_a(), (float) f3, (float) f0, (float) f1, (float) f2);
+				break;
+			case SPECULAR:
+				writeVector_float(unsafe, pLight + light_t.is_a(), (float) f3, (float) f0, (float) f1, (float) f2);
+				break;
+			case POSITION:
+				// transform position through modelview and homogenise
+				Vec4 pos = modelview.peek().mul(new Vec4(f0, f1, f2, f3)).homogenise();
+				writeVector_float(unsafe, pLight + light_t.pos_x(), (float) pos.x, (float) pos.y, (float) pos.z, 1f);
+				break;
+			case SPOT_DIRECTION:
+				// transform normal through normal transform and normalise
+				Vec3 dir = modelview.peek().inv().xpose().mul(new Vec4(f0, f1, f2, 0)).xyz().unit();
+				writeVector_float(unsafe, pLight + light_t.dir_x(), (float) dir.x, (float) dir.y, (float) dir.z, 0f);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 		}
 
 		void sceneAmbient(double r, double g, double b, double a) {
-			// TODO Auto-generated method stub
-
+			writeVector_float(unsafe, pBase + i3d_t.scene_ambient(), (float) a, (float) r, (float) g, (float) b);
 		}
 
 		void fog(int param, double val) {
-			// TODO Auto-generated method stub
+			switch (param) {
+			case I3DX_FOG_A:
+				unsafe.putFloat(pBase + i3d_t.fog_a(), (float) val);
+				break;
+			case I3DX_FOG_B:
+				unsafe.putFloat(pBase + i3d_t.fog_b(), (float) val);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 
 		}
 
 		void fog(int param, double r, double g, double b, double a) {
-			// TODO Auto-generated method stub
+			switch (param) {
+			case FOG_COLOR:
+				writeVector(unsafe, pBase + i3d_t.fog_color(), (float) a, (float) r, (float) g, (float) b);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 
 		}
 
 		void initFog() {
-			finish();
-			System.out.println("foggity");
 			// TODO init fog
+			finish();
+			loadUnsafeState();
+
 		}
 
 		void cullFace(int face) {
-			// TODO Auto-generated method stub
+			switch (face) {
+			case NONE:
+				unsafe.putInt(pBase + i3d_t.face_cull(), 0);
+				break;
+			case FRONT:
+				unsafe.putInt(pBase + i3d_t.face_cull(), 1);
+				break;
+			case BACK:
+				unsafe.putInt(pBase + i3d_t.face_cull(), 2);
+				break;
+			case FRONT_AND_BACK:
+				unsafe.putInt(pBase + i3d_t.face_cull(), 3);
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
 
 		}
 
 		void nearClip(double z) {
-			// TODO
+			unsafe.putDouble(pBase + i3d_t.near_clip(), z);
 		}
 
 		void farCull(double z) {
-			// TODO
+			unsafe.putDouble(pBase + i3d_t.far_cull(), z);
 		}
 
 		void finish() {
@@ -766,16 +896,6 @@ public final class Initial3DImpl extends Initial3D {
 		rasterpipe = new RasterPipe(rasterthreads_);
 		polypipe = new PolygonPipe();
 		polypipe.connectRasterPipe(rasterpipe);
-
-		// expose methods
-		exposed_methods.add("flipZSign");
-		exposed_methods.add("initFog");
-
-		// expose enum constants
-		exposed_enums.add("I3DX_FOG_A");
-		exposed_enums.add("I3DX_FOG_B");
-		exposed_enums.add("ALPHAREF_RANDOM");
-		exposed_enums.add("AUTO_FLIP_ZSIGN");
 
 		// create default framebuffer
 		default_framebuffer = new FrameBufferImpl();

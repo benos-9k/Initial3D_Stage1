@@ -1,5 +1,6 @@
 package nz.net.initial3d.renderer;
 
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -28,6 +29,10 @@ public class TestTex {
 		while (true) {
 			win.display(img2);
 			Thread.sleep(20);
+
+			if (win.pollKey(KeyEvent.VK_F11)) {
+				win.setFullscreen(!win.isFullscreen());
+			}
 		}
 
 	}

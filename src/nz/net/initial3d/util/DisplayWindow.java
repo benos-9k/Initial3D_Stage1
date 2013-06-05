@@ -772,7 +772,11 @@ public class DisplayWindow extends JFrame implements DisplayTarget {
 	public void pushEvents() {
 		AWTEvent e = null;
 		while ((e = event_queue.poll()) != null) {
-			super.processEvent(e);
+			try {
+				super.processEvent(e);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 

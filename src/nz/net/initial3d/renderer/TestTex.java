@@ -45,12 +45,7 @@ public class TestTex {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					final String s = Thread.currentThread().getName();
-					win.addText(new Object() {
-						@Override
-						public String toString() {
-							return s;
-						}
-					});
+					win.addText(s);
 				}
 			}
 

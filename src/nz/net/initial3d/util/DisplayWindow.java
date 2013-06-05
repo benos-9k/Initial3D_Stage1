@@ -1,5 +1,6 @@
-package nz.net.initial3d;
+package nz.net.initial3d.util;
 
+import java.awt.AWTEvent;
 import java.awt.AWTException;
 import java.awt.Cursor;
 import java.awt.GraphicsDevice;
@@ -23,19 +24,28 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-/** JFrame specialised for game-oriented active rendering. */
-public class DisplayWindow extends JFrame {
+/**
+ * JFrame specialised for game-oriented active rendering. Mostly threadsafe.
+ *
+ * @author Ben Allen
+ *
+ */
+public class DisplayWindow extends JFrame implements DisplayTarget {
 
 	private static final long serialVersionUID = 1L;
 
@@ -49,7 +59,13 @@ public class DisplayWindow extends JFrame {
 	private Canvas canvas;
 	private BufferStrategy bs;
 	private long t_lastbad = 0;
-	private final LinkedList<Long> ftimes = new LinkedList<Long>();
+	private final List<Long> ftimes = new LinkedList<Long>();
+	private final List<Object> display_text = new ArrayList<Object>();
+
+	// draw control
+	private volatile boolean draw_crosshair = false;
+	private volatile boolean draw_fps = true;
+	private volatile boolean draw_text = true;
 
 	// TODO check ranges of key / button ids
 
@@ -68,10 +84,6 @@ public class DisplayWindow extends JFrame {
 	private volatile boolean mousecaptured = false;
 	private volatile boolean prev_mousecaptured = false;
 
-	// draw control
-	private volatile boolean draw_crosshair = false;
-	private volatile boolean draw_fps = true;
-
 	// cursor to change to when making it visible
 	private volatile Cursor oldcursor = Cursor.getDefaultCursor();
 	// invisible cursor
@@ -79,6 +91,10 @@ public class DisplayWindow extends JFrame {
 
 	// mechanism for moving the mouse cursor
 	private final Robot robot;
+
+	// event dispatch control
+	private volatile boolean events_synchronous = false;
+	private final BlockingQueue<AWTEvent> event_queue = new LinkedBlockingQueue<AWTEvent>();
 
 	static {
 		// hack to fix awful flicker on resize (well, make it slightly less awful)
@@ -102,20 +118,6 @@ public class DisplayWindow extends JFrame {
 
 		BufferedImage cursorimg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		blankcursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorimg, new Point(0, 0), "blankcursor");
-
-		// automatically release mouse on focus lost and restore when focus gained
-		this.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				DisplayWindow.this.setMouseCapture(DisplayWindow.this.prev_mousecaptured);
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				DisplayWindow.this.prev_mousecaptured = DisplayWindow.this.isMouseCaptured();
-				DisplayWindow.this.setMouseCapture(false);
-			}
-		});
 
 		try {
 			robot = new Robot();
@@ -180,14 +182,17 @@ public class DisplayWindow extends JFrame {
 		canvas.removeMouseWheelListener(ml);
 	}
 
+	@Override
 	public int getDisplayWidth() {
 		return canvas.getWidth();
 	}
 
+	@Override
 	public int getDisplayHeight() {
 		return canvas.getHeight();
 	}
 
+	@Override
 	public void display(BufferedImage bi) {
 		lock_display.lock();
 		try {
@@ -225,7 +230,13 @@ public class DisplayWindow extends JFrame {
 					// maxdt, ft, mindt, ct - t_lastbad), 5, 15);
 					if (draw_fps) {
 						g.setColor(Color.WHITE);
-						g.drawString(String.format("%.0f FPS", fr), 5, 15);
+						g.drawString(String.format("%.0f", fr), 5, 15);
+					}
+					if (draw_text) {
+						g.setColor(Color.WHITE);
+						for (int y = 27, i = 0; i < display_text.size(); y += 12, i++) {
+							g.drawString(display_text.get(i).toString(), 5, y);
+						}
 					}
 					if (draw_crosshair) {
 						g.setColor(Color.WHITE);
@@ -260,7 +271,7 @@ public class DisplayWindow extends JFrame {
 	 * Get the current state of a key.
 	 *
 	 * @param vk
-	 *            The virtual key code of the key to check
+	 *            The virtual key code of the key to check, per <code>java.awt.KeyEvent</code>
 	 * @return True iff the key is down
 	 */
 	public boolean getKey(int vk) {
@@ -584,6 +595,74 @@ public class DisplayWindow extends JFrame {
 		return draw_fps;
 	}
 
+	public void setTextVisible(boolean b) {
+		draw_text = b;
+	}
+
+	public boolean isTextVisible() {
+		return draw_text;
+	}
+
+	public void addText(Object o) {
+		lock_display.lock();
+		try {
+			display_text.add(o);
+		} finally {
+			lock_display.unlock();
+		}
+	}
+
+	public void addText(int i, Object o) {
+		lock_display.lock();
+		try {
+			display_text.add(i, o);
+		} finally {
+			lock_display.unlock();
+		}
+	}
+
+	public void removeText(Object o) {
+		lock_display.lock();
+		try {
+			display_text.remove(o);
+		} finally {
+			lock_display.unlock();
+		}
+	}
+
+	public void removeText(int i) {
+		lock_display.lock();
+		try {
+			display_text.remove(i);
+		} finally {
+			lock_display.unlock();
+		}
+	}
+
+	/**
+	 * Set whether events should be processed on the AWT event thread as normal (asynchronous), or queued up to be
+	 * processed by a call to <code>pushEvents()</code>.
+	 * <p>
+	 * WARNING: This doesn't seem to break anything, but no guarantees. Use with caution.
+	 * </p>
+	 *
+	 * @param b
+	 *            True iff events should be queued
+	 */
+	public void setEventsSynchronous(boolean b) {
+		events_synchronous = b;
+	}
+
+	/**
+	 * Determine whether events will be processed on the AWT event thread as normal (asynchronous), or queued up to be
+	 * processed by a call to <code>pushEvents()</code>.
+	 *
+	 * @return True iff events will be queued
+	 */
+	public boolean areEventsSynchronous() {
+		return events_synchronous;
+	}
+
 	@Override
 	protected void processKeyEvent(KeyEvent ke) {
 		while (!lock_keys.tryLock())
@@ -653,6 +732,48 @@ public class DisplayWindow extends JFrame {
 			lock_mouse.unlock();
 		}
 		super.processMouseWheelEvent(me);
+	}
+
+	@Override
+	protected void processFocusEvent(FocusEvent e) {
+		// automatically release mouse on focus lost and restore when focus gained
+		while (!lock_mouse.tryLock())
+			;
+		try {
+			if (e.getID() == FocusEvent.FOCUS_GAINED) {
+				DisplayWindow.this.mousecaptured = DisplayWindow.this.prev_mousecaptured;
+			} else if (e.getID() == FocusEvent.FOCUS_LOST) {
+				DisplayWindow.this.prev_mousecaptured = DisplayWindow.this.mousecaptured;
+				DisplayWindow.this.mousecaptured = false;
+			}
+		} finally {
+			lock_mouse.unlock();
+		}
+		super.processFocusEvent(e);
+	}
+
+	@Override
+	protected void processEvent(AWTEvent e) {
+		if (events_synchronous) {
+			// queue event for later processing
+			event_queue.add(e);
+		} else {
+			// process any pending events, then normal behaviour
+			pushEvents();
+			super.processEvent(e);
+		}
+	}
+
+	/**
+	 * Push all pending events. Event listeners will be called from the thread that calls this method. Events must be
+	 * set to synchronous for this method to do anything, however it is not an error to call this method when normal
+	 * event dispatch is in use.
+	 */
+	public void pushEvents() {
+		AWTEvent e = null;
+		while ((e = event_queue.poll()) != null) {
+			super.processEvent(e);
+		}
 	}
 
 }

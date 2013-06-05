@@ -8,7 +8,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import nz.net.initial3d.DisplayWindow;
+import nz.net.initial3d.util.DisplayWindow;
 
 public class DisplayWindowTest {
 

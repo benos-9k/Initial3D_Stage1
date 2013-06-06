@@ -150,7 +150,7 @@ final class RasterPipe {
 							rasteriseTriangles(j);
 							break;
 						default:
-							// ignore silently
+							throw nope("Bad raster mode.");
 						}
 					} finally {
 						// this thread is done with it

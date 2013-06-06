@@ -37,12 +37,8 @@ final class GeometryPipe {
 	/**
 	 * This pipe is synchronous so can use client-side state (but vector buffers and polygon buffers aren't really
 	 * client state anyway).
-	 *
-	 * @param stride
-	 *            units are array indices
 	 */
 	void feed(Initial3DImpl.State state, int mode, int[] data, int offset, int count) {
-		final Unsafe unsafe = GeometryPipe.unsafe;
 		int rastermode = 9001;
 		switch (mode) {
 		case POINTS:
@@ -54,12 +50,13 @@ final class GeometryPipe {
 		case POLYGONS:
 			rastermode = RasterPipe.TRIANGLES;
 		default:
+			throw nope("Bad geometry mode.");
 		}
 
 		// allocate memory to hold all transformed vertex data, any vertex data
 		// generated in-pipe and generated raster primitives
 		// FIXME geompipe
-		Buffer buf = Buffer.alloc(9001, RasterPipe.TRIANGLES);
+		Buffer buf = Buffer.alloc(9001);
 
 		// copy unsafe renderer state into buffer
 		// basically copy from pBase into start of buffer

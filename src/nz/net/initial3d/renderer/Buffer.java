@@ -40,6 +40,10 @@ final class Buffer {
 		return s;
 	}
 
+	public static Buffer alloc(int bytes) {
+		return alloc(bytes, 0);
+	}
+
 	public static Buffer alloc(int bytes, int tag) {
 		if (bytes < 1) throw new IllegalArgumentException();
 		int s = sizeindex(bytes);

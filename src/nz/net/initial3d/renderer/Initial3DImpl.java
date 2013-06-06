@@ -86,8 +86,12 @@ public final class Initial3DImpl extends Initial3D {
 		// vertex array structs
 		// [vcount, v, vt, vn, vc0, vc1]
 		final int[] protogeom = new int[2048];
-		int geom_cur = -9001;
+		// index of current primitive (can be == geom_next!)
+		int geom_cur = 0;
+		// index of next vertex
 		int geom_next = 0;
+		// number of primitives
+		int geom_count = 0;
 
 		final Stack<Mat4> modelview;
 		final Stack<Mat4> projection;
@@ -154,6 +158,7 @@ public final class Initial3DImpl extends Initial3D {
 			System.arraycopy(other_.protogeom, 0, protogeom, 0, protogeom.length);
 			geom_cur = other_.geom_cur;
 			geom_next = other_.geom_next;
+			geom_count = other_.geom_count;
 
 			// copy matrices
 			modelview = new Stack<Mat4>();
@@ -421,8 +426,10 @@ public final class Initial3DImpl extends Initial3D {
 
 		void begin(int mode) {
 			// reset proto-geometry
-			geom_cur = -9001;
+			geom_cur = 0;
 			geom_next = 0;
+			geom_count = 0;
+			protogeom[0] = 0;
 			// clear buffers
 			begin_vbo_v.clear();
 			begin_vbo_vt.clear();
@@ -435,12 +442,70 @@ public final class Initial3DImpl extends Initial3D {
 			begin_vbo_vn.add(0, 0, 0, 0);
 			begin_vbo_c0.add(1, 1, 1, 1);
 			begin_vbo_c1.add(1, 1, 1, 1);
-
+			// sanitise mode
 			switch (mode) {
 			case POINTS:
+			case LINES:
+			case LINE_STRIP:
+			case LINE_LOOP:
+			case TRIANGLES:
+			case TRIANGLE_STRIP:
+			case TRIANGLE_FAN:
+			case QUADS:
+			case QUAD_STRIP:
+			case POLYGON:
+				// a-ok
+				break;
+			default:
+				throw nope("Invalid enum.");
+			}
+			begin_mode = mode;
+		}
 
+		private void writeVertex() {
+			// [vcount, v, vt, vn, vc0, vc1]
+			protogeom[geom_next] = 0;
+			protogeom[geom_next + 1] = begin_vbo_v.count() - 1;
+			protogeom[geom_next + 2] = begin_vbo_vt.count() - 1;
+			protogeom[geom_next + 3] = begin_vbo_vn.count() - 1;
+			protogeom[geom_next + 4] = begin_vbo_c0.count() - 1;
+			protogeom[geom_next + 5] = begin_vbo_c1.count() - 1;
+			geom_next += 6;
+			protogeom[geom_cur]++;
+		}
+
+		private void copyVertex(int n) {
+			copyVertexAbs(geom_next - 6 * n);
+		}
+
+		private void copyVertexAbs(int from) {
+			// [vcount, v, vt, vn, vc0, vc1]
+			protogeom[geom_next] = 0;
+			protogeom[geom_next + 1] = protogeom[from + 1];
+			protogeom[geom_next + 2] = protogeom[from + 2];
+			protogeom[geom_next + 3] = protogeom[from + 3];
+			protogeom[geom_next + 4] = protogeom[from + 4];
+			protogeom[geom_next + 5] = protogeom[from + 5];
+			geom_next += 6;
+			protogeom[geom_cur]++;
+		}
+
+		private void nextPrimitive() {
+			geom_cur = geom_next;
+			protogeom[geom_cur] = 0;
+			geom_count++;
+		}
+
+		void vertex(double x, double y, double z) {
+			begin_vbo_v.add(x, y, z, 1);
+			// bind to previously set normal / texcoord / etc.
+			switch (begin_mode) {
+			case POINTS:
+				writeVertex();
+				nextPrimitive();
 				break;
 			case LINES:
+				writeVertex();
 
 				break;
 			case LINE_STRIP:
@@ -468,26 +533,7 @@ public final class Initial3DImpl extends Initial3D {
 
 				break;
 			default:
-				throw nope("Invalid enum.");
-			}
-
-			begin_mode = mode;
-		}
-
-		void vertex(double x, double y, double z) {
-			begin_vbo_v.add(x, y, z, 1);
-			// bind to previously set normal / texcoord
-			switch (begin_mode) {
-			case POLYGON:
-				int vcount = protogeom[0] + 1;
-				protogeom[0] = vcount;
-				protogeom[vcount * 4] = begin_vbo_v.count() - 1;
-				protogeom[vcount * 4 + 1] = begin_vbo_vt.count() - 1;
-				protogeom[vcount * 4 + 2] = begin_vbo_vn.count() - 1;
-				protogeom[vcount * 4 + 3] = begin_vbo_c0.count() - 1;
-				break;
-			default:
-				throw nope("WTF?!");
+				throw nope("Bad begin mode.");
 			}
 		}
 
@@ -509,8 +555,28 @@ public final class Initial3DImpl extends Initial3D {
 
 		void end() {
 			loadUnsafeState();
-			// TODO end()
-
+			int geommode = 9001;
+			switch (begin_mode) {
+			case POINTS:
+				geommode = GeometryPipe.POINTS;
+				break;
+			case LINES:
+			case LINE_STRIP:
+			case LINE_LOOP:
+				geommode = GeometryPipe.LINE_STRIPS;
+				break;
+			case TRIANGLES:
+			case TRIANGLE_STRIP:
+			case TRIANGLE_FAN:
+			case QUADS:
+			case QUAD_STRIP:
+			case POLYGON:
+				geommode = GeometryPipe.POLYGONS;
+				break;
+			default:
+				throw nope("Bad begin mode.");
+			}
+			geompipe.feed(this, geommode, protogeom, 0, geom_count);
 		}
 
 		void material(int face, int param, double f) {

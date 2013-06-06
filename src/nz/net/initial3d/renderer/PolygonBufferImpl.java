@@ -4,6 +4,9 @@ import nz.net.initial3d.*;
 
 final class PolygonBufferImpl extends PolygonBuffer {
 
+	// idea:
+	// change PolygonBuffer into GeometryBuffer...
+
 	final int[] pdata;
 	final int capacity, maxv, stride;
 	int count = 0;

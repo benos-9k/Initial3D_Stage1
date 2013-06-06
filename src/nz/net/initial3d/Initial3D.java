@@ -169,9 +169,16 @@ public abstract class Initial3D {
 	public static final int PROJECTION = 11201;
 
 	// begin modes
-	public static final int POLYGON = 11300;
-	public static final int LINE_STRIP = 11301;
-	public static final int LINE_LOOP = 11302;
+	public static final int POINTS = 11300;
+	public static final int LINES = 11301;
+	public static final int LINE_STRIP = 11302;
+	public static final int LINE_LOOP = 11303;
+	public static final int TRIANGLES = 11304;
+	public static final int TRIANGLE_STRIP = 11305;
+	public static final int TRIANGLE_FAN = 11306;
+	public static final int QUADS = 11307;
+	public static final int QUAD_STRIP = 11308;
+	public static final int POLYGON = 11309;
 
 	public abstract void pushState();
 

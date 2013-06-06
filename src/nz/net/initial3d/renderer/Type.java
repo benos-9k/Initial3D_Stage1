@@ -1229,9 +1229,9 @@ final class Type {
 
 	}
 
-	static final class polyvert_t {
+	static final class vertex_t {
 
-		private polyvert_t() {
+		private vertex_t() {
 			throw new AssertionError();
 		}
 
@@ -1240,8 +1240,7 @@ final class Type {
 			return 64;
 		}
 
-		// need flags word, vertex count if first vertex in poly, 2 colors per
-		// vertex
+		// need flags word, vertex count if first vertex in poly, 2 colors per vertex
 
 	}
 

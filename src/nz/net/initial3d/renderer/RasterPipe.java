@@ -7,8 +7,16 @@ import java.util.concurrent.BlockingQueue;
 
 final class RasterPipe {
 
-	static final int TRIANGLES = 1;
+	// IDEA: interleaved division for better load distribution
+	// block-0 : thread-0
+	// block-1 : thread-1
+	// block-2 : thread-2
+	// block-3 : thread-0 ...and so on
+	// if interleaved, can change viewport without finish!
+
+	static final int POINTS = 1;
 	static final int LINES = 2;
+	static final int TRIANGLES = 3;
 
 	private final WorkerThread[] workers;
 
@@ -26,26 +34,6 @@ final class RasterPipe {
 
 	}
 
-	void setScanlines(int lines) {
-		// IDEA: interleaved division for better load distribution
-		// block-0 : thread-0
-		// block-1 : thread-1
-		// block-2 : thread-2
-		// block-3 : thread-0 ...and so on
-		// if interleaved, can change viewport without finish!
-
-		// scanline division cannot change while rasterisation in progress
-		finish();
-		// divide by blocks of 8 (for rasteriser compatibility)
-		int[] worker_blocks = new int[workers.length];
-		for (int blocks = lines / 8, w = 0; blocks > 0; blocks--, w = (w + 1) % workers.length) {
-			worker_blocks[w]++;
-		}
-		for (int w = 0, yi = 0; w < workers.length; w++) {
-			workers[w].setScanlines(yi, yi += worker_blocks[w] * 8);
-		}
-	}
-
 	/**
 	 * This pipe runs asynchronously, so must not access client-side state.
 	 *
@@ -53,11 +41,12 @@ final class RasterPipe {
 	 *
 	 * @param wb
 	 */
-	void feed(Buffer wb) {
+	void feed(int mode, Buffer wb, long pPrim, int count, Object obj_color0) {
+		Job j = new Job(mode, wb, pPrim, count, obj_color0);
 		for (WorkerThread w : workers) {
 			// acquire for each worker thread
 			wb.acquire();
-			w.feed(wb);
+			w.feed(j);
 		}
 		// main thread is done with it
 		wb.release();
@@ -69,9 +58,26 @@ final class RasterPipe {
 		}
 	}
 
+	private class Job {
+
+		public final int mode;
+		public final Buffer wb;
+		public final long pPrim;
+		public final int count;
+		public final Object obj_color0;
+
+		public Job(int mode_, Buffer wb_, long pPrim_, int count_, Object obj_color0_) {
+			mode = mode_;
+			wb = wb_;
+			pPrim = pPrim_;
+			count = count_;
+			obj_color0 = obj_color0_;
+		}
+	}
+
 	private class WorkerThread extends Thread {
 
-		private BlockingQueue<Buffer> work = new ArrayBlockingQueue<Buffer>(1024);
+		private BlockingQueue<Job> jobs = new ArrayBlockingQueue<Job>(1024);
 		private final Object waiter_begin = new Object();
 		private final Object waiter_finish = new Object();
 		private volatile boolean waiting = true;
@@ -83,13 +89,8 @@ final class RasterPipe {
 			setName("I3D-raster-" + getId());
 		}
 
-		public void setScanlines(int yi_, int yf_) {
-			yi = yi_;
-			yf = yf_;
-		}
-
-		public void feed(Buffer wb) {
-			while (!work.offer(wb)) {
+		public void feed(Job j) {
+			while (!jobs.offer(j)) {
 				// this hopefully shouldn't happen
 				Thread.yield();
 			}
@@ -122,35 +123,38 @@ final class RasterPipe {
 			while (true) {
 				try {
 
-					Buffer wb = work.poll();
-					if (wb == null) {
+					Job j = jobs.poll();
+					if (j == null) {
 						waiting = true;
 						synchronized (waiter_finish) {
 							waiter_finish.notify();
 						}
-						while (wb == null) {
+						while (j == null) {
 							synchronized (waiter_begin) {
 								waiter_begin.wait();
 							}
-							wb = work.poll();
+							j = jobs.poll();
 						}
 					}
 					waiting = false;
 
 					try {
-						switch (wb.getTag()) {
-						case TRIANGLES:
-							rasteriseTriangles(wb);
+						switch (j.mode) {
+						case POINTS:
+							rasterisePoints(j);
 							break;
 						case LINES:
-							rasteriseLines(wb);
+							rasteriseLines(j);
+							break;
+						case TRIANGLES:
+							rasteriseTriangles(j);
 							break;
 						default:
-							// whelp.
+							// ignore silently
 						}
 					} finally {
 						// this thread is done with it
-						wb.release();
+						j.wb.release();
 					}
 
 				} catch (Exception e) {
@@ -162,12 +166,15 @@ final class RasterPipe {
 
 	}
 
-	private void rasteriseTriangles(Buffer wb) {
-		Object obj_color0 = wb.getExtra("OBJ_COLOR0");
+	private void rasterisePoints(Job j) {
 
 	}
 
-	private void rasteriseLines(Buffer wb) {
+	private void rasteriseLines(Job j) {
+
+	}
+
+	private void rasteriseTriangles(Job j) {
 
 	}
 

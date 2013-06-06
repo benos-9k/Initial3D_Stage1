@@ -30,7 +30,7 @@ public final class Initial3DImpl extends Initial3D {
 	public static final int I3DX_FOG_B = 11198;
 
 	// pipes
-	private final PolygonPipe polypipe;
+	private final GeometryPipe geompipe;
 	private final RasterPipe rasterpipe;
 
 	// defaults
@@ -82,7 +82,12 @@ public final class Initial3DImpl extends Initial3D {
 		VectorBufferImpl bound_vbo_v, bound_vbo_vt, bound_vbo_vn, bound_vbo_c0, bound_vbo_c1;
 		int begin_mode = -1;
 		final VectorBufferImpl begin_vbo_v, begin_vbo_vt, begin_vbo_vn, begin_vbo_c0, begin_vbo_c1;
-		final int[] protopoly = new int[256];
+
+		// vertex array structs
+		// [vcount, v, vt, vn, vc0, vc1]
+		final int[] protogeom = new int[2048];
+		int geom_cur = -9001;
+		int geom_next = 0;
 
 		final Stack<Mat4> modelview;
 		final Stack<Mat4> projection;
@@ -146,7 +151,9 @@ public final class Initial3DImpl extends Initial3D {
 			begin_vbo_c0 = new VectorBufferImpl(other_.begin_vbo_c0);
 			begin_vbo_c1 = new VectorBufferImpl(other_.begin_vbo_c1);
 			begin_mode = other_.begin_mode;
-			System.arraycopy(other_.protopoly, 0, protopoly, 0, protopoly.length);
+			System.arraycopy(other_.protogeom, 0, protogeom, 0, protogeom.length);
+			geom_cur = other_.geom_cur;
+			geom_next = other_.geom_next;
 
 			// copy matrices
 			modelview = new Stack<Mat4>();
@@ -413,6 +420,9 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void begin(int mode) {
+			// reset proto-geometry
+			geom_cur = -9001;
+			geom_next = 0;
 			// clear buffers
 			begin_vbo_v.clear();
 			begin_vbo_vt.clear();
@@ -427,15 +437,35 @@ public final class Initial3DImpl extends Initial3D {
 			begin_vbo_c1.add(1, 1, 1, 1);
 
 			switch (mode) {
-			case POLYGON:
-				// clear polygon
-				protopoly[0] = 0;
+			case POINTS:
+
+				break;
+			case LINES:
+
 				break;
 			case LINE_STRIP:
-				nope("LINE_STRIP unimplimented.");
+
 				break;
 			case LINE_LOOP:
-				nope("LINE_LOOP unimplimented.");
+
+				break;
+			case TRIANGLES:
+
+				break;
+			case TRIANGLE_STRIP:
+
+				break;
+			case TRIANGLE_FAN:
+
+				break;
+			case QUADS:
+
+				break;
+			case QUAD_STRIP:
+
+				break;
+			case POLYGON:
+
 				break;
 			default:
 				throw nope("Invalid enum.");
@@ -449,12 +479,12 @@ public final class Initial3DImpl extends Initial3D {
 			// bind to previously set normal / texcoord
 			switch (begin_mode) {
 			case POLYGON:
-				int vcount = protopoly[0] + 1;
-				protopoly[0] = vcount;
-				protopoly[vcount * 4] = begin_vbo_v.count() - 1;
-				protopoly[vcount * 4 + 1] = begin_vbo_vt.count() - 1;
-				protopoly[vcount * 4 + 2] = begin_vbo_vn.count() - 1;
-				protopoly[vcount * 4 + 3] = begin_vbo_c0.count() - 1;
+				int vcount = protogeom[0] + 1;
+				protogeom[0] = vcount;
+				protogeom[vcount * 4] = begin_vbo_v.count() - 1;
+				protogeom[vcount * 4 + 1] = begin_vbo_vt.count() - 1;
+				protogeom[vcount * 4 + 2] = begin_vbo_vn.count() - 1;
+				protogeom[vcount * 4 + 3] = begin_vbo_c0.count() - 1;
 				break;
 			default:
 				throw nope("WTF?!");
@@ -835,9 +865,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void finish() {
-			polypipe.finish();
-			// any other geometric primitive pipe finish()
-			// lines?
+			geompipe.finish();
 		}
 
 		void matrixMode(int mode) {
@@ -894,8 +922,8 @@ public final class Initial3DImpl extends Initial3D {
 
 	public Initial3DImpl(int rasterthreads_) {
 		rasterpipe = new RasterPipe(rasterthreads_);
-		polypipe = new PolygonPipe();
-		polypipe.connectRasterPipe(rasterpipe);
+		geompipe = new GeometryPipe();
+		geompipe.connectRasterPipe(rasterpipe);
 
 		// create default framebuffer
 		default_framebuffer = new FrameBufferImpl();

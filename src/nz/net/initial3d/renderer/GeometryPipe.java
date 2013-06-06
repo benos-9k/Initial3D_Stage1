@@ -4,9 +4,11 @@ import static nz.net.initial3d.renderer.Util.*;
 import static nz.net.initial3d.renderer.Type.*;
 import sun.misc.Unsafe;
 
-final class PolygonPipe {
+final class GeometryPipe {
 
-	// TODO idea - change to 'GeometryPipe', accept lines / points aswell
+	static final int POINTS = 1;
+	static final int LINE_STRIPS = 2;
+	static final int POLYGONS = 3;
 
 	private static final Unsafe unsafe = getUnsafe();
 
@@ -14,8 +16,8 @@ final class PolygonPipe {
 
 	private RasterPipe rasterpipe;
 
-	PolygonPipe() {
-		pPolyTemp = unsafe.allocateMemory(polyvert_t.SIZEOF() * 2048);
+	GeometryPipe() {
+		pPolyTemp = unsafe.allocateMemory(vertex_t.SIZEOF() * 2048);
 	}
 
 	@Override
@@ -39,12 +41,24 @@ final class PolygonPipe {
 	 * @param stride
 	 *            units are array indices
 	 */
-	void feed(Initial3DImpl.State state, int[] data, int offset, int stride, int count) {
-		final Unsafe unsafe = PolygonPipe.unsafe;
-		// final long pBase = this.pBase;
+	void feed(Initial3DImpl.State state, int mode, int[] data, int offset, int count) {
+		final Unsafe unsafe = GeometryPipe.unsafe;
+		int rastermode = 9001;
+		switch (mode) {
+		case POINTS:
+			rastermode = RasterPipe.POINTS;
+			break;
+		case LINE_STRIPS:
+			rastermode = RasterPipe.LINES;
+			break;
+		case POLYGONS:
+			rastermode = RasterPipe.TRIANGLES;
+		default:
+		}
+
 		// allocate memory to hold all transformed vertex data, any vertex data
 		// generated in-pipe and generated raster primitives
-		// FIXME polypipe
+		// FIXME geompipe
 		Buffer buf = Buffer.alloc(9001, RasterPipe.TRIANGLES);
 
 		// copy unsafe renderer state into buffer
@@ -60,8 +74,7 @@ final class PolygonPipe {
 		// -- triangulate
 
 		// feed buffer to raster pipe
-		buf.putExtra("OBJ_COLOR0", state.bound_framebuffer.obj_color0);
-		rasterpipe.feed(buf);
+		rasterpipe.feed(rastermode, buf, 0, 0, state.bound_framebuffer.obj_color0);
 	}
 
 }

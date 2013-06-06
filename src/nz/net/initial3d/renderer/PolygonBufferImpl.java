@@ -8,11 +8,12 @@ final class PolygonBufferImpl extends PolygonBuffer {
 	final int capacity, maxv, stride;
 	int count = 0;
 
-	// stride is in ints
+	// idea:
+	// vertex (array) struct, store vcount in each
+	// can put flags into vcount if needed, only need < 16 bits for actual vcount
+	// [vcount, v, vt, vn, vc0, vc1]
 
-	// poly format: [vcount, -, -, -, v0, vt0, vn0, vc0, v..., vt..., vn..., vc...] - indices into VectorBuffer objects
-	
-	// TODO indices for both colors in polygon buffer?
+	// FIXME change array vertex struct impl!
 
 	PolygonBufferImpl(int capacity_, int maxv_) {
 		if (capacity_ < 1) throw new IllegalArgumentException("Minimum allowed capacity is 1.");
@@ -50,7 +51,7 @@ final class PolygonBufferImpl extends PolygonBuffer {
 		if (v.length < 3) throw new IllegalArgumentException("Less than 3 vertices does not define a valid polygon.");
 		if (vn != null && v.length != vn.length) {
 			throw new IllegalArgumentException("Incorrect size for vn.");
-		} 
+		}
 		if (vt != null && v.length != vt.length) {
 			throw new IllegalArgumentException("Incorrect size for vt.");
 		}

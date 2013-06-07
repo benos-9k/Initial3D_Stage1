@@ -85,13 +85,16 @@ public final class Initial3DImpl extends Initial3D {
 
 		// vertex array structs
 		// [vcount, v, vt, vn, vc0, vc1]
-		final int[] protogeom = new int[2048];
-		// index of current primitive (can be == geom_next!)
-		int geom_cur = 0;
-		// index of next vertex
-		int geom_next = 0;
+		final int[] protogeom = new int[6144];
+		final int[] protoprim = new int[6144];
+		// index of next primitive
+		int prim_next = 0;
 		// number of primitives
-		int geom_count = 0;
+		int prim_count = 0;
+		// index of next vertex
+		int vert_next = 0;
+		// number of vertices
+		int vert_count = 0;
 
 		final Stack<Mat4> modelview;
 		final Stack<Mat4> projection;
@@ -156,9 +159,11 @@ public final class Initial3DImpl extends Initial3D {
 			begin_vbo_c1 = new VectorBufferImpl(other_.begin_vbo_c1);
 			begin_mode = other_.begin_mode;
 			System.arraycopy(other_.protogeom, 0, protogeom, 0, protogeom.length);
-			geom_cur = other_.geom_cur;
-			geom_next = other_.geom_next;
-			geom_count = other_.geom_count;
+			System.arraycopy(other_.protoprim, 0, protoprim, 0, protoprim.length);
+			prim_next = other_.prim_next;
+			prim_count = other_.prim_count;
+			vert_next = other_.vert_next;
+			vert_count = other_.vert_count;
 
 			// copy matrices
 			modelview = new Stack<Mat4>();
@@ -420,16 +425,16 @@ public final class Initial3DImpl extends Initial3D {
 
 		void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
 			loadUnsafeState();
-			// TODO draw polys
-
+			int[] pdata = ((PolygonBufferImpl) pbuf).pdata;
+			geompipe.feed(this, GeometryPipe.POLYGONS, pdata, 0, pbuf.count());
 		}
 
 		void begin(int mode) {
 			// reset proto-geometry
-			geom_cur = 0;
-			geom_next = 0;
-			geom_count = 0;
-			protogeom[0] = 0;
+			prim_next = 0;
+			prim_count = 0;
+			vert_next = 0;
+			vert_count = 0;
 			// clear buffers
 			begin_vbo_v.clear();
 			begin_vbo_vt.clear();
@@ -462,75 +467,90 @@ public final class Initial3DImpl extends Initial3D {
 			begin_mode = mode;
 		}
 
-		private void writeVertex() {
-			// [vcount, v, vt, vn, vc0, vc1]
-			protogeom[geom_next] = 0;
-			protogeom[geom_next + 1] = begin_vbo_v.count() - 1;
-			protogeom[geom_next + 2] = begin_vbo_vt.count() - 1;
-			protogeom[geom_next + 3] = begin_vbo_vn.count() - 1;
-			protogeom[geom_next + 4] = begin_vbo_c0.count() - 1;
-			protogeom[geom_next + 5] = begin_vbo_c1.count() - 1;
-			geom_next += 6;
-			protogeom[geom_cur]++;
-		}
-
-		private void copyVertex(int n) {
-			copyVertexAbs(geom_next - 6 * n);
-		}
-
-		private void copyVertexAbs(int from) {
-			// [vcount, v, vt, vn, vc0, vc1]
-			protogeom[geom_next] = 0;
-			protogeom[geom_next + 1] = protogeom[from + 1];
-			protogeom[geom_next + 2] = protogeom[from + 2];
-			protogeom[geom_next + 3] = protogeom[from + 3];
-			protogeom[geom_next + 4] = protogeom[from + 4];
-			protogeom[geom_next + 5] = protogeom[from + 5];
-			geom_next += 6;
-			protogeom[geom_cur]++;
-		}
-
-		private void nextPrimitive() {
-			geom_cur = geom_next;
-			protogeom[geom_cur] = 0;
-			geom_count++;
+		private void primitive(int... v) {
+			int gvi = prim_next;
+			for (int i = 0; i < v.length; i++, gvi += 6) {
+				int vi = v[i] * 6 + v[i] < 0 ? vert_next : 0;
+				protogeom[gvi] = 0;
+				protogeom[gvi + 1] = protoprim[vi + 1];
+				protogeom[gvi + 2] = protoprim[vi + 2];
+				protogeom[gvi + 3] = protoprim[vi + 3];
+				protogeom[gvi + 4] = protoprim[vi + 4];
+				protogeom[gvi + 5] = protoprim[vi + 5];
+			}
+			// write actual vcount
+			protogeom[prim_next] = v.length;
+			prim_next = gvi;
+			// no resetting vert_next (protoprim accumulates all vertices)
+			vert_count = 0;
 		}
 
 		void vertex(double x, double y, double z) {
 			begin_vbo_v.add(x, y, z, 1);
 			// bind to previously set normal / texcoord / etc.
+			protoprim[vert_next] = 0;
+			protoprim[vert_next + 1] = begin_vbo_v.count() - 1;
+			protoprim[vert_next + 2] = begin_vbo_vt.count() - 1;
+			protoprim[vert_next + 3] = begin_vbo_vn.count() - 1;
+			protoprim[vert_next + 4] = begin_vbo_c0.count() - 1;
+			protoprim[vert_next + 5] = begin_vbo_c1.count() - 1;
+			vert_next += 6;
+			vert_count++;
 			switch (begin_mode) {
 			case POINTS:
-				writeVertex();
-				nextPrimitive();
+				primitive(-1);
 				break;
 			case LINES:
-				writeVertex();
-
+				if (vert_count >= 2) {
+					primitive(-2, -1);
+				}
 				break;
 			case LINE_STRIP:
-
+				// primitive construction on end()
 				break;
 			case LINE_LOOP:
-
+				// primitive construction on end()
 				break;
 			case TRIANGLES:
-
+				if (vert_count >= 3) {
+					primitive(-3, -2, -1);
+				}
 				break;
 			case TRIANGLE_STRIP:
-
+				if (vert_count >= 3) {
+					// initial tri
+					primitive(-3, -2, -1);
+				} else if (prim_count >= 1 && prim_count % 2 == 0) {
+					// acw
+					primitive(-3, -2, -1);
+				} else if (prim_count >= 1 && prim_count % 2 == 1) {
+					// cw
+					primitive(-2, -3, -1);
+				}
 				break;
 			case TRIANGLE_FAN:
-
+				if (vert_count >= 3) {
+					// initial tri
+					primitive(-3, -2, -1);
+				} else if (prim_count >= 1) {
+					primitive(0, -2, -1);
+				}
 				break;
 			case QUADS:
-
+				if (vert_count >= 4) {
+					primitive(-4, -3, -2, -1);
+				}
 				break;
 			case QUAD_STRIP:
-
+				if (vert_count >= 4) {
+					// initial quad
+					primitive(-4, -3, -1, -2);
+				} else if (vert_count >= 2 && prim_count >= 1) {
+					primitive(-4, -3, -1, -2);
+				}
 				break;
 			case POLYGON:
-
+				// primitive construction on end()
 				break;
 			default:
 				throw nope("Bad begin mode.");
@@ -556,27 +576,54 @@ public final class Initial3DImpl extends Initial3D {
 		void end() {
 			loadUnsafeState();
 			int geommode = 9001;
+			int[] v;
 			switch (begin_mode) {
 			case POINTS:
 				geommode = GeometryPipe.POINTS;
 				break;
 			case LINES:
+				geommode = GeometryPipe.LINE_STRIPS;
+				break;
 			case LINE_STRIP:
+				// construct primitive
+				v = new int[vert_count];
+				for (int i = 0; i < v.length; i++) v[i] = i;
+				primitive(v);
+				geommode = GeometryPipe.LINE_STRIPS;
+				break;
 			case LINE_LOOP:
+				// construct primitive
+				v = new int[vert_count + 1];
+				for (int i = 0; i < v.length; i++) v[i] = i;
+				primitive(v);
 				geommode = GeometryPipe.LINE_STRIPS;
 				break;
 			case TRIANGLES:
+				geommode = GeometryPipe.POLYGONS;
+				break;
 			case TRIANGLE_STRIP:
+				geommode = GeometryPipe.POLYGONS;
+				break;
 			case TRIANGLE_FAN:
+				geommode = GeometryPipe.POLYGONS;
+				break;
 			case QUADS:
+				geommode = GeometryPipe.POLYGONS;
+				break;
 			case QUAD_STRIP:
+				geommode = GeometryPipe.POLYGONS;
+				break;
 			case POLYGON:
+				// construct primitive
+				v = new int[vert_count];
+				for (int i = 0; i < v.length; i++) v[i] = i;
+				primitive(v);
 				geommode = GeometryPipe.POLYGONS;
 				break;
 			default:
 				throw nope("Bad begin mode.");
 			}
-			geompipe.feed(this, geommode, protogeom, 0, geom_count);
+			geompipe.feed(this, geommode, protogeom, 0, prim_count);
 		}
 
 		void material(int face, int param, double f) {

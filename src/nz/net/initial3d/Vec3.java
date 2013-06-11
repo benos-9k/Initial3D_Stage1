@@ -248,7 +248,7 @@ public final class Vec3 {
 	 *            Right-hand-side of the cross product.
 	 * @return The magnitude of the cross product.
 	 */
-	public double crossmag(Vec3 rhs) {
+	public double crossMag(Vec3 rhs) {
 		return Math.sqrt(Math.pow(y * rhs.z - z * rhs.y, 2) + Math.pow(z * rhs.x - x * rhs.z, 2)
 				+ Math.pow(x * rhs.y - y * rhs.x, 2));
 	}
@@ -289,8 +289,8 @@ public final class Vec3 {
 	 * @throws IllegalStateException
 	 *             If any of the components of the resulting vector are NaN.
 	 */
-	public Vec3 scaleto(double m) {
-		Vec3 v = mul(invmag() * m);
+	public Vec3 withMag(double m) {
+		Vec3 v = mul(invMag() * m);
 		v.m = m;
 		if (Double.isNaN(v.x + v.y + v.z)) throw new IllegalStateException("NaN bug intercepted in Vec3 scaling.");
 		return v;
@@ -307,7 +307,7 @@ public final class Vec3 {
 	/**
 	 * @return The multiplicative inverse of the magnitude of this Vec3.
 	 */
-	public double invmag() {
+	public double invMag() {
 		if (im < 0) im = 1d / mag();
 		return im;
 	}
@@ -321,7 +321,7 @@ public final class Vec3 {
 	 *             If any of the components of the resulting vector are NaN.
 	 */
 	public Vec3 unit() {
-		Vec3 v = mul(invmag());
+		Vec3 v = mul(invMag());
 		v.m = 1;
 		v.im = 1;
 		if (Double.isNaN(v.x + v.y + v.z))

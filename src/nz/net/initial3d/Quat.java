@@ -85,7 +85,7 @@ public final class Quat {
 	 *            Axis of rotation. Angle of rotation (radians) is equal to its magnitude.
 	 */
 	public Quat(Vec3 rot) {
-		if (Double.isInfinite(rot.invmag())) {
+		if (Double.isInfinite(rot.invMag())) {
 			w = 1;
 			x = 0;
 			y = 0;

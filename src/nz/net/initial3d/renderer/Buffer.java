@@ -10,8 +10,7 @@ import nz.net.initial3d.util.Profiler;
 import sun.misc.Unsafe;
 
 /**
- * Provides a means of recycling memory obtained with malloc, because malloc is
- * slow.
+ * Provides a means of recycling memory obtained with malloc, because malloc is slow.
  *
  * @author Ben Allen
  *
@@ -24,6 +23,7 @@ final class Buffer {
 	private static final BlockingQueue<Buffer>[] buf_queues = new BlockingQueue[31];
 
 	private static final int SEC_MALLOC = Profiler.createSection("Buffer-malloc");
+	private static final int SEC_FREE = Profiler.createSection("Buffer-free");
 
 	static {
 		for (int i = 0; i < buf_queues.length; i++) {
@@ -60,7 +60,7 @@ final class Buffer {
 		}
 		buf.tag = tag;
 		buf.extra = null;
-		buf.acquire();
+		buf.refcount.set(1);
 		return buf;
 	}
 
@@ -99,8 +99,13 @@ final class Buffer {
 			tag = 0;
 			extra = null;
 			if (!buf_queues[sidx].offer(this)) {
-				System.out.println("Buffer free(): " + (1 << sidx) + " bytes.");
-				unsafe.freeMemory(pBuffer);
+				Profiler.enter(SEC_FREE);
+				try {
+					System.out.println("Buffer free(): " + (1 << sidx) + " bytes.");
+					unsafe.freeMemory(pBuffer);
+				} finally {
+					Profiler.exit(SEC_FREE);
+				}
 			}
 			// System.out.println("Returning " + this + " to pool.");
 		}

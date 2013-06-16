@@ -1,6 +1,8 @@
 package nz.net.initial3d.renderer;
 
 import static nz.net.initial3d.renderer.Util.*;
+import static nz.net.initial3d.renderer.Type.*;
+import sun.misc.Unsafe;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -81,8 +83,6 @@ final class RasterPipe {
 		private final Object waiter_begin = new Object();
 		private final Object waiter_finish = new Object();
 		private volatile boolean waiting = true;
-
-		private volatile int yi = 0, yf = 0;
 
 		public WorkerThread() {
 			setDaemon(true);

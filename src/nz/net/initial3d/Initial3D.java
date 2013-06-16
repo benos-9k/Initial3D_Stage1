@@ -260,7 +260,7 @@ public abstract class Initial3D {
 	// if null, revert to default (a fixed buffer with one zero vector)
 	public abstract void bindVertexBuffer(int att, VectorBuffer vbuf);
 
-	public abstract void drawPolygons(PolygonBuffer pbuf, int offset, int count);
+	public abstract void drawGeometry(GeometryBuffer gbuf, int offset, int count);
 
 	public abstract void begin(int mode);
 
@@ -283,7 +283,11 @@ public abstract class Initial3D {
 	}
 
 	public void color(Color c) {
-		color(c.r, c.g, c.b, c.a);
+		color(c, c.a);
+	}
+
+	public void color(Color c, double a) {
+		color(c.r, c.g, c.b, a);
 	}
 
 	public abstract void secondaryColor(double r, double g, double b, double a);
@@ -293,13 +297,37 @@ public abstract class Initial3D {
 	}
 
 	public void secondaryColor(Color c) {
-		secondaryColor(c.r, c.g, c.b, c.a);
+		secondaryColor(c, c.a);
 	}
 
-	public abstract void texCoord(double u, double v);
+	public void secondaryColor(Color c, double a) {
+		secondaryColor(c.r, c.g, c.b, a);
+	}
+
+	public void texCoord(double s) {
+		texCoord(s, 0, 0, 1);
+	}
+
+	public void texCoord(double s, double t) {
+		texCoord(s, t, 0, 1);
+	}
+
+	public void texCoord(double s, double t, double r) {
+		texCoord(s, t, r, 1);
+	}
+
+	public abstract void texCoord(double s, double t, double r, double q);
 
 	public void texCoord(Vec3 v) {
-		texCoord(v.x, v.y);
+		texCoord(v, 1);
+	}
+
+	public void texCoord(Vec3 v, double q) {
+		texCoord(v.x, v.y, v.z, q);
+	}
+
+	public void texCoord(Vec4 v) {
+		texCoord(v.x, v.y, v.z, v.w);
 	}
 
 	public abstract void end();

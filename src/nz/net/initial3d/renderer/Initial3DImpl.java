@@ -80,7 +80,7 @@ public final class Initial3DImpl extends Initial3D {
 
 		FrameBufferImpl bound_framebuffer;
 		VectorBufferImpl bound_vbo_v, bound_vbo_vt, bound_vbo_vn, bound_vbo_c0, bound_vbo_c1;
-		int begin_mode = -1;
+		int begin_mode = 0;
 		final VectorBufferImpl begin_vbo_v, begin_vbo_vt, begin_vbo_vn, begin_vbo_c0, begin_vbo_c1;
 
 		// vertex array structs
@@ -119,11 +119,11 @@ public final class Initial3DImpl extends Initial3D {
 			bound_vbo_c1 = default_vbo_color;
 
 			// create vbos used by begin / end
-			begin_vbo_v = new VectorBufferImpl(1024);
-			begin_vbo_vt = new VectorBufferImpl(1024);
-			begin_vbo_vn = new VectorBufferImpl(1024);
-			begin_vbo_c0 = new VectorBufferImpl(1024);
-			begin_vbo_c1 = new VectorBufferImpl(1024);
+			begin_vbo_v = new VectorBufferImpl();
+			begin_vbo_vt = new VectorBufferImpl();
+			begin_vbo_vn = new VectorBufferImpl();
+			begin_vbo_c0 = new VectorBufferImpl();
+			begin_vbo_c1 = new VectorBufferImpl();
 
 			// setup matrices
 			modelview = new Stack<Mat4>();
@@ -423,10 +423,11 @@ public final class Initial3DImpl extends Initial3D {
 			}
 		}
 
-		void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
+		void drawGeometry(GeometryBuffer gbuf, int offset, int count) {
 			loadUnsafeState();
-			int[] pdata = ((PolygonBufferImpl) pbuf).pdata;
-			geompipe.feed(this, GeometryPipe.POLYGONS, pdata, 0, pbuf.count());
+			if (offset + count > gbuf.count()) throw new IndexOutOfBoundsException();
+			int[] data = ((GeometryBufferImpl) gbuf).getData();
+			geompipe.feed(this, gbuf.mode(), data, offset, count);
 		}
 
 		void begin(int mode) {
@@ -569,8 +570,8 @@ public final class Initial3DImpl extends Initial3D {
 			begin_vbo_c1.add(a, r, g, b);
 		}
 
-		void texCoord(double u, double v) {
-			begin_vbo_vt.add(u, v, 0, 1);
+		void texCoord(double s, double t, double r, double q) {
+			begin_vbo_vt.add(s, t, r, q);
 		}
 
 		void end() {
@@ -624,6 +625,7 @@ public final class Initial3DImpl extends Initial3D {
 				throw nope("Bad begin mode.");
 			}
 			geompipe.feed(this, geommode, protogeom, 0, prim_count);
+			begin_mode = 0;
 		}
 
 		void material(int face, int param, double f) {
@@ -1048,9 +1050,9 @@ public final class Initial3DImpl extends Initial3D {
 		default_tex = new Texture2DImpl(1, 1);
 
 		// create default vector buffers
-		default_vbo = new VectorBufferImpl(1);
+		default_vbo = new VectorBufferImpl();
 		default_vbo.add(0, 0, 0, 0);
-		default_vbo_color = new VectorBufferImpl(1);
+		default_vbo_color = new VectorBufferImpl();
 		default_vbo_color.add(1, 1, 1, 1);
 
 		// setup initial state
@@ -1202,8 +1204,8 @@ public final class Initial3DImpl extends Initial3D {
 	}
 
 	@Override
-	public void drawPolygons(PolygonBuffer pbuf, int offset, int count) {
-		state.peek().drawPolygons(pbuf, offset, count);
+	public void drawGeometry(GeometryBuffer gbuf, int offset, int count) {
+		state.peek().drawGeometry(gbuf, offset, count);
 	}
 
 	@Override
@@ -1232,8 +1234,8 @@ public final class Initial3DImpl extends Initial3D {
 	}
 
 	@Override
-	public void texCoord(double u, double v) {
-		state.peek().texCoord(u, v);
+	public void texCoord(double s, double t, double r, double q) {
+		state.peek().texCoord(s, t, r, q);
 	}
 
 	@Override

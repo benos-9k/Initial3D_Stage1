@@ -49,6 +49,7 @@ final class GeometryPipe {
 			break;
 		case POLYGONS:
 			rastermode = RasterPipe.TRIANGLES;
+			break;
 		default:
 			throw nope("Bad geometry mode.");
 		}

@@ -229,6 +229,10 @@ public abstract class Initial3D {
 		}
 	}
 
+	public abstract VectorBuffer createVectorBuffer();
+	
+	public abstract GeometryBuffer createGeometryBuffer(int mode);
+	
 	public abstract FrameBuffer createFrameBuffer();
 
 	// if null, revert to default

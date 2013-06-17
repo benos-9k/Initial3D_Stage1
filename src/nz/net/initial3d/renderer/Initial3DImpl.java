@@ -242,6 +242,7 @@ public final class Initial3DImpl extends Initial3D {
 		}
 
 		void bindTexture(int target, Texture2D tex) {
+			if (tex == null) tex = default_tex;
 			long pTex = ((Texture2DImpl) tex).pTex;
 			// set texture for front and back mtl
 			switch (target) {
@@ -1127,6 +1128,16 @@ public final class Initial3DImpl extends Initial3D {
 		} catch (Throwable t) {
 			throw nope("Unable to get implementation method " + name, t);
 		}
+	}
+	
+	@Override
+	public VectorBuffer createVectorBuffer() {
+		return new VectorBufferImpl();
+	}
+	
+	@Override
+	public GeometryBuffer createGeometryBuffer(int mode) {
+		return new GeometryBufferImpl(mode);
 	}
 
 	@Override

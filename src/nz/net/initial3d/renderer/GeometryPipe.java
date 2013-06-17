@@ -35,8 +35,7 @@ final class GeometryPipe {
 	}
 
 	/**
-	 * This pipe is synchronous so can use client-side state (but vector buffers and polygon buffers aren't really
-	 * client state anyway).
+	 * This pipe is synchronous so can use client-side state.
 	 */
 	void feed(Initial3DImpl.State state, int mode, int[] data, int offset, int count) {
 		int rastermode = 9001;

@@ -6,6 +6,12 @@ import sun.misc.Unsafe;
 
 final class GeometryPipe {
 
+	// FIXME add primitive type flags to each primitive
+	// implications:
+	//  -	remove geommode, rastermode
+	//  -	addPoint(), addLine(), addLineStrip(), addLineLoop(), addPolygon() in GeometryBuffer
+	//  -	DisplayLists... ?!
+
 	static final int POINTS = 1;
 	static final int LINE_STRIPS = 2;
 	static final int POLYGONS = 3;
@@ -38,6 +44,7 @@ final class GeometryPipe {
 	 * This pipe is synchronous so can use client-side state.
 	 */
 	void feed(Initial3DImpl.State state, int mode, int[] data, int offset, int count) {
+		final long pBase = state.pBase;
 		int rastermode = 9001;
 		switch (mode) {
 		case POINTS:
@@ -53,8 +60,11 @@ final class GeometryPipe {
 			throw nope("Bad geometry mode.");
 		}
 
-		// allocate memory to hold all transformed vertex data, any vertex data
+		// allocate memory to hold unsafe state, all transformed vertex data, any vertex data
 		// generated in-pipe and generated raster primitives
+
+		// v, vt, vn, vv, vc0, vc1
+
 		// FIXME geompipe
 		Buffer buf = Buffer.alloc(9001);
 

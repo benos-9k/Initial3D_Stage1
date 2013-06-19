@@ -102,11 +102,27 @@ public final class Initial3DImpl extends Initial3D {
 		int matrix_mode;
 
 		State() {
+			// memory obtained here is not zeroed!
 			buf_base = Buffer.alloc(i3d_t.SIZEOF(), -1);
 			pBase = buf_base.getPointer();
 
-			// TODO init the unsafe state
+			// init the unsafe state (stuff that's not enabled is left uninitialised)
+			enable(BUFFER_COLOR0);
+			enable(BUFFER_Z);
+			enable(DEPTH_TEST);
+			enable(CULL_FACE);
 			projectionMode(ORTHOGRAPHIC);
+			shadeModel(FLAT);
+			polygonMode(FRONT_AND_BACK, FILL);
+			cullFace(BACK);
+			nearClip(0.1);
+			farCull(100);
+			material(FRONT_AND_BACK, AMBIENT, 0, 0, 0, 1);
+			material(FRONT_AND_BACK, DIFFUSE, 1, 1, 1, 1);
+			material(FRONT_AND_BACK, SPECULAR, 0, 0, 0, 1);
+			material(FRONT_AND_BACK, EMISSION, 0, 0, 0, 1);
+			sceneAmbient(0, 0, 0, 0);
+			depthFunc(LEQUAL);
 
 			// bind default framebuffer
 			bound_framebuffer = default_framebuffer;
@@ -589,14 +605,16 @@ public final class Initial3DImpl extends Initial3D {
 			case LINE_STRIP:
 				// construct primitive
 				v = new int[vert_count];
-				for (int i = 0; i < v.length; i++) v[i] = i;
+				for (int i = 0; i < v.length; i++)
+					v[i] = i;
 				primitive(v);
 				geommode = GeometryPipe.LINE_STRIPS;
 				break;
 			case LINE_LOOP:
 				// construct primitive
 				v = new int[vert_count + 1];
-				for (int i = 0; i < v.length; i++) v[i] = i;
+				for (int i = 0; i < v.length; i++)
+					v[i] = i;
 				primitive(v);
 				geommode = GeometryPipe.LINE_STRIPS;
 				break;
@@ -618,7 +636,8 @@ public final class Initial3DImpl extends Initial3D {
 			case POLYGON:
 				// construct primitive
 				v = new int[vert_count];
-				for (int i = 0; i < v.length; i++) v[i] = i;
+				for (int i = 0; i < v.length; i++)
+					v[i] = i;
 				primitive(v);
 				geommode = GeometryPipe.POLYGONS;
 				break;
@@ -982,6 +1001,9 @@ public final class Initial3DImpl extends Initial3D {
 
 		void finish() {
 			geompipe.finish();
+			if (isEnabled(AUTO_FLIP_ZSIGN)) {
+				flipZSign();
+			}
 		}
 
 		void matrixMode(int mode) {
@@ -1129,12 +1151,12 @@ public final class Initial3DImpl extends Initial3D {
 			throw nope("Unable to get implementation method " + name, t);
 		}
 	}
-	
+
 	@Override
 	public VectorBuffer createVectorBuffer() {
 		return new VectorBufferImpl();
 	}
-	
+
 	@Override
 	public GeometryBuffer createGeometryBuffer(int mode) {
 		return new GeometryBufferImpl(mode);
